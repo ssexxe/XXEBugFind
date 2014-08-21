@@ -1,0 +1,39 @@
+Soot started on Thu Aug 21 11:42:44 BST 2014
+Warning: java.dyn.InvokeDynamic is a phantom class!
+Warning: org.dom4j.Document is a phantom class!
+Warning: org.dom4j.io.XMLWriter is a phantom class!
+Warning: org.dom4j.DocumentException is a phantom class!
+Warning: org.dom4j.io.SAXReader is a phantom class!
+Warning: org.dom4j.io.OutputFormat is a phantom class!
+Warning: org.dom4j.Attribute is a phantom class!
+Warning: org.dom4j.ProcessingInstruction is a phantom class!
+Warning: org.dom4j.QName is a phantom class!
+Warning: org.dom4j.CDATA is a phantom class!
+Warning: org.dom4j.Text is a phantom class!
+Warning: org.dom4j.Element is a phantom class!
+Warning: org.dom4j.Branch is a phantom class!
+Warning: org.dom4j.Node is a phantom class!
+Warning: org.dom4j.Comment is a phantom class!
+Warning: org.dom4j.Namespace is a phantom class!
+Warning: org.jdom.Comment is a phantom class!
+Warning: org.jdom.Element is a phantom class!
+Warning: org.jdom.Text is a phantom class!
+Warning: org.jdom.Document is a phantom class!
+Warning: org.jdom.ProcessingInstruction is a phantom class!
+Warning: org.jdom.input.SAXBuilder is a phantom class!
+Warning: org.jdom.Namespace is a phantom class!
+Warning: org.jdom.Parent is a phantom class!
+Warning: org.jdom.CDATA is a phantom class!
+Warning: org.jdom.Attribute is a phantom class!
+Warning: nu.xom.Element is a phantom class!
+Warning: nu.xom.Attribute is a phantom class!
+Warning: nu.xom.Text is a phantom class!
+Warning: nu.xom.Document is a phantom class!
+Warning: nu.xom.Node is a phantom class!
+Warning: nu.xom.Comment is a phantom class!
+Warning: nu.xom.NodeFactory is a phantom class!
+Warning: nu.xom.ParentNode is a phantom class!
+Warning: nu.xom.ProcessingInstruction is a phantom class!
+Warning: nu.xom.Builder is a phantom class!
+No main class given. Inferred 'a.PrettyPrinter' as main class.
+[Call Graph] For information on where the call graph may be incomplete, use the verbose option to the cg phase.
