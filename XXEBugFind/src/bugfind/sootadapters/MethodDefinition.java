@@ -8,6 +8,10 @@ package bugfind.sootadapters;
 
 import java.util.ArrayList;
 import java.util.List;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
 import soot.Scene;
 import soot.SootClass;
 import soot.SootMethod;
@@ -17,11 +21,22 @@ import soot.Type;
  *
  * @author Mikosh
  */
+@XmlRootElement
+@XmlAccessorType (XmlAccessType.FIELD)
 public class MethodDefinition {
+    @XmlElement (name = "ClassName")
     private String className;
-    private String methodName;
+    
+    @XmlElement (name = "MethodName")
+    private String methodName;    
+    
+    @XmlElement (name = "MethodParameter")
     private List<MethodParameter> parameterList;
+    
+    @XmlElement (name = "ReturnType")
     private String returnType;
+
+    public MethodDefinition() {}
 
     public MethodDefinition(String className, String methodName, List<MethodParameter> parameterList, String returnType) {
         this.className = className;
@@ -68,10 +83,17 @@ public class MethodDefinition {
     
     
     
-    
+    @XmlRootElement
+    @XmlAccessorType (XmlAccessType.FIELD)
     public static class MethodParameter {
+        @XmlElement (name = "ParameterType")
         String type;
+        
+        @XmlElement (name = "ParameterName")
         String name;
+
+        public MethodParameter() {
+        }
 
         public MethodParameter(String type, String name) {
             this.type = type;

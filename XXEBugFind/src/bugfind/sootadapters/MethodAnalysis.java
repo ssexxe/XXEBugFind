@@ -7,9 +7,12 @@
 package bugfind.sootadapters;
 
 import bugfind.xxe.MethodParameterValue;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import soot.ArrayType;
+import soot.Local;
 import soot.NullType;
 import soot.PrimType;
 import soot.RefType;
@@ -20,14 +23,24 @@ import soot.Unit;
 import soot.Value;
 import soot.ValueBox;
 import soot.jimple.Constant;
+import soot.jimple.IntConstant;
 import soot.jimple.Stmt;
+import soot.jimple.internal.JArrayRef;
 import soot.jimple.internal.JAssignStmt;
 import soot.jimple.internal.JInstanceFieldRef;
 import soot.jimple.internal.JInvokeStmt;
+import soot.jimple.internal.JNeExpr;
+import soot.jimple.internal.JNewExpr;
 import soot.jimple.internal.JStaticInvokeExpr;
+import soot.jimple.internal.JVirtualInvokeExpr;
 import soot.jimple.internal.JimpleLocal;
+import soot.jimple.internal.JimpleLocalBox;
 import soot.jimple.toolkits.callgraph.CallGraph;
 import soot.jimple.toolkits.callgraph.Edge;
+import soot.toolkits.graph.ExceptionalUnitGraph;
+import soot.toolkits.graph.UnitGraph;
+import soot.toolkits.scalar.CombinedAnalysis;
+import soot.toolkits.scalar.CombinedDUAnalysis;
 
 /**
  *
@@ -125,74 +138,124 @@ public class MethodAnalysis {
         return callGraph;
     }
     
-    public Variable getDefinedVariable(JAssignStmt stmt) {
-        Value v = stmt.getLeftOp();
+    protected Variable convertToVariable(JArrayRef ar) {        
+        Type arrayRefType = ar.getType();
+        String typeName = null;
+        
+        if (arrayRefType instanceof PrimType) {
+            typeName = ((PrimType) arrayRefType).getClass().getName();
+        } else if (arrayRefType instanceof RefType) {
+            typeName = ((RefType) arrayRefType).getClassName();
+        } else if (arrayRefType instanceof NullType) {
+            typeName = null; //NSOT//((NullType)localvartype).getClassName();
+        } else if (arrayRefType instanceof ArrayType) {
+            typeName = arrayRefType.toString();
+        } else {
+            throw new RuntimeException("Currently cannot support variable of type " + arrayRefType);
+        }
+
+        Value base = ar.getBase();
+        int varType = 0;
+        String varName = null;
+        
+        if (base instanceof JimpleLocal) {
+            varName = ((JimpleLocal)base).getName() + "[" + ar.getIndex() + "]";
+            varType = Variable.LOCAL_VARIABLE;
+        }
+        else if (base instanceof JInstanceFieldRef) {            
+            JInstanceFieldRef fr = (JInstanceFieldRef) base;
+            SootField sf = fr.getField();
+            varName = sf.getName() + "[" + ar.getIndex() + "]";            
+            varType = (sf.isStatic()) ? Variable.STATIC_VARIABLE
+                    : Variable.FIELD_VARIABLE;
+        }
+        else if (base instanceof SootField) {
+            SootField sf = (SootField) base;
+            varName = sf.getName() + "[" + ar.getIndex() + "]";
+            varType = (sf.isStatic()) ? Variable.STATIC_VARIABLE
+                    : Variable.FIELD_VARIABLE;
+        }        
+        
+        Variable retVal = new Variable(varName, typeName, varType);
+        return retVal;
+    }
+    
+    protected Variable convertToVariable(Value v) {
         if (v instanceof JimpleLocal) {
             JimpleLocal jl = (JimpleLocal) v;
-         
+
             Type localvartype = v.getType();
-            
+
             String typeName = null;
             if (localvartype instanceof PrimType) {
-                typeName = ((PrimType)localvartype).getClass().getName();
-            }
-            else if (localvartype instanceof RefType) {
-                typeName = ((RefType)localvartype).getClassName();
-            }
-            else if (localvartype instanceof NullType) {
+                typeName = ((PrimType) localvartype).getClass().getName();
+            } else if (localvartype instanceof RefType) {
+                typeName = ((RefType) localvartype).getClassName();
+            } else if (localvartype instanceof NullType) {
                 typeName = null; //NSOT//((NullType)localvartype).getClassName();
-            }
-            else {
+            } else if (localvartype instanceof ArrayType) {
+                typeName = localvartype.toString();
+            } else {
                 throw new RuntimeException("Currently cannot support variable of type " + localvartype);
             }
             Variable retVal = new Variable(jl.getName(), typeName, Variable.LOCAL_VARIABLE);
             return retVal;
-        }
-        else if (v instanceof JInstanceFieldRef) {
+        } else if (v instanceof JInstanceFieldRef) {
             JInstanceFieldRef fr = (JInstanceFieldRef) v;
-            
+
             SootField sf = fr.getField();
-         
+
             Type sootfieldType = v.getType();
-            
+
             String typeName = null;
             if (sootfieldType instanceof PrimType) {
-                typeName = ((PrimType)sootfieldType).getClass().getName();
-            }
-            else if (sootfieldType instanceof RefType) {
-                typeName = ((RefType)sootfieldType).getClassName();
-            }
-            else {
+                typeName = ((PrimType) sootfieldType).getClass().getName();
+            } else if (sootfieldType instanceof RefType) {
+                typeName = ((RefType) sootfieldType).getClassName();
+            } else if (sootfieldType instanceof NullType) {
+                typeName = null; //NSOT//((NullType)localvartype).getClassName();
+            } else if (sootfieldType instanceof ArrayType) {
+                typeName = sootfieldType.toString();
+            } else {
                 throw new RuntimeException("Currently cannot support variable of type " + sootfieldType);
             }
-           
-            Variable retVal = new Variable(sf.getName(), typeName, (sf.isStatic()) ? Variable.STATIC_VARIABLE 
+
+            Variable retVal = new Variable(sf.getName(), typeName, (sf.isStatic()) ? Variable.STATIC_VARIABLE
                     : Variable.FIELD_VARIABLE);
             return retVal;
-        }
-        else if (v instanceof SootField) {
+        } else if (v instanceof SootField) {
             SootField sf = (SootField) v;
-         
+
             Type sootfieldType = v.getType();
-            
+
             String typeName = null;
             if (sootfieldType instanceof PrimType) {
-                typeName = ((PrimType)sootfieldType).getClass().getName();
-            }
-            else if (sootfieldType instanceof RefType) {
-                typeName = ((RefType)sootfieldType).getClassName();
-            }
-            else {
+                typeName = ((PrimType) sootfieldType).getClass().getName();
+            } else if (sootfieldType instanceof RefType) {
+                typeName = ((RefType) sootfieldType).getClassName();
+            } else if (sootfieldType instanceof NullType) {
+                typeName = null; //NSOT//((NullType)localvartype).getClassName();
+            } else if (sootfieldType instanceof ArrayType) {
+                typeName = sootfieldType.toString();
+            } else {
                 throw new RuntimeException("Currently cannot support variable of type " + sootfieldType);
             }
-           
-            Variable retVal = new Variable(sf.getName(), typeName, (sf.isStatic()) ? Variable.STATIC_VARIABLE 
+
+            Variable retVal = new Variable(sf.getName(), typeName, (sf.isStatic()) ? Variable.STATIC_VARIABLE
                     : Variable.FIELD_VARIABLE);
             return retVal;
+        } else if (v instanceof JArrayRef) {
+            JArrayRef jar = (JArrayRef) v;
+            Value av = jar.getBase();
+            return convertToVariable(av);
+        } else {
+            throw new RuntimeException("Currently cannot support value " + v);
         }
-        else {
-            throw new RuntimeException("Assign Statement type not supported: " + stmt);
-        }
+    }
+    
+    public Variable getDefinedVariable(JAssignStmt stmt) {
+        Value v = stmt.getLeftOp();        
+        return convertToVariable(v);        
     }
     
     public Variable getInvokedVariable(JAssignStmt stmt) {
@@ -200,68 +263,12 @@ public class MethodAnalysis {
         ensureNonStaticExpr(stmt);
         
         Value v = stmt.getRightOp(); 
-        if (v instanceof JimpleLocal) {
-            JimpleLocal jl = (JimpleLocal) v;
-         
-            Type localvartype = v.getType();
-            
-            String typeName = null;
-            if (localvartype instanceof PrimType) {
-                typeName = ((PrimType)localvartype).getClass().getName();
-            }
-            else if (localvartype instanceof RefType) {
-                typeName = ((RefType)localvartype).getClassName();
-            }
-            else {
-                throw new RuntimeException("Currently cannot support variable of type " + localvartype);
-            }
-            Variable retVal = new Variable(jl.getName(), typeName, Variable.LOCAL_VARIABLE);
-            return retVal;
-        }
-        else if (v instanceof JInstanceFieldRef) {
-            JInstanceFieldRef fr = (JInstanceFieldRef) v;
-            
-            SootField sf = fr.getField();
-         
-            Type sootfieldType = v.getType();
-            
-            String typeName = null;
-            if (sootfieldType instanceof PrimType) {
-                typeName = ((PrimType)sootfieldType).getClass().getName();
-            }
-            else if (sootfieldType instanceof RefType) {
-                typeName = ((RefType)sootfieldType).getClassName();
-            }
-            else {
-                throw new RuntimeException("Currently cannot support variable of type " + sootfieldType);
-            }
-           
-            Variable retVal = new Variable(sf.getName(), typeName, (sf.isStatic()) ? Variable.STATIC_VARIABLE 
-                    : Variable.FIELD_VARIABLE);
-            return retVal;
-        }
-        else if (v instanceof SootField) {
-            SootField sf = (SootField) v;
-         
-            Type sootfieldType = v.getType();
-            
-            String typeName = null;
-            if (sootfieldType instanceof PrimType) {
-                typeName = ((PrimType)sootfieldType).getClass().getName();
-            }
-            else if (sootfieldType instanceof RefType) {
-                typeName = ((RefType)sootfieldType).getClassName();
-            }
-            else {
-                throw new RuntimeException("Currently cannot support variable of type " + sootfieldType);
-            }
-           
-            Variable retVal = new Variable(sf.getName(), typeName, (sf.isStatic()) ? Variable.STATIC_VARIABLE 
-                    : Variable.FIELD_VARIABLE);
-            return retVal;
+        
+        if (v instanceof JVirtualInvokeExpr) {
+            return getInvokedVariable((JVirtualInvokeExpr)v);
         }
         else {
-            throw new RuntimeException("Assign Statement type not supported: " + stmt);
+            return convertToVariable(v);
         }
     }
     
@@ -270,70 +277,14 @@ public class MethodAnalysis {
         ensureNonStaticExpr(stmt);
         
         // the first use box of a jinvoke statement is the variable being used, others may be arguments
-        Value v = (Value) stmt.getUseBoxes().get(0);  
-        if (v instanceof JimpleLocal) {
-            JimpleLocal jl = (JimpleLocal) v;
-         
-            Type localvartype = v.getType();
-            
-            String typeName = null;
-            if (localvartype instanceof PrimType) {
-                typeName = ((PrimType)localvartype).getClass().getName();
-            }
-            else if (localvartype instanceof RefType) {
-                typeName = ((RefType)localvartype).getClassName();
-            }
-            else {
-                throw new RuntimeException("Currently cannot support variable of type " + localvartype);
-            }
-            Variable retVal = new Variable(jl.getName(), typeName, Variable.LOCAL_VARIABLE);
-            return retVal;
-        }
-        else if (v instanceof JInstanceFieldRef) {
-            JInstanceFieldRef fr = (JInstanceFieldRef) v;
-            
-            SootField sf = fr.getField();
-         
-            Type sootfieldType = v.getType();
-            
-            String typeName = null;
-            if (sootfieldType instanceof PrimType) {
-                typeName = ((PrimType)sootfieldType).getClass().getName();
-            }
-            else if (sootfieldType instanceof RefType) {
-                typeName = ((RefType)sootfieldType).getClassName();
-            }
-            else {
-                throw new RuntimeException("Currently cannot support variable of type " + sootfieldType);
-            }
-           
-            Variable retVal = new Variable(sf.getName(), typeName, (sf.isStatic()) ? Variable.STATIC_VARIABLE 
-                    : Variable.FIELD_VARIABLE);
-            return retVal;
-        }
-        else if (v instanceof SootField) {
-            SootField sf = (SootField) v;
-         
-            Type sootfieldType = v.getType();
-            
-            String typeName = null;
-            if (sootfieldType instanceof PrimType) {
-                typeName = ((PrimType)sootfieldType).getClass().getName();
-            }
-            else if (sootfieldType instanceof RefType) {
-                typeName = ((RefType)sootfieldType).getClassName();
-            }
-            else {
-                throw new RuntimeException("Currently cannot support variable of type " + sootfieldType);
-            }
-           
-            Variable retVal = new Variable(sf.getName(), typeName, (sf.isStatic()) ? Variable.STATIC_VARIABLE 
-                    : Variable.FIELD_VARIABLE);
-            return retVal;
-        }
-        else {
-            throw new RuntimeException("Assign Statement type not supported: " + stmt);
-        }
+        Value v = ((ValueBox) stmt.getUseBoxes().get(0)).getValue();//(Value) stmt.getUseBoxes().get(0); 
+        return convertToVariable(v);
+    }
+    
+    protected Variable getInvokedVariable(JVirtualInvokeExpr invokeExpr) {       
+        // the first use box of a jinvoke expression is the variable being used, others may be arguments
+        Value v = ((ValueBox) invokeExpr.getUseBoxes().get(0)).getValue();
+        return convertToVariable(v);
     }
     
     public int compareArguments(CallSite cs, List<MethodParameterValue> listMPV) {
@@ -366,12 +317,12 @@ public class MethodAnalysis {
 
                 } 
                 else {// otherwise it is variable                    
-                    String paramVal = resolveValue(v, edge.src());
+                    ValueString paramVal = resolveValue(v, edge);
                     if (paramVal == null) {// ie could not resolve value of the variavle
                         comparison = INDETERMINABLE_ARGUMENT_VALUES;
                         break;
                     }
-                    if (!paramVal.equals(mpv.getValue())) {// if values are not equal
+                    if (!paramVal.getValue().equals(mpv.getValue())) {// if values are not equal
                         comparison = DIFF_ARGUMENT_VALUES;
                         break;
                     }
@@ -434,7 +385,7 @@ public class MethodAnalysis {
         return false;
     }
     
-    public Variable getAssigenerVariable(SootMethod parentMethod, String assignerClassName, String assigneeClassName) {
+    public Variable getAssignerVariable(SootMethod parentMethod, String assignerClassName, String assigneeClassName) {
         Iterator<Unit> iteUnits = parentMethod.getActiveBody().getUnits().iterator();
         
         while (iteUnits.hasNext()) {
@@ -451,6 +402,10 @@ public class MethodAnalysis {
                             return getInvokedVariable(stmt);
                         }                        
                     }
+                }
+                       else if (stmt.getRightOp() instanceof JNewExpr) {// if instance of new expression, just return the left var
+                    // ie AClassB b = new AClassB(); // ie return b, since b is not assigned to any other variable
+                    return assigneeVar;
                 }
             } 
             
@@ -488,6 +443,12 @@ public class MethodAnalysis {
             throw new RuntimeException("The variable filter given cannot be null");
         }
         
+//        List<CallSite> retListCS = new ArrayList<>(listCS.size());
+//        
+//        for (CallSite cs: listCS) {
+//            retListCS.add(cs);
+//        }
+        
         Iterator<CallSite> ite = listCS.iterator();        
         
         while (ite.hasNext()) {
@@ -508,9 +469,66 @@ public class MethodAnalysis {
         return listCS;
     }
     
-    protected String resolveValue(Object aValue, SootMethod occurringMethod) {
-        //return null if cannot resolve
-        throw new UnsupportedOperationException("Not supported yet");
+    protected String constantToString(Constant c, boolean isBoolean) {
+       
+        if (isBoolean && c instanceof IntConstant) {
+            if (!c.toString().equals("0") && !c.toString().equals("0")) {
+                throw new RuntimeException("cannot convert int value " + c + " to boolean");
+            }
+            return (c.toString().equals("0")) ? "false" : "true";
+                    
+        }
+        
+        return c.toString();
+    }
+    
+    protected ValueString resolveValue(Value value, Edge edge) {
+        Variable v = convertToVariable(value);
+        
+        Local localrepr = getSootValue(v, edge.src());
+        if (localrepr == null) {
+            throw new RuntimeException("Cannot resolve variable " + v + " in edge " + edge + " with src-method " + edge.src());
+        }
+        
+        UnitGraph uv = new ExceptionalUnitGraph(edge.src().getActiveBody());
+        CombinedAnalysis ca = CombinedDUAnalysis.v(uv);
+        List<Unit> list = ca.getDefsOfAt(localrepr, edge.srcStmt());
+        if (list.isEmpty()) {
+            return null;
+        }
+        
+        if (list.size() > 1) {
+            System.out.println("warning: number defsofvar > " + 1);
+        }
+        
+        JAssignStmt stmt = (JAssignStmt) list.get(list.size()-1);
+        
+        if (stmt.getRightOp() instanceof Constant) {
+            Constant constnt = (Constant) stmt.getRightOp();
+            String valstr = constantToString(constnt, v.getType().equals("boolean"));
+            
+            return new ValueString(v.getType(), v.getName(), valstr);
+        }
+        else if (stmt.getRightOp() instanceof JimpleLocal) {
+            return resolveValue(stmt.getRightOp(), edge);
+        }
+        else {// currently doesnt handle fieldref and static values
+            return null;
+        }
+        
+        
+    }
+    
+    public Local getSootValue(Variable v, SootMethod parentMethod) {
+        Iterator<Local> ite =  parentMethod.getActiveBody().getLocals().iterator();
+        while (ite.hasNext()) {
+            Local localvar = ite.next();
+            if (localvar.getName().equals(v.getName()) && localvar.getType().toString().equals(v.getType())) {
+                return localvar;
+            }
+        }
+        
+        return null;
     }
     
     protected int getCallType(Edge edge) {

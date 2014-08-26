@@ -10,6 +10,7 @@ import bugfind.sootadapters.MethodDefinition;
 import java.util.ArrayList;
 import java.util.List;
 import javax.xml.XMLConstants;
+import javax.xml.parsers.DocumentBuilderFactory;
 import org.xml.sax.XMLReader;
 
 /**
@@ -43,7 +44,19 @@ public final class VulnerableXMLMethodDefinitions {
                     createMethodParameters("java.lang.String", "boolean"), 
                     new ParameterValueCreator().add("java.lang.String", "\"http://apache.org/xml/features/disallow-doctype-decl\"")
                             .add("boolean", "true").getParameters());
+            // now add mitigation spoilers. mitigation spoilers are incorrect settings which if set/left can nullify the effect of a previous mitigation
+            // Occurrence of this usually indicates a mistake by the programmer
+            vmi.addMitigationSpoiler(new MitigationSpoiler(new ParameterValueCreator().add("java.lang.String", "\"http://apache.org/xml/features/disallow-doctype-decl\"")
+                            .add("boolean", "false").getParameters()));
+                    
             listMI.add(vmi);
+            vdi.addMitigationItemsFromList(listMI);
+            vulnerableMethodDefinitionList.add(vdi);
+            
+            // for another vdi
+            md = createMethodDefinition("org.jdom2.input.SAXBuilder", "build", "org.jdom2.Document"
+                    , "java.io.File");
+            vdi = new VulnerabilityDefinitionItem(md);
             vdi.addMitigationItemsFromList(listMI);
             vulnerableMethodDefinitionList.add(vdi);
             
@@ -64,6 +77,10 @@ public final class VulnerableXMLMethodDefinitions {
                     createMethodParameters("java.lang.String", "boolean"), 
                     new ParameterValueCreator().add("java.lang.String", "\"http://apache.org/xml/features/disallow-doctype-decl\"")
                             .add("boolean", "true").getParameters());
+            // now add mitigation spoilers. mitigation spoilers are incorrect settings which if set/left can nullify the effect of a previous mitigation
+            // Occurrence of this usually indicates a mistake by the programmer
+            vmi.addMitigationSpoiler(new MitigationSpoiler(new ParameterValueCreator().add("java.lang.String", "\"http://apache.org/xml/features/disallow-doctype-decl\"")
+                            .add("boolean", "false").getParameters()));
             vmi.setSolutionDescription("A call to DocumentBuilderFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true); or "
                     + "DocumentBuilderFactory.setFeature(\"http://xml.org/sax/features/external-general-entities\", false); should be "
                     + " made before using parsers created from them i.e., before using DocumentBuilder.parse(...) methods");
@@ -72,6 +89,9 @@ public final class VulnerableXMLMethodDefinitions {
                     createMethodParameters("java.lang.String", "boolean"), 
                     new ParameterValueCreator().add("java.lang.String", "\"http://xml.org/sax/features/external-general-entities\"")
                             .add("boolean", "false").getParameters());
+            //now add mitigation spoilers
+            vmi.addMitigationSpoiler(new MitigationSpoiler(new ParameterValueCreator().add("java.lang.String", "\"http://xml.org/sax/features/external-general-entities\"")
+                            .add("boolean", "true").getParameters()));
             vmi.setSolutionDescription("A call to DocumentBuilderFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true); or "
                     + "DocumentBuilderFactory.setFeature(\"http://xml.org/sax/features/external-general-entities\", false); should be "
                     + " made before using parsers created from them i.e., before using DocumentBuilder.parse(...) methods");            
@@ -91,6 +111,9 @@ public final class VulnerableXMLMethodDefinitions {
                     createMethodParameters("java.lang.String", "boolean"), 
                     new ParameterValueCreator().add("java.lang.String", "\"http://apache.org/xml/features/disallow-doctype-decl\"")
                             .add("boolean", "true").getParameters());
+            //now add mitigation spoilers
+            vmi.addMitigationSpoiler(new MitigationSpoiler(new ParameterValueCreator().add("java.lang.String", "\"http://apache.org/xml/features/disallow-doctype-decl\"")
+                            .add("boolean", "false").getParameters()));
             vmi.setSolutionDescription("A call to SAXParserFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true); or "
                     + "SAXParserFactory.setFeature(\"http://xml.org/sax/features/external-general-entities\", false); should be "
                     + " made before using parsers created from them i.e., before using SAXParser.parse(...) methods");
@@ -99,6 +122,9 @@ public final class VulnerableXMLMethodDefinitions {
                     createMethodParameters("java.lang.String", "boolean"), 
                     new ParameterValueCreator().add("java.lang.String", "\"http://xml.org/sax/features/external-general-entities\"")
                             .add("boolean", "false").getParameters());
+            //now add mitigation spoilers
+            vmi.addMitigationSpoiler(new MitigationSpoiler(new ParameterValueCreator().add("java.lang.String", "\"http://xml.org/sax/features/external-general-entities\"")
+                            .add("boolean", "true").getParameters()));
             vmi.setSolutionDescription("A call to SAXParserFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true); or "
                     + "SAXParserFactory.setFeature(\"http://xml.org/sax/features/external-general-entities\", false); should be "
                     + " made before using parsers created from them i.e., before using SAXParser.parse(...) methods");
@@ -118,6 +144,9 @@ public final class VulnerableXMLMethodDefinitions {
                     createMethodParameters("java.lang.String", "boolean"), 
                     new ParameterValueCreator().add("java.lang.String", "\"http://apache.org/xml/features/disallow-doctype-decl\"")
                             .add("boolean", "true").getParameters());
+            //now add mitigation spoilers
+            vmi.addMitigationSpoiler(new MitigationSpoiler(new ParameterValueCreator().add("java.lang.String", "\"http://apache.org/xml/features/disallow-doctype-decl\"")
+                            .add("boolean", "false").getParameters()));
             vmi.setSolutionDescription("A call to XMLReader.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true); or "
                     + "XMLReader.setFeature(\"http://xml.org/sax/features/external-general-entities\", false); should be "
                     + " made before using parsers created from them i.e., before using XMLReader.parse(...) methods");
@@ -126,6 +155,9 @@ public final class VulnerableXMLMethodDefinitions {
                     createMethodParameters("java.lang.String", "boolean"), 
                     new ParameterValueCreator().add("java.lang.String", "\"http://xml.org/sax/features/external-general-entities\"")
                             .add("boolean", "false").getParameters());
+            //now add mitigation spoilers
+            vmi.addMitigationSpoiler(new MitigationSpoiler(new ParameterValueCreator().add("java.lang.String", "\"http://xml.org/sax/features/external-general-entities\"")
+                            .add("boolean", "true").getParameters()));
             vmi.setSolutionDescription("A call to XMLReader.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true); or "
                     + "XMLReader.setFeature(\"http://xml.org/sax/features/external-general-entities\", false); should be "
                     + " made before using parsers created from them i.e., before using XMLReader.parse(...) methods");
@@ -150,7 +182,7 @@ public final class VulnerableXMLMethodDefinitions {
         return md;
     }
     
-    private static VulnerabilityMitigationItem createMitigationItem(int type, String classname, String methodName, 
+    private static VulnerabilityMitigationItem createMitigationItem(String type, String classname, String methodName, 
             String methodReturnType, List<MethodDefinition.MethodParameter> listMP, List<MethodParameterValue> listPV)  {
         MethodDefinition md = new MethodDefinition(classname, methodName, listMP, methodReturnType);
         VulnerabilityMitigationItem vmi = new VulnerabilityMitigationItem(md, listPV, type);
@@ -165,6 +197,11 @@ public final class VulnerableXMLMethodDefinitions {
     private static VulnerabilityMitigationItem createLocalMitigationItem(String classname, String methodName, 
             String methodReturnType, List<MethodDefinition.MethodParameter> listMP, List<MethodParameterValue> listPV)  {
         return createMitigationItem(VulnerabilityMitigationItem.LOCAL, classname, methodName, methodReturnType, listMP, listPV);
+    }
+    
+    private static VulnerabilityMitigationItem createFactoryMitigationItem(String classname, String methodName, 
+            String methodReturnType, List<MethodDefinition.MethodParameter> listMP, List<MethodParameterValue> listPV)  {
+        return createMitigationItem(VulnerabilityMitigationItem.FACTORY, classname, methodName, methodReturnType, listMP, listPV);
     }
     
     private static List<MethodDefinition.MethodParameter> createMethodParameters(String... parameterType) {

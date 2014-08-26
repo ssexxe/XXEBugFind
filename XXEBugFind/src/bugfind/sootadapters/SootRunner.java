@@ -7,6 +7,7 @@
 package bugfind.sootadapters;
 
 import bugfind.utils.misc.FileUtil;
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -282,7 +283,7 @@ public class SootRunner extends Main {
             }
         }
         
-        List<String> libPathList = FileUtil.extractPaths(libPaths, ";");
+        List<String> libPathList = FileUtil.extractPaths(libPaths, File.pathSeparator);
         for( Iterator<String> pathLibLoc = libPathList.iterator(); pathLibLoc.hasNext(); ) {
 
             final String path = (String) pathLibLoc.next();

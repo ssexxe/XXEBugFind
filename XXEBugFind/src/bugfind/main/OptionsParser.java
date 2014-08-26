@@ -18,6 +18,8 @@ public class OptionsParser {
     public static String VMD_OPT = "-vmd";
     public static String DIR_OPT = "-d";
     public static String LIB_OPT = "-l";
+    public static String FORMAT_OPT = "-f";
+    public static String RULESET_OPT = "-rs";
     public static String RT_LIB_LOC_OPT = "-rtloc";
     public static String SOOT_LIB_LOC_OPT = "-sootloc";
 
@@ -58,6 +60,10 @@ public class OptionsParser {
         } else if (str.toLowerCase().equals(VMD_OPT.toLowerCase())) {
             return true;
         } else if (str.toLowerCase().equals(LIB_OPT.toLowerCase())) {
+            return true;
+        } else if (str.toLowerCase().equals(FORMAT_OPT.toLowerCase())) {
+            return true;
+        } else if (str.toLowerCase().equals(RULESET_OPT.toLowerCase())) {
             return true;
         } else {
             return false;

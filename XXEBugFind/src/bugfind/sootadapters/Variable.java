@@ -45,6 +45,28 @@ public class Variable {
     public boolean isField() {
         return (level == FIELD_VARIABLE);
     }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder("var name: ");
+        sb.append(getName()).append(" var type: ").append(getType()).append(" var level");
+        switch (getLevel()) {
+            case LOCAL_VARIABLE:
+                sb.append("LOCAL_VAR");
+                break;
+            case FIELD_VARIABLE:
+                sb.append("FIELD_VAR");
+                break;
+            case STATIC_VARIABLE:
+                sb.append("STATIC_VAR");
+                break;
+            default:
+                sb.append("UNKNOWN_VAR_LEVEL");
+
+        }
+        return sb.toString();
+    }
+
     
     
     

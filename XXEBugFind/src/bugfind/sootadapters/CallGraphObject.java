@@ -10,9 +10,12 @@ import bugfind.main.OptionsParser;
 import bugfind.utils.misc.FileUtil;
 import bugfind.utils.misc.Utils;
 import bugfind.xxe.ActualVulnerabilityItem;
+import bugfind.xxe.VulnerabilityDefinitionItems;
+import bugfind.xxe.VulnerableXMLMethodDefinitions;
 import bugfind.xxe.XXEVulnerabilityDetector;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.FileSystemException;
 import java.util.ArrayList;
@@ -20,6 +23,15 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
+import javax.xml.bind.SchemaOutputResolver;
+import javax.xml.bind.Unmarshaller;
+import javax.xml.transform.Result;
+import javax.xml.transform.stream.StreamResult;
 import soot.Body;
 import soot.G;
 import soot.PackManager;
@@ -74,7 +86,7 @@ public class CallGraphObject {
         String libLocation = bugFindParametersMap.get(OptionsParser.LIB_OPT);
         String dirLocation = bugFindParametersMap.get(OptionsParser.DIR_OPT);        
         String[] dirLocs = null, libLocs = null;
-       
+        String pathSep = File.pathSeparator;
         
         // first parse target application location
         if (dirLocation == null) {
@@ -85,13 +97,13 @@ public class CallGraphObject {
             dirLocs = dirLocation.split(";");
             for (String dirLoc : dirLocs) {
                 if (!dirLoc.trim().isEmpty()) {
-                    sb.append(fileUtil.getFullPathName(dirLoc.trim())).append(";");
+                    sb.append(fileUtil.getFullPathName(dirLoc.trim())).append(pathSep);
                 }
             }
-            dirLocation = (sb.lastIndexOf(";") == sb.length() -1) ? sb.substring(0, sb.length() - 1) : sb.toString();
+            dirLocation = (sb.lastIndexOf(pathSep) == sb.length() -1) ? sb.substring(0, sb.length() - 1) : sb.toString();
         }
         else {
-            dirLocs = new String[]{dirLocation};
+            dirLocs = new String[]{fileUtil.getFullPathName(dirLocation)};
         }
         
         // check if the application depends on supporting libs and process process 
@@ -107,10 +119,11 @@ public class CallGraphObject {
                 libLocs = libLocation.split(";");
                 for (String libLoc : libLocs) {
                     if (!libLoc.trim().isEmpty()) {
-                        sb.append(fileUtil.getFullPathName(libLoc.trim())).append(";");
+                        sb.append(fileUtil.getFullPathName(libLoc.trim())).append(pathSep);
+                        //System.out.println("splitting libs: " + fileUtil.getFullPathName(libLoc.trim()));
                     }
                 }
-                libLocation = (sb.lastIndexOf(";") == sb.length() -1) ? sb.substring(0, sb.length() - 1) : sb.toString();
+                libLocation = (sb.lastIndexOf(pathSep) == sb.length() -1) ? sb.substring(0, sb.length() - 1) : sb.toString();
             } else {
                 libLocs = new String[]{libLocation};
             }
@@ -141,9 +154,9 @@ public class CallGraphObject {
             rtDirectory = guessedRTdir;
         }
       
-        String javaNecessaryJarsLoc = Utils.join(fileUtil.getAllFilesWithExtension(rtDirectory, ".jar"), ";");
-        String cpOptionString = (!libLocation.trim().isEmpty()) ? dirLocation + ";" + libLocation + ";" + javaNecessaryJarsLoc
-                :dirLocation + ";" + javaNecessaryJarsLoc;
+        String javaNecessaryJarsLoc = Utils.join(fileUtil.getAllFilesWithExtension(rtDirectory, ".jar"), pathSep);
+        String cpOptionString = (!libLocation.trim().isEmpty()) ? dirLocation + pathSep + libLocation + pathSep + javaNecessaryJarsLoc
+                :dirLocation + pathSep + javaNecessaryJarsLoc;
         
         List<String> argsList = new ArrayList<String>();
         
@@ -159,7 +172,7 @@ public class CallGraphObject {
                            "all-reachable:true",
                            "-p",
                            "jb",
-                           "use-original-names:false", //"-f", "dava",
+                           "use-original-names:false", //"-f", "dava",not in graph!
                            "-cp",
                            cpOptionString}));
         for (String s: dirLocs) {
@@ -169,7 +182,7 @@ public class CallGraphObject {
                 System.out.println("-pdir: " + s.trim());
             }
         }
-        //System.out.println("-cp opt string:\n" + cpOptionString);
+        System.out.println("-cp opt string:\n" + cpOptionString);
         // get get vulnerable method definition list
         String vulmethodDefs = bugFindParametersMap.get(OptionsParser.VMD_OPT);
         //if (vulmethodDefs == null || vulmethodDefs.trim().isEmpty()) {
@@ -188,7 +201,7 @@ public class CallGraphObject {
 		       //CHATransformer.v().transform();
 		       CallGraph cg = Scene.v().getCallGraph();//src.getActiveBody().
                        XXEVulnerabilityDetector xvd = new XXEVulnerabilityDetector(cgo);
-                       List<ActualVulnerabilityItem> actualVulnerabilities = xvd.checkForXXEVulnerabilities();
+                       List<ActualVulnerabilityItem> actualVulnerabilities = xvd.findVulnerabilities();
                        if (actualVulnerabilities.size() > 0) {
                            System.out.println("\n" + actualVulnerabilities.size() + " variant(s) of xxe vulnerabilities found");
                        }                                        
@@ -252,6 +265,7 @@ public class CallGraphObject {
            Options.v().set_include_all(true);
            Options.v().set_allow_phantom_refs(true);
            PhaseOptions.v().setPhaseOption("tag.ln", "on");
+           //PhaseOptions.v().setPhaseOption("cg.spark", "enabled:true");
            G.v().out = new PrintStream(new File("soot.txt"));
            System.out.println("started...");
            //Scene.v();
@@ -745,6 +759,64 @@ public class CallGraphObject {
         List<ValueBox> lud = sm.getActiveBody().getUseAndDefBoxes();
         List<ValueBox> lub = sm.getActiveBody().getUseBoxes();
         int i=0;
+    }
+    
+    public static void doTest2() {
+        try {
+//            Employee employee = new Employee("uiheroie", 56, 4, "permanent");
+//            JAXBContext jaxbContext = JAXBContext.newInstance(Employee.class);
+//            Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
+//            
+//            jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+//            
+//            jaxbMarshaller.marshal(employee, System.out);            
+//            jaxbMarshaller.marshal(employee, new File("C:/f/employees.xml"));
+//            
+//            Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
+//            Employee employee2 = (Employee) jaxbUnmarshaller.unmarshal(new File("C:/f/employees.xml"));
+//            System.out.println("\nreread emp");
+//            System.out.println(employee2.toString());
+            
+            VulnerabilityDefinitionItems vmis = new VulnerabilityDefinitionItems();
+            vmis.setVulnerabilityDefinitionItems(VulnerableXMLMethodDefinitions.getVulnerableMethodDefinitionList());
+            
+            JAXBContext jaxbContext = JAXBContext.newInstance(VulnerabilityDefinitionItems.class);
+            Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
+            
+            jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+            
+            jaxbMarshaller.marshal(vmis, System.out);            
+            jaxbMarshaller.marshal(vmis, new File("C:/f/vmis.xml"));            
+            
+            SchemaOutputResolver sor = new SchemaOutputResolver() {
+
+                @Override
+                public Result createOutput(String namespaceUri, String suggestedFileName) throws IOException {
+                    File file = new File("C:/f", suggestedFileName);
+                    StreamResult result = new StreamResult(file);
+                    result.setSystemId(file.toURI().toURL().toString());
+                    return result;
+                }
+            };
+            jaxbContext.generateSchema(sor);
+            
+            Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
+            VulnerabilityDefinitionItems vmis2 = (VulnerabilityDefinitionItems) jaxbUnmarshaller.unmarshal(new File("C:/f/vmis.xml"));
+            System.out.println("\nreread emp");
+            System.out.println(vmis2.toString());
+            jaxbMarshaller.marshal(vmis2, System.out);  
+            jaxbMarshaller.marshal(vmis2, new File("C:/f/vmis2.xml"));            
+            System.exit(0);
+        } catch (JAXBException ex) {
+            Logger.getLogger(CallGraphObject.class.getName()).log(Level.SEVERE, null, ex);
+            System.exit(0);
+        } catch (IOException ex) {
+            Logger.getLogger(CallGraphObject.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    public Map<String, String> getBugFindParametersMap() {
+        return bugFindParametersMap;
     }
 
     public static List<SootClass> getElevatedClasses() {

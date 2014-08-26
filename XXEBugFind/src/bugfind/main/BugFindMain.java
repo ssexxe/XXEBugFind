@@ -63,12 +63,12 @@ public class BugFindMain {
 //            "C:\\Users\\Mikosh\\Documents\\Netbeans Libs\\XML\\dom4j-1.6.1\\dom4j-1.6.1\\lib\\relaxngDatatype-20030807.jar;" +    
 //            "C:\\Users\\Mikosh\\Documents\\Netbeans Libs\\XML\\dom4j-1.6.1\\dom4j-1.6.1\\lib\\xpp3-1.1.3.3.jar;" +    
 //            "C:\\Users\\Mikosh\\Documents\\Netbeans Libs\\XML\\dom4j-1.6.1\\dom4j-1.6.1\\lib\\xsdlib-20030807.jar;" +    
-            "C:\\Users\\Mikosh\\Documents\\NetbeansProjects\\MyXMLTest\\dist\\lib\\jaxen-1.1.6.jar;" +
-            "C:\\Users\\Mikosh\\Documents\\NetbeansProjects\\MyXMLTest\\dist\\lib\\jdom-2.0.5.jar;" +
-//            "C:\\Users\\Mikosh\\Documents\\Netbeans Libs\\XML\\dom4j-1.6.1\\dom4j-1.6.1\\dom4j-1.6.1.jar;" + 
-            "C:\\Users\\Mikosh\\Documents\\NetbeansProjects\\MyXMLTest\\dist\\lib\\resolver.jar;" +
-            "C:\\Users\\Mikosh\\Documents\\NetbeansProjects\\MyXMLTest\\dist\\lib\\serializer.jar",//;" +
-            //"C:\\Users\\Mikosh\\Documents\\NetbeansProjects\\MyXMLTest\\dist\\lib\\xercesImpl.jar;" +
+//            "C:\\Users\\Mikosh\\Documents\\NetbeansProjects\\MyXMLTest\\dist\\lib\\jaxen-1.1.6.jar;" +
+            //"C:\\Users\\Mikosh\\Documents\\NetbeansProjects\\MyXMLTest\\dist\\lib\\jdom-2.0.5.jar;" +
+            "C:\\Users\\Mikosh\\Documents\\Netbeans Libs\\XML\\dom4j-1.6.1\\dom4j-1.6.1\\dom4j-1.6.1.jar;" + 
+            //"C:\\Users\\Mikosh\\Documents\\NetbeansProjects\\MyXMLTest\\dist\\lib\\resolver.jar;" +
+            "C:\\Users\\Mikosh\\Documents\\NetbeansProjects\\MyXMLTest\\dist\\lib\\serializer.jar;" +
+            "C:\\Users\\Mikosh\\Documents\\NetbeansProjects\\MyXMLTest\\dist\\lib\\xercesImpl.jar",//;" +
             //"C:\\Users\\Mikosh\\Documents\\NetbeansProjects\\MyXMLTest\\dist\\lib\\xml-apis.jar",
             
 //            "C:\\Users\\Mikosh\\Documents\\NetbeansProjects\\xmlmaster2\\lib\\commons-cli-1.1.jar;" +
@@ -80,7 +80,9 @@ public class BugFindMain {
 //            "C:\\Users\\Mikosh\\Documents\\NetbeansProjects\\xmlmaster2\\lib\\javax.servlet.jar;" +
 //            "C:\\Users\\Mikosh\\Documents\\NetbeansProjects\\xmlmaster2\\lib\\javax.servlet.jsp.jar;" +
 //            "C:\\Users\\Mikosh\\Documents\\NetbeansProjects\\xmlmaster2\\lib\\saxon9he.jar",
-//        
+            "-rs",
+            "C:\\f\\vmis.xml",
+        
             "-vmd",
             //"java.net.InetAddress.getLocalHost()"
             //"database.objects.Post.getPost();eazychat.ChatClient.requestInterSystemViewer(java.lang.String)"
@@ -99,7 +101,7 @@ public class BugFindMain {
             //"org.h2.Driver.getMajorVersion()"
         };
         Map<String, String> inputMap = OptionsParser.parse(args);
-        
+  //CallGraphObject.doTest2();
         CallGraphObject cgo = new CallGraphObject(inputMap);
         try {
             cgo.runAnalysis();
