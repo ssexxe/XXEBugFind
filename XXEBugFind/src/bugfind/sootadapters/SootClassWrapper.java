@@ -10,19 +10,23 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import soot.PackManager;
 import soot.Scene;
 import soot.SootClass;
 import soot.SootMethod;
 import soot.util.Chain;
 
 /**
- *
+ * This is a soot SootClass wrapper for use by the application. This provides a clean interface for the application
+ * to work without knowing the details of the SootClass under the hood
  * @author Mikosh
  */
 public class SootClassWrapper {
     protected SootClass sootClass;
 
+    /**
+     * Creates a SootClassWrapper from the specified SootClass
+     * @param sootClass the soot class to wrap
+     */
     public SootClassWrapper(SootClass sootClass) {
         this.sootClass = sootClass;
     }

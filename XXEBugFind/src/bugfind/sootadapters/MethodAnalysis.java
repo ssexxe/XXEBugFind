@@ -7,34 +7,37 @@
 package bugfind.sootadapters;
 
 import bugfind.xxe.MethodParameterValue;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import soot.ArrayType;
+import soot.Hierarchy;
 import soot.Local;
 import soot.NullType;
 import soot.PrimType;
 import soot.RefType;
+import soot.Scene;
+import soot.SootClass;
 import soot.SootField;
 import soot.SootMethod;
 import soot.Type;
 import soot.Unit;
 import soot.Value;
 import soot.ValueBox;
+import soot.dava.toolkits.base.AST.interProcedural.ConstantFieldValueFinder;
 import soot.jimple.Constant;
 import soot.jimple.IntConstant;
+import soot.jimple.StaticFieldRef;
 import soot.jimple.Stmt;
 import soot.jimple.internal.JArrayRef;
 import soot.jimple.internal.JAssignStmt;
 import soot.jimple.internal.JInstanceFieldRef;
 import soot.jimple.internal.JInvokeStmt;
-import soot.jimple.internal.JNeExpr;
 import soot.jimple.internal.JNewExpr;
 import soot.jimple.internal.JStaticInvokeExpr;
 import soot.jimple.internal.JVirtualInvokeExpr;
 import soot.jimple.internal.JimpleLocal;
-import soot.jimple.internal.JimpleLocalBox;
 import soot.jimple.toolkits.callgraph.CallGraph;
 import soot.jimple.toolkits.callgraph.Edge;
 import soot.toolkits.graph.ExceptionalUnitGraph;
@@ -43,7 +46,7 @@ import soot.toolkits.scalar.CombinedAnalysis;
 import soot.toolkits.scalar.CombinedDUAnalysis;
 
 /**
- *
+ * As the name of the class implies, this class does analyses of some method.
  * @author Mikosh
  */
 public class MethodAnalysis {
@@ -53,12 +56,22 @@ public class MethodAnalysis {
     private CallGraphObject cgo;
     private CallGraph callGraph;
 
+    /**
+     * Creates a MethodAnalysis object from a CallGraphObject and a Soot CallGraph
+     * @param cgo
+     * @param callGraph 
+     */
     public MethodAnalysis(CallGraphObject cgo, CallGraph callGraph) {
         this.cgo = cgo;
         this.callGraph = callGraph;
     }
 
-    
+    /**
+     * Determines if a method is called  in another method
+     * @param targetCaller the method that should contain (ie call) the callee
+     * @param callee the method to be called
+     * @return true if callee is called in targetCaller and false otherwise
+     */
     public boolean isCalledInMethod(SootMethod targetCaller, SootMethod callee) {
         List<CallSite> listCS = this.cgo.getCallSites(callGraph, callee);
         for (CallSite cs : listCS) {
@@ -94,7 +107,10 @@ public class MethodAnalysis {
             return CALLED_AFTER;
         }
         else if (listCS1.get(0).getLineLocation() == listCS2.get(0).getLineLocation()) {
-            throw new RuntimeException("both are on same line. try to get which statement is run first on line");
+            boolean b = SimpleIntraDataFlowAnalysis.isBefore(callerMethod, listCS1.get(0).getEdge().srcStmt(), 
+                    listCS2.get(0).getEdge().srcStmt());
+            return (b) ? CALLED_BEFORE : CALLED_AFTER;
+            //throw new RuntimeException("both are on same line. try to get which statement is run first on line");
             //return CALLED_SAME_TIME;
         }
         else {
@@ -102,7 +118,8 @@ public class MethodAnalysis {
         }
     }
     
-    public List<CallSite> getAllCallsBefore(SootMethod callerMethod, SootMethod calleeToBeBefore, SootMethod callee2) {
+    @Deprecated
+    public List<CallSite> getAllCallsBefore(SootMethod callerMethod, SootMethod calleeToBeBefore, SootMethod callee2, Unit callee2Location) {
         if (!isCalledInMethod(callerMethod, calleeToBeBefore)) {
             throw new RuntimeException("Specified callee method not called in specified soot caller method.\nDetail: "
                     + calleeToBeBefore + " is never called in " + callerMethod);            
@@ -129,15 +146,80 @@ public class MethodAnalysis {
         
         return listCBefore;
     }
+    
+    public List<CallSite> getAllCallsBefore(SootMethod callerMethod, SootMethod calleeToBeBefore, CallSite targetCS) {
+        if (!isCalledInMethod(callerMethod, calleeToBeBefore)) {
+            throw new RuntimeException("Specified callee method not called in specified soot caller method.\nDetail: "
+                    + calleeToBeBefore + " is never called in " + callerMethod);            
+        }
+        
+        if (!targetCS.getSourceMethod().getSignature().equals(callerMethod.getSignature())) {
+            throw new RuntimeException("Specified call site [" + targetCS + "] is not in the specified caller method " + callerMethod);
+        }
+
+        List<CallSite> listCBefore = cgo.getCallSitesInMethod(callGraph, calleeToBeBefore, callerMethod);
+        Collections.sort(listCBefore);
+        
+        int loc = targetCS.getLineLocation();
+        
+        Iterator<CallSite> ite = listCBefore.iterator();
+        
+        while (ite.hasNext()) {
+            CallSite cs = ite.next();
+            
+            if (cs.getLineLocation() > loc) {// remeber to account for same line
+                ite.remove();
+            }
+            else if (cs.getLineLocation() == loc) {
+                boolean isBefore = SimpleIntraDataFlowAnalysis.isBefore(callerMethod, cs.getEdge().srcStmt(), 
+                        targetCS.getEdge().srcStmt());
+                if (!isBefore) {
+                    ite.remove();
+                }
+            }
+        }
+        
+        return listCBefore;
+    }
+    
+    public List<CallSite> getAllCallsBefore(SootMethod callerMethod, SootMethod calleeToBeBefore, Unit targetUnit) {
+        List<CallSite> listCBefore = cgo.getCallSitesInMethod(callGraph, calleeToBeBefore, callerMethod);
+        Collections.sort(listCBefore);
+        
+        //int loc = targetCS.getLineLocation();
+        
+        Iterator<CallSite> ite = listCBefore.iterator();
+        
+        while (ite.hasNext()) {
+            CallSite cs = ite.next();
+            
+            boolean isBefore = SimpleIntraDataFlowAnalysis.isBefore(callerMethod, cs.getEdge().srcStmt(),
+                    targetUnit);
+            if (!isBefore) {
+                ite.remove();
+            }            
+        }
+        
+        return listCBefore;
+    }
 
     public void setCallGraph(CallGraph callGraph) {
         this.callGraph = callGraph;
     }
 
+    /**
+     * Gets the call graph
+     * @return 
+     */
     public CallGraph getCallGraph() {
         return callGraph;
     }
-    
+
+    /**
+     * Converts a JArrayRef object to a Variable
+     * @param ar the JArrayRef object to convert
+     * @return a Variable corresponding to ar
+     */
     protected Variable convertToVariable(JArrayRef ar) {        
         Type arrayRefType = ar.getType();
         String typeName = null;
@@ -180,6 +262,11 @@ public class MethodAnalysis {
         return retVal;
     }
     
+    /**
+     * Convets the specified Soot Value object to a Variable object
+     * @param v the soot value to be converted
+     * @return the converted Variable form of v 
+     */
     protected Variable convertToVariable(Value v) {
         if (v instanceof JimpleLocal) {
             JimpleLocal jl = (JimpleLocal) v;
@@ -314,14 +401,14 @@ public class MethodAnalysis {
                         comparison = DIFF_ARGUMENT_VALUES;
                         break;
                     }
-
                 } 
                 else {// otherwise it is variable                    
                     ValueString paramVal = resolveValue(v, edge);
-                    if (paramVal == null) {// ie could not resolve value of the variavle
+                    if (paramVal == null || paramVal.getValue() == null) {// ie could not resolve value of the variavle
                         comparison = INDETERMINABLE_ARGUMENT_VALUES;
                         break;
                     }
+                    
                     if (!paramVal.getValue().equals(mpv.getValue())) {// if values are not equal
                         comparison = DIFF_ARGUMENT_VALUES;
                         break;
@@ -340,11 +427,35 @@ public class MethodAnalysis {
                     comparison = DIFF_ARGUMENT_VALUES;
                     break;
                 }
-            }        
+            }            
             else {
-                throw new RuntimeException("The method specified at the given callsite differs from the one compared with. "
-                        + "Details:\nArgument " + (i) + " differs. Expected parameter type is " + mpv.getType() 
-                        + " while argument type " + v.getType() + " was found at Call site");
+                // check whether 
+                Hierarchy hierach = Scene.v().getActiveHierarchy();
+                SootClass mpvTypeSC = Scene.v().getSootClass(mpv.getType());
+                SootClass vSC = Scene.v().getSootClass(v.getType().toString());
+                
+                if ((!mpvTypeSC.isInterface() && hierach.isClassSubclassOf(vSC, mpvTypeSC)) 
+                        || (mpvTypeSC.isInterface() && hierach.isInterfaceSubinterfaceOf(vSC, mpvTypeSC))
+                        || (mpvTypeSC.isInterface() && vSC.implementsInterface(mpv.getType()))) {
+                    MethodParameterValue mpv2 = new MethodParameterValue(vSC.getName(), mpv.getValue());
+                    
+                    ValueString paramVal = resolveValue(v, edge);
+                    if (paramVal == null) {// ie could not resolve value of the variavle
+                        comparison = INDETERMINABLE_ARGUMENT_VALUES;
+                        break;
+                    }
+                    if (!paramVal.getValue().equals(mpv.getValue())) {// if values are not equal
+                        comparison = DIFF_ARGUMENT_VALUES;
+                        break;
+                    }
+                    
+                }               
+                else {
+                    // throw exception
+                    throw new RuntimeException("The method specified at the given callsite differs from the one compared with. "
+                            + "Details:\nArgument " + (i) + " differs. Expected parameter type is " + mpv.getType()
+                            + " while argument type " + v.getType() + " was found at Call site");
+                }
             }
         }
         
@@ -487,7 +598,21 @@ public class MethodAnalysis {
         
         Local localrepr = getSootValue(v, edge.src());
         if (localrepr == null) {
-            throw new RuntimeException("Cannot resolve variable " + v + " in edge " + edge + " with src-method " + edge.src());
+            if (SimpleIntraDataFlowAnalysis.isParameterLocal(edge.src(), localrepr)) {
+                List<CallSite> lst = cgo.getCallSites(callGraph, edge.src());
+                if (lst.size() > 1) {
+                    return null;
+                }
+                else {
+                    Stmt stmt = lst.get(0).getEdge().srcStmt();
+                    Value val = stmt.getInvokeExpr().getArg(
+                            SimpleIntraDataFlowAnalysis.getParameterLocalIndex(lst.get(0).getSourceMethod(), localrepr));
+                    return resolveValue(val, lst.get(0).getEdge());
+                }
+            }
+            else {
+                throw new RuntimeException("Cannot resolve variable " + v + " in edge " + edge + " with src-method " + edge.src());
+            }
         }
         
         UnitGraph uv = new ExceptionalUnitGraph(edge.src().getActiveBody());
@@ -501,16 +626,36 @@ public class MethodAnalysis {
             System.out.println("warning: number defsofvar > " + 1);
         }
         
-        JAssignStmt stmt = (JAssignStmt) list.get(list.size()-1);
+        JAssignStmt stmt = (JAssignStmt) list.get(list.size()-1);        
+        Value rightOp = stmt.getRightOp();
         
-        if (stmt.getRightOp() instanceof Constant) {
+        if (rightOp instanceof Constant) {
             Constant constnt = (Constant) stmt.getRightOp();
             String valstr = constantToString(constnt, v.getType().equals("boolean"));
             
             return new ValueString(v.getType(), v.getName(), valstr);
         }
-        else if (stmt.getRightOp() instanceof JimpleLocal) {
-            return resolveValue(stmt.getRightOp(), edge);
+        else if (rightOp instanceof StaticFieldRef) {
+            StaticFieldRef srf = (StaticFieldRef) stmt.getRightOp();
+            SootField f = srf.getField();//SootFieldRef sf = srf.getFieldRef();;
+            String type = srf.getType().toString();
+            String name = f.getDeclaringClass().getName() + "." + f.getName();
+            if (f.isFinal()) {// if it is final, then the value never changes
+                return new ValueString(type, name, name);
+            }
+            else {// the actual value may be changed elsewhere
+                
+                return new ValueString(type, name, null);//edge.srcStmt().getTags()//ConstantFieldValueFinder//edge.src().getActiveBody(); SootU
+            }            
+        }
+        else if (rightOp instanceof JInstanceFieldRef) {
+            JInstanceFieldRef jfr = (JInstanceFieldRef) rightOp;
+            Value vv = jfr.getBase();
+            return null; 
+            
+        }
+        else if (rightOp instanceof JimpleLocal) {
+            return resolveValue(rightOp, edge);
         }
         else {// currently doesnt handle fieldref and static values
             return null;

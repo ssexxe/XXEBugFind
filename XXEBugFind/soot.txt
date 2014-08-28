@@ -1,8 +1,5 @@
-Soot started on Tue Aug 26 08:26:32 BST 2014
+Soot started on Thu Aug 28 06:24:51 BST 2014
 Warning: java.dyn.InvokeDynamic is a phantom class!
-Warning: org.jdom2.output.XMLOutputter is a phantom class!
-Warning: org.jdom2.input.SAXBuilder is a phantom class!
-Warning: org.jdom2.Document is a phantom class!
 Warning: org.jaxen.VariableContext is a phantom class!
 Warning: org.jaxen.FunctionContext is a phantom class!
 Warning: org.jaxen.NamespaceContext is a phantom class!
@@ -19,6 +16,33 @@ Warning: org.jaxen.saxpath.SAXPathException is a phantom class!
 Warning: org.jaxen.Context is a phantom class!
 Warning: org.jaxen.dom4j.Dom4jXPath is a phantom class!
 Warning: org.jaxen.XPath is a phantom class!
+Warning: com.sun.msv.reader.util.IgnoreController is a phantom class!
+Warning: com.sun.msv.grammar.IDContextProvider2 is a phantom class!
+Warning: com.sun.msv.util.StartTagInfo is a phantom class!
+Warning: com.sun.msv.verifier.regexp.StringToken is a phantom class!
+Warning: com.sun.msv.util.DatatypeRef is a phantom class!
+Warning: org.relaxng.datatype.Datatype is a phantom class!
+Warning: com.sun.msv.util.StringRef is a phantom class!
+Warning: com.sun.msv.verifier.Acceptor is a phantom class!
+Warning: com.sun.msv.verifier.DocumentDeclaration is a phantom class!
+Warning: com.sun.msv.verifier.regexp.REDocumentDeclaration is a phantom class!
+Warning: com.sun.msv.grammar.Grammar is a phantom class!
+Warning: com.sun.msv.grammar.trex.TREXGrammar is a phantom class!
+Warning: com.sun.msv.reader.trex.ng.RELAXNGReader is a phantom class!
+Warning: com.sun.msv.reader.GrammarReaderController is a phantom class!
+Warning: com.sun.msv.verifier.regexp.xmlschema.XSREDocDecl is a phantom class!
+Warning: com.sun.msv.grammar.xmlschema.XMLSchemaGrammar is a phantom class!
+Warning: com.sun.msv.reader.xmlschema.XMLSchemaReader is a phantom class!
+Warning: org.osgi.framework.BundleActivator is a phantom class!
+Warning: org.osgi.framework.ServiceRegistration is a phantom class!
+Warning: org.osgi.framework.BundleContext is a phantom class!
+Warning: org.jaxen.UnresolvableException is a phantom class!
+Warning: org.jaxen.BaseXPath is a phantom class!
+Warning: org.jaxen.DefaultNavigator is a phantom class!
+Warning: org.jaxen.util.SingleObjectIterator is a phantom class!
+Warning: org.jaxen.JaxenConstants is a phantom class!
+Warning: org.jaxen.UnsupportedAxisException is a phantom class!
+Warning: org.jaxen.FunctionCallException is a phantom class!
 Warning: com.sun.msv.datatype.SerializationContext is a phantom class!
 Warning: org.relaxng.datatype.ValidationContext is a phantom class!
 Warning: com.sun.msv.datatype.DatabindableDatatype is a phantom class!
@@ -42,3 +66,25 @@ Warning: org.apache.xml.resolver.readers.SAXCatalogReader is a phantom class!
 Warning: org.apache.xml.resolver.Catalog is a phantom class!
 No main class given. Inferred 'a.PrettyPrinter' as main class.
 [Call Graph] For information on where the call graph may be incomplete, use the verbose option to the cg phase.
+Transforming a.PrettyPrinter... 
+Transforming b.PrettyPrinter2... 
+Transforming dom4j.Dom4JExample... 
+Transforming jaxb.JAXBExample... 
+Transforming kxml2.KXMLExample... 
+Transforming mydom.DomParserExample... 
+Transforming myjdom.PrettyPrinter... 
+Transforming mysax2.XMLReaderExample... 
+Transforming mysax.SAXParserExample... 
+Transforming myxmltest.Employee... 
+Transforming myxmltest.GUIFrame$1... 
+Transforming myxmltest.GUIFrame$2... 
+Transforming myxmltest.GUIFrame$3... 
+Transforming myxmltest.GUIFrame$4... 
+Transforming myxmltest.GUIFrame... 
+Transforming myxmltest.MyDefaultHandler... 
+Transforming myxmltest.MyXMLTest... 
+Transforming myxmltest.basic.Utils... 
+Transforming piccolotest.MyPiccoloExample... 
+Transforming stax.StAXExample... 
+Soot finished on Thu Aug 28 06:26:22 BST 2014
+Soot has run for 1 min. 30 sec.

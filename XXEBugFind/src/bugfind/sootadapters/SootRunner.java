@@ -33,10 +33,16 @@ import soot.util.Chain;
 import soot.util.HashChain;
 
 /**
- *
+ * This is a custom soot runner as the main soot runner is not suitable for what we want to do. For instance, 
+ * the printing command-line debug/default printing by soot can be annoying.
  * @author Mikosh
  */
 public class SootRunner extends Main {
+    // Note most of the fields and methods here are just duplicates. This is due to the difficulty in inherting 
+    // the soot Main class as most of the fields and methods are private.
+    // The altered method is main(...)
+    
+    
     private static SootRunner instance;
     
     private Date start;
@@ -54,18 +60,28 @@ public class SootRunner extends Main {
         super(g);
     }
    
+    /**
+     * Runs soot. This method calls run(args, libpaths) but added is a try catch for OutOfMemoryError
+     * @param args the soot arguments
+     * @param libPaths the library paths for the application
+     */
     public static void main(String[] args, String libPaths) {
         try {
-            //Main.v().run(args);
+            //Main.v().run(args); // usually this is what is called
             SootRunner.getInstance().run(args, libPaths);
         } catch( OutOfMemoryError e ) {
             G.v().out.println( "Soot has run out of the memory allocated to it by the Java VM." );
             G.v().out.println( "To allocate more memory to Soot, use the -Xmx switch to Java." );
-            G.v().out.println( "For example (for 400MB): java -Xmx400m soot.Main ..." );
+            G.v().out.println( "For example (for 400MB): java -Xmx2000m ..." );
             throw e;
         }
     }
     
+    /**
+     * Runs soot
+     * @param args the soot arguments
+     * @param libPaths the library paths for the application
+     */
     public void run(String[] args, String libPaths) {
         cmdLineArgs = args;
 

@@ -7,15 +7,36 @@
 package bugfind.sootadapters;
 
 /**
- *
+ * This is Variable object and denotes a variable. It provides a uniform interface for soot's JimpleLocal, JInstanceFieldRef, etc
+ * It hold enough information about the variable like the name, type and level (either static, field or local).
  * @author Mikosh
  */
 public class Variable {
+    /**
+     * The three allowable levels of a variable
+     */
     public static final int STATIC_VARIABLE = - 5, FIELD_VARIABLE = -10, LOCAL_VARIABLE = -2;
+    /**
+     * The name of the variable
+     */
     protected String name;
+    
+    /**
+     * The type of the variable
+     */
     protected String type;
+    
+    /**
+     * The level of the variable
+     */
     protected int level;
 
+    /**
+     * Constructs a Variable object when given the name, type and level
+     * @param name the name of the variable
+     * @param type the type of the variable
+     * @param level the level of the variable. Values are either (Variable.STATIC_VARIABLE, FIELD_VARIABLE, LOCAL_VARIABLE)
+     */
     public Variable(String name, String type, int level) {
         this.name = name;
         this.type = type;
@@ -48,8 +69,8 @@ public class Variable {
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder("var name: ");
-        sb.append(getName()).append(" var type: ").append(getType()).append(" var level");
+        StringBuilder sb = new StringBuilder("var-name: ");
+        sb.append(getName()).append(" var-type: ").append(getType()).append(" var-level: ");
         switch (getLevel()) {
             case LOCAL_VARIABLE:
                 sb.append("LOCAL_VAR");

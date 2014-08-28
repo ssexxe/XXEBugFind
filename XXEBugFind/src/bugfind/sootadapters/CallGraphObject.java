@@ -266,26 +266,9 @@ public class CallGraphObject {
            Options.v().set_allow_phantom_refs(true);
            PhaseOptions.v().setPhaseOption("tag.ln", "on");
            //PhaseOptions.v().setPhaseOption("cg.spark", "enabled:true");
+           //PhaseOptions.v().setPhaseOption("cg.paddle", "enabled:true");
            G.v().out = new PrintStream(new File("soot.txt"));
            System.out.println("started...");
-           //Scene.v();
-           //Scene.v().tryLoadClass("javax.xml.parsers.DocumentBuilder", SootClass.SIGNATURES);
-           //Scene.v().tryLoadClass("org.​jdom2.​input.SAXBuilder", SootClass.BODIES);
-           //Scene.v().loadBasicClasses();
-           //Scene.v().loadNecessaryClasses();//"org.jdom2.input.SAXBuilder".length().equals("org.​jdom2");
-           //Scene.v().loadDynamicClasses();
-            //Scene.v().getSootClass("org.​jdom2.​input.SAXBuilder");// ;
-           //Scene.v().getSootClass("mydom.DomParserExample"); 
-           //Scene.v().loadClassAndSupport("org.apache.xerces.parsers.SAXParser"); 
-//           System.out.println("scp: "+Options.v().soot_classpath());
-//           Options.v().set_soot_classpath(cpOptionString);
-//           SootClass sc = Scene.v().loadClassAndSupport("org.jdom2.input.SAXBuilder");           
-//           sc = Scene.v().getSootClass("org.jdom2.input.SAXBuilder");
-//           //SootClass sc = Scene.v().loadClassAndSupport("org.​jdom2.​input.SAXBuilder");
-//           sc.getMethods();
-//           //Scene.v().tryLoadClass("org.apache.xerces.parsers.SAXParser", SootClass.BODIES);
-//           System.out.println("scp2: "+Options.v().soot_classpath());
-           //Scene.v().loadClassAndSupport("org.apache.xerces.parsers.SAXParser"); 
            
            SootRunner.main(args, libLocation);//        soot.Main.main(args);
 	}

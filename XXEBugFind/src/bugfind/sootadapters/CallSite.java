@@ -6,38 +6,62 @@
 
 package bugfind.sootadapters;
 
-import javax.xml.parsers.DocumentBuilder;
 import soot.SootMethod;
 import soot.jimple.toolkits.callgraph.Edge;
 import soot.tagkit.LineNumberTag;
 
 /**
- *
+ * This indicates a call site for a method. It takes an Edge object.
  * @author Mikosh
  */
 public class CallSite implements Comparable<CallSite> {
     protected static final String LINE_NUMBER_TAG = "LineNumberTag";
+    
+    /**
+     * the edge to be set
+     */
     protected Edge edge;
     
 
+    /**
+     * Creates a CallSite when given the edge
+     * @param edge the soot edge to create from
+     */
     public CallSite(Edge edge) {
         this.edge = edge;        
     }
 
-    public int getLineLocation() {DocumentBuilder db;
-        //edge.tgt().getDeclaringClass().getActiveBody().getUnitBoxes(true).get().getUnit().getTags()
+    /**
+     * Returns the line location of this call site in the java file it occurs in otherwise returns -1
+     * if the line location could not be obtained
+     * @return the line location of this call site or -1 if it cannot be gotten
+     */
+    public int getLineLocation() {        
         LineNumberTag lineTag = (LineNumberTag) edge.srcUnit().getTag(LINE_NUMBER_TAG);
-        return lineTag.getLineNumber();
+        if (lineTag == null) return -1;
+        else return lineTag.getLineNumber();
     }
     
+    /**
+     * Gets the method where this call site occurs in
+     * @return the method that contains this call site
+     */
     public SootMethod getSourceMethod() {
         return (SootMethod) edge.getSrc();
     }
 
+    /**
+     * Gets the edge
+     * @return 
+     */
     public Edge getEdge() {
         return edge;
     }
 
+    /**
+     * Sets the edge
+     * @param edge 
+     */
     public void setEdge(Edge edge) {
         this.edge = edge;
     }      
@@ -62,7 +86,8 @@ public class CallSite implements Comparable<CallSite> {
             return 1;
         }
         else {// ie they are on the same line. now determine which one is called first
-            throw new RuntimeException("Both call sites occur in the same line. This is not supported yet");
+            boolean isBefore = SimpleIntraDataFlowAnalysis.isBefore(this.getSourceMethod(), this.getEdge().srcStmt(), o.getEdge().srcStmt());
+            return (isBefore) ? -1 : 1;//throw new RuntimeException("Both call sites occur in the same line. This is not supported yet" + this.toString() + " against " + o.toString());
         }
     }
     

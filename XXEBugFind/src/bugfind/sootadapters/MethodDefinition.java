@@ -18,7 +18,8 @@ import soot.SootMethod;
 import soot.Type;
 
 /**
- *
+ * This class encapsulates a Method Definition. It stores info on the class that contains the method, the 
+ * method name, the method parameter signature and also the return type
  * @author Mikosh
  */
 @XmlRootElement
@@ -36,8 +37,12 @@ public class MethodDefinition {
     @XmlElement (name = "ReturnType")
     private String returnType;
 
+    /**
+     * Creates a method definition object
+     */
     public MethodDefinition() {}
 
+    
     public MethodDefinition(String className, String methodName, List<MethodParameter> parameterList, String returnType) {
         this.className = className;
         this.methodName = methodName;
@@ -214,6 +219,10 @@ public class MethodDefinition {
                     }
                 }
             }
+        }
+        
+        if (sc.isAbstract() || sc.isInterface()) {// it is permitted for abstract or iface not to have the method
+            return null;
         }
         
         //SootClass sc1 = Scene.v().loadClassAndSupport("org.apache.xerces.parsers.SAXParser");//Scene.v().getSootClass("org.​apache.​xerces.​parsers.SAXParser"); 

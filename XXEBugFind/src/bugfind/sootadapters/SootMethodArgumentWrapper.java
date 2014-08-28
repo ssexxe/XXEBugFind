@@ -7,7 +7,7 @@
 package bugfind.sootadapters;
 
 /**
- *
+ * 
  * @author Mikosh
  */
 public class SootMethodArgumentWrapper {

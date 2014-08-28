@@ -9,7 +9,7 @@ package bugfind.sootadapters;
 import soot.SootMethod;
 
 /**
- *
+ * A soot method wrapper
  * @author Mikosh
  */
 public class SootMethodWrapper {
