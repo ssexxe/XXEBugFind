@@ -6,11 +6,15 @@
 
 package bugfind.utils.misc;
 
+import bugfind.xxe.ActualVulnerabilityItems;
+import bugfind.xxe.VulnerabilityDefinitionItems;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.OutputStream;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
+import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
@@ -37,4 +41,17 @@ public class XMLUtils {
         
         return t;
     }
+    
+    public static void writeXMLToStream(ActualVulnerabilityItems avis,  OutputStream os) throws JAXBException {
+        JAXBContext jaxbContext = JAXBContext.newInstance(VulnerabilityDefinitionItems.class);
+        Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
+
+        jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
+
+        jaxbMarshaller.marshal(avis, System.out);
+        jaxbMarshaller.marshal(avis, os);
+    }
+    
+    
+            
 }

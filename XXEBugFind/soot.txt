@@ -1,4 +1,4 @@
-Soot started on Thu Aug 28 06:24:51 BST 2014
+Soot started on Thu Aug 28 10:03:01 BST 2014
 Warning: java.dyn.InvokeDynamic is a phantom class!
 Warning: org.jaxen.VariableContext is a phantom class!
 Warning: org.jaxen.FunctionContext is a phantom class!
@@ -86,5 +86,5 @@ Transforming myxmltest.MyXMLTest...
 Transforming myxmltest.basic.Utils... 
 Transforming piccolotest.MyPiccoloExample... 
 Transforming stax.StAXExample... 
-Soot finished on Thu Aug 28 06:26:22 BST 2014
-Soot has run for 1 min. 30 sec.
+Soot finished on Thu Aug 28 10:04:29 BST 2014
+Soot has run for 1 min. 28 sec.

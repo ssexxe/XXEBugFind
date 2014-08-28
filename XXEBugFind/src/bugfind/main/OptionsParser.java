@@ -39,6 +39,11 @@ public class OptionsParser {
     public static String OUTPUT_FORMAT_OPT = "-f";
     
     /**
+     * this key specifies the file to output findings to.
+     */
+    public static String OUTPUT_FILE_OPT = "-o";
+    
+    /**
      * This key corresponds to the ruleset option.
      */
     public static String RULESET_OPT = "-rs";
@@ -98,6 +103,8 @@ public class OptionsParser {
         } else if (str.toLowerCase().equals(LIB_OPT.toLowerCase())) {
             return true;
         } else if (str.toLowerCase().equals(OUTPUT_FORMAT_OPT.toLowerCase())) {
+            return true;
+        } else if (str.toLowerCase().equals(OUTPUT_FILE_OPT.toLowerCase())) {
             return true;
         } else if (str.toLowerCase().equals(RULESET_OPT.toLowerCase())) {
             return true;

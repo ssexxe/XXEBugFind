@@ -9,14 +9,19 @@ package bugfind.sootadapters;
 import bugfind.main.OptionsParser;
 import bugfind.utils.misc.FileUtil;
 import bugfind.utils.misc.Utils;
+import bugfind.utils.misc.XMLUtils;
 import bugfind.xxe.ActualVulnerabilityItem;
+import bugfind.xxe.ActualVulnerabilityItems;
 import bugfind.xxe.VulnerabilityDefinitionItems;
 import bugfind.xxe.VulnerableXMLMethodDefinitions;
 import bugfind.xxe.XXEVulnerabilityDetector;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.PrintStream;
+import java.io.PrintWriter;
 import java.nio.file.FileSystemException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -85,6 +90,8 @@ public class CallGraphObject {
         StringBuilder sb = new StringBuilder();
         String libLocation = bugFindParametersMap.get(OptionsParser.LIB_OPT);
         String dirLocation = bugFindParametersMap.get(OptionsParser.DIR_OPT);        
+        String outputFormat = bugFindParametersMap.get(OptionsParser.OUTPUT_FORMAT_OPT);
+        String outputFile = bugFindParametersMap.get(OptionsParser.OUTPUT_FILE_OPT);
         String[] dirLocs = null, libLocs = null;
         String pathSep = File.pathSeparator;
         
@@ -128,6 +135,24 @@ public class CallGraphObject {
                 libLocs = new String[]{libLocation};
             }
         }
+        
+        // do checkings for output type and output file
+        if (outputFormat == null && bugFindParametersMap.containsKey(OptionsParser.OUTPUT_FORMAT_OPT)) {
+            throw new Exception("There is no specified value for " + OptionsParser.OUTPUT_FORMAT_OPT + " option");
+        }
+        
+        if (outputFormat != null) {
+            if (!outputFormat.trim().toLowerCase().equals("text") && !outputFormat.trim().toLowerCase().equals("xml")) {
+                throw new Exception("Invalid value specified for " + OptionsParser.OUTPUT_FORMAT_OPT + " option. "
+                        + "Acceptable values are either TEXT or XML ");
+            }
+            outputFormat = outputFormat.trim().toLowerCase();
+
+            if (outputFile == null && bugFindParametersMap.containsKey(OptionsParser.OUTPUT_FILE_OPT)) {
+                throw new Exception("There is no specified value for " + OptionsParser.OUTPUT_FILE_OPT + " option");
+            }
+        }
+        
         
         
         // get rt directory location
@@ -202,49 +227,38 @@ public class CallGraphObject {
 		       CallGraph cg = Scene.v().getCallGraph();//src.getActiveBody().
                        XXEVulnerabilityDetector xvd = new XXEVulnerabilityDetector(cgo);
                        List<ActualVulnerabilityItem> actualVulnerabilities = xvd.findVulnerabilities();
-                       if (actualVulnerabilities.size() > 0) {
-                           System.out.println("\n" + actualVulnerabilities.size() + " variant(s) of xxe vulnerabilities found");
-                       }                                        
-                       int n = 0;
-                       for (ActualVulnerabilityItem avi : actualVulnerabilities) {
-                           ++n;
-                           String classShortName = avi.getVulnerabilityDefinitionItem().getMethodDefinition().getClassName();
-                           
-                           if (classShortName.contains(".")) {
-                               int index = classShortName.lastIndexOf(".");
-                               classShortName = classShortName.substring(index+1);
-                           }
-                           System.out.println("XXE Var-" + n + " due to using " + classShortName
-                                   + " API. See detail: \n" + avi);
-                           System.out.println("Reason: " + avi.getReason());
-                           
-                           System.out.println("Exploitation route");
-                           printCallTraces(avi, cg);
-                           System.out.println("");
-                       }
-                       List l = CallGraphObject.getElevatedClasses();
-////                       //ContextSensitiveCallGraph cg = Scene.v().getContextSensitiveCallGraph();
-////                       boolean rebuildCG = false;
-////                       
-//                      doTest();
-//                       for (MethodDefinition md : vulMethodDefinitionList) {
+                       String outputFormat = (bugFindParametersMap.get(OptionsParser.OUTPUT_FORMAT_OPT) == null) ?
+                               "text": bugFindParametersMap.get(OptionsParser.OUTPUT_FORMAT_OPT); 
+                    try {
+                        String outputFile = bugFindParametersMap.get(OptionsParser.OUTPUT_FILE_OPT);
+                        printActualVunerabilitesFound(cg, actualVulnerabilities, outputFormat, (outputFile != null));
+                    } catch (JAXBException ex) {
+                        Logger.getLogger(CallGraphObject.class.getName()).log(Level.SEVERE, null, ex);
+                    } catch (FileNotFoundException ex) {
+                        Logger.getLogger(CallGraphObject.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                       
+//                       if (actualVulnerabilities.size() > 0) {
+//                           System.out.println("\n" + actualVulnerabilities.size() + " variant(s) of xxe vulnerabilities found");
+//                       }                                        
+//                       int n = 0;
+//                       for (ActualVulnerabilityItem avi : actualVulnerabilities) {
+//                           ++n;
+//                           String classShortName = avi.getVulnerabilityDefinitionItem().getMethodDefinition().getClassName();
 //                           
-//                           boolean ret = SootClassWrapper.needsApplicationElevation(Scene.v().getSootClass(md.getClassName()));
-//                           if (ret) {
-//                               rebuildCG = true;
+//                           if (classShortName.contains(".")) {
+//                               int index = classShortName.lastIndexOf(".");
+//                               classShortName = classShortName.substring(index+1);
 //                           }
+//                           System.out.println("XXE Var-" + n + " due to using " + classShortName
+//                                   + " API. See detail: \n" + avi);
+//                           System.out.println("Reason: " + avi.getReason());
+//                           
+//                           System.out.println("Exploitation route");
+//                           printCallTraces(avi, cg);
+//                           System.out.println("");
 //                       }
-//                       
-//                       if (rebuildCG) {
-//                           CallGraphBuilder cgb = new CallGraphBuilder(DumbPointerAnalysis.v());
-//                           cgb.build();
-//                           cg = cgb.getCallGraph();
-//                       }
-//                       
-//                       Iterator ite = Scene.v().getApplicationClasses().iterator(); 
-//                       while (ite.hasNext()) {
-//                           System.out.println(ite.next());
-//                       }
+                       //List l = CallGraphObject.getElevatedClasses();
 //                       
                        for (MethodDefinition md : vulMethodDefinitionList) {
                            //Scene.v().loadClassAndSupport("org.apache.xerces.jaxp.DocumentBuilderImpl")//getLibraryClasses().toString()
@@ -252,7 +266,7 @@ public class CallGraphObject {
                            //new FastHierarchy().getSubclassesOf(Scene.v().getSootClass(md.getClassName()));
                                    
                            //List l = Scene.v().getActiveHierarchy().getSubclassesOf(Scene.v().getSootClass(md.getClassName()));
-                           if (false) displayExecutionTraceForMethod(cg, md);
+                           if (false) displayExecutionTraceForMethod(cg, md, System.out);
                        }
 		}
                 
@@ -469,7 +483,7 @@ public class CallGraphObject {
         return list;
     }
 
-    protected void displayExecutionTraceForMethod(CallGraph cg, MethodDefinition md) {
+    protected void displayExecutionTraceForMethod(CallGraph cg, MethodDefinition md, PrintStream ps) {
         List<MethodDefinition.MethodParameter> lparams = md.getParameterList();
         List<String> paramList2 = new ArrayList<>();
         
@@ -522,8 +536,8 @@ public class CallGraphObject {
                 lList = getCallStackTraces(cg, MethodDefinition.getSootMethod(sc, md)//sc.getMethod(meth.getName(), meth.getParameterTypes())
                         , lsm, lList);
                 int i = 0;
-                System.out.println("printing call trace for [" + meth.getDeclaringClass().getName() + " " + meth.getDeclaration() + "]");
-                printStackTraces(lList);
+                ps.println("printing call trace for [" + meth.getDeclaringClass().getName() + " " + meth.getDeclaration() + "]");
+                printStackTraces(lList, ps);
             }
         }
         else if (msc.isAbstract()) {//Scene.v().getActiveHierarchy().getSubclassesOf(Scene.v().getSootClass("javax.xml.parsers.DocumentBuilder"));//meth.getDeclaringClass().getMethods()
@@ -535,8 +549,8 @@ public class CallGraphObject {
                 lList = getCallStackTraces(cg, MethodDefinition.getSootMethod(sc, md)//sc.getMethod(meth.getName(), meth.getParameterTypes())
                             , lsm, lList);
                 int i = 0;
-                System.out.println("printing call trace for [" + meth.getDeclaringClass().getName() + " " + meth.getDeclaration() + "]");
-                printStackTraces(lList);
+                ps.println("printing call trace for [" + meth.getDeclaringClass().getName() + " " + meth.getDeclaration() + "]");
+                printStackTraces(lList, ps);
             }
         }        
         else {
@@ -546,8 +560,8 @@ public class CallGraphObject {
 
             lList = getCallStackTraces(cg, meth, lsm, lList);
             int i = 0;
-            System.out.println("printing call trace for [" + meth.getDeclaringClass().getName() + " " + meth.getDeclaration() + "]");
-            printStackTraces(lList);
+            ps.println("printing call trace for [" + meth.getDeclaringClass().getName() + " " + meth.getDeclaration() + "]");
+            printStackTraces(lList, ps);
         //for(List<SootMethod> l : ml) {
             //    System.out.println("Tgt ML src No: " + ++i
             //        + "\nTgt: " + meth + "\nSet: " + l);
@@ -555,7 +569,7 @@ public class CallGraphObject {
         }
     }
     
-    protected void displayExecutionTraceForMethod(CallGraph cg, SootMethod meth) {
+    protected void displayExecutionTraceForMethod(CallGraph cg, SootMethod meth, PrintStream ps) {
       
         SootClass msc = meth.getDeclaringClass();
                 //Scene.v().tryLoadClass(md.getClassName(), SootClass.SIGNATURES);
@@ -573,8 +587,8 @@ public class CallGraphObject {
                 lList = getCallStackTraces(cg, MethodDefinition.getOverrideSootMethod(sc, meth)//sc.getMethod(meth.getName(), meth.getParameterTypes())
                         , lsm, lList);
                 int i = 0;
-                System.out.println("printing call trace for [" + meth.getDeclaringClass().getName() + " " + meth.getDeclaration() + "]");
-                printStackTraces(lList);
+                ps.println("printing call trace for [" + meth.getDeclaringClass().getName() + " " + meth.getDeclaration() + "]");
+                printStackTraces(lList, ps);
             }
         }
         else if (msc.isAbstract()) {//Scene.v().getActiveHierarchy().getSubclassesOf(Scene.v().getSootClass("javax.xml.parsers.DocumentBuilder"));//meth.getDeclaringClass().getMethods()
@@ -587,7 +601,7 @@ public class CallGraphObject {
                             , lsm, lList);
                 int i = 0;
                 System.out.println("printing call trace for [" + meth.getDeclaringClass().getName() + " " + meth.getDeclaration() + "]");
-                printStackTraces(lList);
+                printStackTraces(lList, ps);
             }
         }        
         else {
@@ -598,7 +612,7 @@ public class CallGraphObject {
             lList = getCallStackTraces(cg, meth, lsm, lList);
             int i = 0;
             System.out.println("printing call trace for [" + meth.getDeclaringClass().getName() + " " + meth.getDeclaration() + "]");
-            printStackTraces(lList);
+            printStackTraces(lList, ps);
         //for(List<SootMethod> l : ml) {
             //    System.out.println("Tgt ML src No: " + ++i
             //        + "\nTgt: " + meth + "\nSet: " + l);
@@ -617,7 +631,7 @@ public class CallGraphObject {
         return -1;
     }
     
-    public void printCallTraces(ActualVulnerabilityItem avi, CallGraph cg) {
+    public void printCallTraces(ActualVulnerabilityItem avi, CallGraph cg, PrintStream ps) {
         List<List<SootMethod>> ltrunk = new ArrayList<>();
         List<SootMethod> atrace = new ArrayList<>();
         for (CallSite cs : avi.getOccurrencesList()) {
@@ -627,11 +641,11 @@ public class CallGraphObject {
                 l.add(0, cs.getEdge().tgt());
             }
             
-            printStackTraces(ltrunk);
+            printStackTraces(ltrunk, ps);
         }      
     }
     
-    public void printStackTraces(List<List<SootMethod>> list) {
+    public void printStackTraces(List<List<SootMethod>> list, PrintStream ps) {
         StringBuilder sb = new StringBuilder();
         int n=0;
         for (List<SootMethod> l : list) {
@@ -647,7 +661,7 @@ public class CallGraphObject {
             if (sb.toString().endsWith(" --> ")) {
                 sb.delete(sb.lastIndexOf(" --> "), sb.length());
             }
-            System.out.println(sb);
+            ps.println(sb);
         }
         //System.out.println("\n");
     }
@@ -812,5 +826,45 @@ public class CallGraphObject {
             getElevatedClasses().add(sc);
         }
     }
-    
+
+    protected void printActualVunerabilitesFound(CallGraph cg, List<ActualVulnerabilityItem> actualVulnerabilities, String outputFormat, boolean printToFile) throws JAXBException, FileNotFoundException {
+        OutputStream os = (printToFile) ? 
+                    new FileOutputStream(bugFindParametersMap.get(OptionsParser.OUTPUT_FILE_OPT))
+                    : System.out;
+        
+        if (outputFormat.toLowerCase().equals("xml")) {
+            ActualVulnerabilityItems avis = new ActualVulnerabilityItems();
+            avis.setActualVulnerabilityItems(actualVulnerabilities);            
+            XMLUtils.writeXMLToStream(avis, os);
+        }
+        else {
+            PrintStream ps = new PrintStream(os);
+         
+            if (actualVulnerabilities.size() > 0) {
+                ps.println("\n" + actualVulnerabilities.size() + " variant(s) of xxe vulnerabilities found");
+            }
+            
+            int n = 0;
+            for (ActualVulnerabilityItem avi : actualVulnerabilities) {
+                ++n;
+                String classShortName = avi.getVulnerabilityDefinitionItem().getMethodDefinition().getClassName();
+
+                if (classShortName.contains(".")) {
+                    int index = classShortName.lastIndexOf(".");
+                    classShortName = classShortName.substring(index + 1);
+                }
+                ps.println("XXE Var-" + n + " due to using " + classShortName
+                        + " API. See detail: \n" + avi);
+                ps.println("Reason: " + avi.getReason());
+
+                ps.println("Exploitation route");
+                printCallTraces(avi, cg, ps);
+                ps.println("");
+            }
+            
+            ps.flush();
+            ps.close();
+        }
+        
+    }
 }
