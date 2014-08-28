@@ -177,7 +177,7 @@ public class CallGraphObjectTest {
         CallGraph cg = null;
         MethodDefinition md = null;
         CallGraphObject instance = null;
-        instance.displayExecutionTraceForMethod(cg, md);
+        instance.displayExecutionTraceForMethod(cg, md, null);
         // TODO review the generated test code and remove the default call to fail.
         fail("The test case is a prototype.");
     }
@@ -191,7 +191,7 @@ public class CallGraphObjectTest {
         CallGraph cg = null;
         SootMethod meth = null;
         CallGraphObject instance = null;
-        instance.displayExecutionTraceForMethod(cg, meth);
+        instance.displayExecutionTraceForMethod(cg, meth, null);
         // TODO review the generated test code and remove the default call to fail.
         fail("The test case is a prototype.");
     }
@@ -220,7 +220,7 @@ public class CallGraphObjectTest {
         ActualVulnerabilityItem avi = null;
         CallGraph cg = null;
         CallGraphObject instance = null;
-        instance.printCallTraces(avi, cg);
+        instance.printCallTraces(avi, cg, null);
         // TODO review the generated test code and remove the default call to fail.
         fail("The test case is a prototype.");
     }
@@ -233,7 +233,7 @@ public class CallGraphObjectTest {
         System.out.println("printStackTraces");
         List<List<SootMethod>> list = null;
         CallGraphObject instance = null;
-        instance.printStackTraces(list);
+        instance.printStackTraces(list, null);
         // TODO review the generated test code and remove the default call to fail.
         fail("The test case is a prototype.");
     }
