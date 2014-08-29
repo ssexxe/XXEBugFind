@@ -12,10 +12,19 @@ import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import soot.BooleanType;
+import soot.CharType;
+import soot.DoubleType;
+import soot.IntType;
+import soot.LongType;
+import soot.Modifier;
+import soot.RefType;
 import soot.Scene;
+import soot.ShortType;
 import soot.SootClass;
 import soot.SootMethod;
 import soot.Type;
+import soot.VoidType;
 
 /**
  * This class encapsulates a Method Definition. It stores info on the class that contains the method, the 
@@ -94,6 +103,22 @@ public class MethodDefinition {
      */
     public List<MethodParameter> getParameterList() {
         return parameterList;
+    }
+    
+    public List<String> getParameterTypesOnlyAsString() {
+        List<String> list = new ArrayList<>();
+        for (MethodParameter mp : getParameterList()) {
+            list.add(mp.getType());
+        }
+        return list;
+    }
+    
+    public List<Type> getParameterTypesOnly() {
+        List<Type> list = new ArrayList<>();
+        for (MethodParameter mp : getParameterList()) {
+            list.add(convertToType(mp.getType()));
+        }
+        return list;
     }
 
     /**
@@ -195,7 +220,7 @@ public class MethodDefinition {
     
     public static SootMethod getSootMethod(SootClass sc, MethodDefinition md) {
         List<SootMethod> list = new SootClassWrapper(sc).getAllMethodsDeclaredIncludingInherited();//sc.getMethods();
-        Scene.v().getSootClass("org.jdom2.input.SAXBuilder").getMethods();
+        
         for (SootMethod meth : list) { 
             if (meth.getName().equals(md.getMethodName())) {
                 if (meth.getParameterCount() == md.getParameterList().size()) {       
@@ -220,10 +245,14 @@ public class MethodDefinition {
             }
         }
         
-        //SootClass sc1 = Scene.v().loadClassAndSupport("org.apache.xerces.parsers.SAXParser");//Scene.v().getSootClass("org.​apache.​xerces.​parsers.SAXParser"); 
-        //sc1.setApplicationClass();
-        
-     //  sc.getMethodByName("parse")
+        if (sc.isPhantomClass()) {
+            md.getParameterTypesOnly();
+            SootMethod m = new SootMethod(md.getMethodName(), md.getParameterTypesOnly(), convertToType(md.getReturnType()));
+            m.setModifiers(Modifier.PUBLIC);//Scene.v().getPointsToAnalysis();
+            sc.addMethod(m);
+            return m;            
+        }
+     
         // code must not reach here// reaching here means no method of the md signature exists
         throw new RuntimeException("Couldn't find method signature " + md + " in " + sc);
     }
@@ -265,6 +294,36 @@ public class MethodDefinition {
      //  sc.getMethodByName("parse")
         // code must not reach here// reaching here means no method of the md signature exists
         throw new RuntimeException("Couldn't find method that override " + baseMethod + " in " + sc);
+    }
+    
+    protected static Type convertToType(String type) {
+        if (type.equals("void")) {
+            return VoidType.v();
+        }
+        else if (type.equals("int")) {
+            return IntType.v();
+        }
+        else if (type.equals("short")) {
+            return ShortType.v();
+        }
+        else if (type.equals("long")) {
+            return LongType.v();
+        }
+        else if (type.equals("boolean")) {
+            return BooleanType.v();
+        }
+        else if (type.equals("char")) {
+            return CharType.v();
+        }
+        else if (type.equals("float")) {
+            return BooleanType.v();
+        }
+        else if (type.equals("double")) {
+            return DoubleType.v();
+        }
+        else {
+            return RefType.v(type);
+        }
     }
     
     @Override

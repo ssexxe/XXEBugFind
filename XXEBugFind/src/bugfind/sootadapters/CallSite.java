@@ -47,7 +47,7 @@ public class CallSite implements Comparable<CallSite> {
      * @return the method that contains this call site
      */
     public SootMethod getSourceMethod() {
-        return (SootMethod) edge.getSrc();
+        return edge.src();
     }
 
     /**

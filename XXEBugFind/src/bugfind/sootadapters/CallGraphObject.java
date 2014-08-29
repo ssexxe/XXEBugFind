@@ -108,23 +108,21 @@ public class CallGraphObject {
         this.bugFindParametersMap = bugFindParametersMap;
     }   
     
-    
-    
     public void runAnalysis() throws FileNotFoundException, FileSystemException, Exception {
-        FileUtil fileUtil = FileUtil.getFileUtil();        
+        FileUtil fileUtil = FileUtil.getFileUtil();
         StringBuilder sb = new StringBuilder();
         String libLocation = bugFindParametersMap.get(OptionsParser.LIB_OPT);
-        String dirLocation = bugFindParametersMap.get(OptionsParser.DIR_OPT);        
+        String dirLocation = bugFindParametersMap.get(OptionsParser.DIR_OPT);
         String outputFormat = bugFindParametersMap.get(OptionsParser.OUTPUT_FORMAT_OPT);
         String outputFile = bugFindParametersMap.get(OptionsParser.OUTPUT_FILE_OPT);
         String[] dirLocs = null, libLocs = null;
         String pathSep = File.pathSeparator;
-        
+
         // first parse target application location
         if (dirLocation == null) {
             throw new Exception("There is no specified value for " + OptionsParser.DIR_OPT + " option");
         }
-        
+
         if (dirLocation.contains(";")) { // means it contains more than one main jar file/dirs
             dirLocs = dirLocation.split(";");
             for (String dirLoc : dirLocs) {
@@ -132,21 +130,21 @@ public class CallGraphObject {
                     sb.append(fileUtil.getFullPathName(dirLoc.trim())).append(pathSep);
                 }
             }
-            dirLocation = (sb.lastIndexOf(pathSep) == sb.length() -1) ? sb.substring(0, sb.length() - 1) : sb.toString();
-        }
+            dirLocation = (sb.lastIndexOf(pathSep) == sb.length() - 1) ? sb.substring(0, sb.length() - 1) : sb.toString();
+        } 
         else {
             dirLocs = new String[]{fileUtil.getFullPathName(dirLocation)};
         }
-        
+
         // check if the application depends on supporting libs and process process 
         sb.setLength(0);
         if (libLocation == null && bugFindParametersMap.containsKey(OptionsParser.LIB_OPT)) {
             throw new Exception("There is no specified value for " + OptionsParser.LIB_OPT + " option");
-        }
-        else {        
+        } 
+        else {
             if (libLocation == null || libLocation.trim().isEmpty()) {
                 libLocation = "";
-            }
+            } 
             else if (libLocation.contains(";")) { // means it contains more than one main jar file/dirs
                 libLocs = libLocation.split(";");
                 for (String libLoc : libLocs) {
@@ -155,20 +153,21 @@ public class CallGraphObject {
                         //System.out.println("splitting libs: " + fileUtil.getFullPathName(libLoc.trim()));
                     }
                 }
-                libLocation = (sb.lastIndexOf(pathSep) == sb.length() -1) ? sb.substring(0, sb.length() - 1) : sb.toString();
-            } else {
+                libLocation = (sb.lastIndexOf(pathSep) == sb.length() - 1) ? sb.substring(0, sb.length() - 1) : sb.toString();
+            } 
+            else {
                 libLocs = new String[]{libLocation};
             }
         }
-        
+
         // do checkings for output type and output file
         if (outputFormat == null && bugFindParametersMap.containsKey(OptionsParser.OUTPUT_FORMAT_OPT)) {
             throw new Exception("There is no specified value for " + OptionsParser.OUTPUT_FORMAT_OPT + " option");
         }
-        
+
         if (outputFormat != null) {
-            if (!outputFormat.trim().toLowerCase().equals(BugFindConstants.TEXT_FORMAT) && 
-                    !outputFormat.trim().toLowerCase().equals(BugFindConstants.XML_FORMAT)) {
+            if (!outputFormat.trim().toLowerCase().equals(BugFindConstants.TEXT_FORMAT)
+                    && !outputFormat.trim().toLowerCase().equals(BugFindConstants.XML_FORMAT)) {
                 throw new Exception("Invalid value specified for " + OptionsParser.OUTPUT_FORMAT_OPT + " option. "
                         + "Acceptable values are either TEXT or XML ");
             }
@@ -176,16 +175,15 @@ public class CallGraphObject {
             // ensure the exact value is set in bugfind
             bugFindParametersMap.put(OptionsParser.OUTPUT_FORMAT_OPT, outputFormat);
         }
-        
+
         if (outputFile == null && bugFindParametersMap.containsKey(OptionsParser.OUTPUT_FILE_OPT)) {
             throw new Exception("There is no specified value for " + OptionsParser.OUTPUT_FILE_OPT + " option");
         }
-        
+
         // get rt directory location
-        
         String rtDirectory = null;
         String userSpecifiedRTLocation = bugFindParametersMap.get(OptionsParser.RT_LIB_LOC_OPT);
-        
+
         if (userSpecifiedRTLocation != null) {
             File f = new File(userSpecifiedRTLocation);
             if (!f.exists()) {
@@ -193,40 +191,40 @@ public class CallGraphObject {
                         + userSpecifiedRTLocation + "' does not exist");
             }
             rtDirectory = fileUtil.getFullPathName(userSpecifiedRTLocation.trim());
-        }
+        } 
         else {
             String guessedRTdir = fileUtil.getRTDirectory();
             if (guessedRTdir == null) {
                 throw new Exception("Cannot find the directory containing java's rt.jar lib. This is needed"
-                        + "for call graph generation. Use the " + 
-                        OptionsParser.RT_LIB_LOC_OPT + " option to specify the directory containing rt.jar");
+                        + "for call graph generation. Use the "
+                        + OptionsParser.RT_LIB_LOC_OPT + " option to specify the directory containing rt.jar");
             }
-            
+
             rtDirectory = guessedRTdir;
         }
-      
+
         String javaNecessaryJarsLoc = Utils.join(fileUtil.getAllFilesWithExtension(rtDirectory, ".jar"), pathSep);
         String cpOptionString = (!libLocation.trim().isEmpty()) ? dirLocation + pathSep + libLocation + pathSep + javaNecessaryJarsLoc
-                :dirLocation + pathSep + javaNecessaryJarsLoc;
-        
+                : dirLocation + pathSep + javaNecessaryJarsLoc;
+
         List<String> argsList = new ArrayList<String>();
-        
+
         // add all the necessary aguments to start the call graph generation
         argsList.addAll(Arrays.asList(new String[]{
-			   "-w",  
-                           //"-allow-phantom-refs",
-                           //"-via-grimp",
-                           //"-f",
-                           //"dava",
-                           "-p",
-                           "cg",
-                           "all-reachable:true",
-                           "-p",
-                           "jb",
-                           "use-original-names:false", //"-f", "dava",not in graph!
-                           "-cp",
-                           cpOptionString}));
-        for (String s: dirLocs) {
+            "-w",
+            //"-allow-phantom-refs",
+            //"-via-grimp",
+            //"-f",
+            //"dava",
+            "-p",
+            "cg",
+            "all-reachable:true",
+            "-p",
+            "jb",
+            "use-original-names:false", //"-f", "dava",not in graph!
+            "-cp",
+            cpOptionString}));
+        for (String s : dirLocs) {
             if (!s.trim().isEmpty()) {
                 argsList.add("-process-dir");
                 argsList.add(s.trim());
@@ -240,30 +238,52 @@ public class CallGraphObject {
         //    throw new Exception("There is no specified value for " + OptionsParser.VMD_OPT + " option");
         //}
         this.vulMethodDefinitionList = getVulnerableMethodDefinitions(vulmethodDefs);
-        // check if method def list is empty
+        
+        // add our custom scene transformer to deal with the call graph finds
+        addCustomSootTransformer();
+
+        String[] args = argsList.toArray(new String[0]);
+
+        Options.v().set_keep_line_number(true);
+        Options.v().set_include_all(true);
+        Options.v().set_allow_phantom_refs(true);
+        PhaseOptions.v().setPhaseOption("tag.ln", "on");
+           //PhaseOptions.v().setPhaseOption("cg.spark", "enabled:true");
+        //PhaseOptions.v().setPhaseOption("cg.paddle", "enabled:true");
+        G.v().out = new PrintStream(new File("soot.txt"));
+        System.out.println("started...");
+
+        SootRunner.main(args, libLocation);//        soot.Main.main(args);
+    }
+
+    protected void addCustomSootTransformer() {
         final CallGraphObject cgo = this;
         
         // add our custom scene transformer to deal with the call graph finds
         PackManager.v().getPack("wjtp").add(new Transform("wjtp.BugFindTrans", new SceneTransformer() {
-	//PackManager.v().getPack("gb").add(new Transform("gb.BugFindTrans", new SceneTransformer() {
+            //PackManager.v().getPack("gb").add(new Transform("gb.BugFindTrans", new SceneTransformer() {
 
-		@Override
-		protected void internalTransform(String phaseName, Map options) {
-		       //CHATransformer.v().transform();
-		       CallGraph cg = Scene.v().getCallGraph();//src.getActiveBody().
-                       XXEVulnerabilityDetector xvd = new XXEVulnerabilityDetector(cgo);
-                       List<ActualVulnerabilityItem> actualVulnerabilities = xvd.findVulnerabilities();
-                       String outputFormat = (bugFindParametersMap.get(OptionsParser.OUTPUT_FORMAT_OPT) == null) ?
-                               BugFindConstants.TEXT_FORMAT: bugFindParametersMap.get(OptionsParser.OUTPUT_FORMAT_OPT); 
-                    try {
-                        String outputFile = bugFindParametersMap.get(OptionsParser.OUTPUT_FILE_OPT);
-                        printActualVunerabilitesFound(cg, actualVulnerabilities, outputFormat, (outputFile != null));
-                    } catch (JAXBException ex) {
-                        Logger.getLogger(CallGraphObject.class.getName()).log(Level.SEVERE, null, ex);
-                    } catch (FileNotFoundException ex) {
-                        Logger.getLogger(CallGraphObject.class.getName()).log(Level.SEVERE, null, ex);
-                    }
-                       
+            @Override
+            protected void internalTransform(String phaseName, Map options) {
+                //CHATransformer.v().transform();
+                CallGraph cg = Scene.v().getCallGraph();//src.getActiveBody().
+                XXEVulnerabilityDetector xvd = new XXEVulnerabilityDetector(cgo);
+                List<ActualVulnerabilityItem> actualVulnerabilities = xvd.findVulnerabilities();
+                String outputFormat = (bugFindParametersMap.get(OptionsParser.OUTPUT_FORMAT_OPT) == null)
+                        ? BugFindConstants.TEXT_FORMAT : bugFindParametersMap.get(OptionsParser.OUTPUT_FORMAT_OPT);
+                if (actualVulnerabilities.isEmpty()) {
+                    System.out.println("No exploitable XXE vulnerabilities found");
+                }
+                System.out.println("Ended");
+                try {
+                    String outputFile = bugFindParametersMap.get(OptionsParser.OUTPUT_FILE_OPT);
+                    printActualVunerabilitesFound(cg, actualVulnerabilities, outputFormat, (outputFile != null));
+                } catch (JAXBException ex) {
+                    Logger.getLogger(CallGraphObject.class.getName()).log(Level.SEVERE, null, ex);
+                } catch (FileNotFoundException ex) {
+                    Logger.getLogger(CallGraphObject.class.getName()).log(Level.SEVERE, null, ex);
+                }
+
 //                       if (actualVulnerabilities.size() > 0) {
 //                           System.out.println("\n" + actualVulnerabilities.size() + " variant(s) of xxe vulnerabilities found");
 //                       }                                        
@@ -284,35 +304,22 @@ public class CallGraphObject {
 //                           printCallTraces(avi, cg);
 //                           System.out.println("");
 //                       }
-                       //List l = CallGraphObject.getElevatedClasses();
+                //List l = CallGraphObject.getElevatedClasses();
 //                       
-                       for (MethodDefinition md : vulMethodDefinitionList) {
+                for (MethodDefinition md : vulMethodDefinitionList) {
                            //Scene.v().loadClassAndSupport("org.apache.xerces.jaxp.DocumentBuilderImpl")//getLibraryClasses().toString()
-                           //Scene.v().getSootClass("org.apache.xerces.jaxp.DocumentBuilderImpl")
-                           //new FastHierarchy().getSubclassesOf(Scene.v().getSootClass(md.getClassName()));
-                                   
-                           //List l = Scene.v().getActiveHierarchy().getSubclassesOf(Scene.v().getSootClass(md.getClassName()));
-                           if (false) displayExecutionTraceForMethod(cg, md, System.out);
-                       }
-		}
-                
-		   
-	   }));
+                    //Scene.v().getSootClass("org.apache.xerces.jaxp.DocumentBuilderImpl")
+                    //new FastHierarchy().getSubclassesOf(Scene.v().getSootClass(md.getClassName()));
 
-           String[] args = argsList.toArray(new String[0]);
-           
-           Options.v().set_keep_line_number(true);
-           Options.v().set_include_all(true);
-           Options.v().set_allow_phantom_refs(true);
-           PhaseOptions.v().setPhaseOption("tag.ln", "on");
-           //PhaseOptions.v().setPhaseOption("cg.spark", "enabled:true");
-           //PhaseOptions.v().setPhaseOption("cg.paddle", "enabled:true");
-           G.v().out = new PrintStream(new File("soot.txt"));
-           System.out.println("started...");
-           
-           SootRunner.main(args, libLocation);//        soot.Main.main(args);
-	}
-        
+                    //List l = Scene.v().getActiveHierarchy().getSubclassesOf(Scene.v().getSootClass(md.getClassName()));
+                    if (false) {
+                        displayExecutionTraceForMethod(cg, md, System.out);
+                    }
+                }
+            }
+
+        }));
+    }
         
         
     public static List<SootMethod> getCallingAncestors(CallGraph cg, SootMethod src) {
