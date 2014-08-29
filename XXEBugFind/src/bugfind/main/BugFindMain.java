@@ -28,12 +28,12 @@ public class BugFindMain {
      * This is the main entry point into the application
      * @param args the command line arguments
      */
-    public static void main(String[] args) {
+    public static void main(String[] args) {      
         
-        //args = mockargs();
+        args = mockargs();
         
         Map<String, String> inputMap = OptionsParser.parse(args);
-  //CallGraphObject.doTest2();
+  
         CallGraphObject cgo = CallGraphObject.getInstance(inputMap);
         try {
             cgo.runAnalysis();
@@ -47,7 +47,7 @@ public class BugFindMain {
     
     private static String[] mockargs() {
                 return new String[]{"-d",      
-            "C:\\Users\\Mikosh\\Dropbox\\Bug Variant Detection project\\xxebugfindtool\\xxebugfind\\play_2.10.jar",
+            //"C:\\Users\\Mikosh\\Dropbox\\Bug Variant Detection project\\xxebugfindtool\\xxebugfind\\play_2.10.jar",
             //"C:\\Users\\Mikosh\\Documents\\Netbeans Libs\\others\\play-2.0.8\\play-2.0.8\\repository\\local\\play\\play_2.9.1\\2.0.8\\jars\\play_2.9.1",
             //"C:\\Users\\Mikosh\\Documents\\NetbeansProjects\\MyXMLTest\\dist\\MyXMLTest.jar",
             //"C:\\Users\\Mikosh\\Documents\\NetbeansProjects\\MyXMLTest2\\dist\\MyXMLTest2.jar",
