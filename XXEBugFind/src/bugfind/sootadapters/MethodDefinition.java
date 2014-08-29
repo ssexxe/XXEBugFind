@@ -72,22 +72,42 @@ public class MethodDefinition {
         this.className = className;
     }
 
+    /**
+     * Get the method name.
+     * @return method name.
+     */
     public String getMethodName() {
         return methodName;
     }
 
+    /**
+     * Set method name with given method name.
+     * @param methodName method name given.
+     */
     public void setMethodName(String methodName) {
         this.methodName = methodName;
     }
 
+    /**
+     * 
+     * @return 
+     */
     public List<MethodParameter> getParameterList() {
         return parameterList;
     }
 
+    /**
+     * Set the parameter list
+     * @param parameterList the parameter list to set
+     */
     public void setParameterList(List<MethodParameter> parameterList) {
         this.parameterList = parameterList;
     }
 
+    /**
+     * Gets the return type
+     * @return  the return type
+     */
     public String getReturnType() {
         return returnType;
     }
