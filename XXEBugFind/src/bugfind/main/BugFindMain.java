@@ -10,6 +10,7 @@ import bugfind.sootadapters.CallGraphObject;
 import java.nio.file.FileSystemException;
 import java.util.Map;
 import java.util.logging.Level;
+import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
 
@@ -29,6 +30,7 @@ public class BugFindMain {
      * @param args the command line arguments
      */
     public static void main(String[] args) {      
+        setUpLogging();Logger.getLogger("foi").log(Level.INFO, "noto er ejr");
         
         args = mockargs();
         
@@ -125,5 +127,12 @@ public class BugFindMain {
             //"org.​jdom2.​input.SAXBuilder.build(java.io.File)".length() // with two hidden chars
             //"org.h2.Driver.getMajorVersion()"
         };
+    }
+
+    private static void setUpLogging() {
+        //LogManager.getLogManager().
+        //System.setProperty("java.Util.logging.ConsoleHandler.level", "FINE");
+        
+        //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }
