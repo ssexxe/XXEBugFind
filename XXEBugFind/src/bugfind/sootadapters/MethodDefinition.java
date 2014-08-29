@@ -51,18 +51,32 @@ public class MethodDefinition {
      */
     public MethodDefinition() {}
 
-    
+    /**
+     * Creates method definition when given class name, method name, parameter list and return type.
+     * @param className
+     * @param methodName
+     * @param parameterList
+     * @param returnType 
+     */
     public MethodDefinition(String className, String methodName, List<MethodParameter> parameterList, String returnType) {
         this.className = className;
         this.methodName = methodName;
         this.parameterList = (parameterList == null) ? new ArrayList<MethodParameter>() : parameterList;
         this.returnType = returnType;
     }
-
+    
+    /**
+     * Get class name.
+     * @return class name.
+     */
     public String getClassName() {
         return className;
     }
 
+    /**
+     * Set class name with given class name.
+     * @param className class name given.
+     */
     public void setClassName(String className) {
         this.className = className;
     }
