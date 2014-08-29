@@ -389,10 +389,10 @@ public class MethodAnalysisTest {
     public void testResolveValue() {
         System.out.println("resolveValue");
         Value value = null;
-        Edge edge = null;
+        CallSite cs = null;
         MethodAnalysis instance = null;
         ValueString expResult = null;
-        ValueString result = instance.resolveValue(value, edge);
+        ValueString result = instance.resolveValue(value, cs);
         assertEquals(expResult, result);
         // TODO review the generated test code and remove the default call to fail.
         fail("The test case is a prototype.");

@@ -7,10 +7,12 @@
 package bugfind.sootadapters;
 
 import bugfind.xxe.MethodParameterValue;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import javax.xml.stream.XMLInputFactory;
 import soot.ArrayType;
 import soot.Hierarchy;
 import soot.Local;
@@ -403,7 +405,7 @@ public class MethodAnalysis {
                     }
                 } 
                 else {// otherwise it is variable                    
-                    ValueString paramVal = resolveValue(v, edge);
+                    ValueString paramVal = resolveValue(v, cs);
                     if (paramVal == null || paramVal.getValue() == null) {// ie could not resolve value of the variavle
                         comparison = INDETERMINABLE_ARGUMENT_VALUES;
                         break;
@@ -439,7 +441,7 @@ public class MethodAnalysis {
                         || (mpvTypeSC.isInterface() && vSC.implementsInterface(mpv.getType()))) {
                     MethodParameterValue mpv2 = new MethodParameterValue(vSC.getName(), mpv.getValue());
                     
-                    ValueString paramVal = resolveValue(v, edge);
+                    ValueString paramVal = resolveValue(v, cs);
                     if (paramVal == null) {// ie could not resolve value of the variavle
                         comparison = INDETERMINABLE_ARGUMENT_VALUES;
                         break;
@@ -593,13 +595,37 @@ public class MethodAnalysis {
         return c.toString();
     }
     
-    protected ValueString resolveValue(Value value, Edge edge) {
+    /**
+     * Tries to resolve the value of a soot Value object (a variable eg local variable) and returns a value string. Should be used for simple types 
+     * like String, int , float, etc. This method may have to walk up the method call chain to retrieve the value 
+     * if it has been defined some where in the code. For instance, when the value is a parameter/argument to a method 
+     * eg. str in <code> aMethod(String str); </code>, this method tries to resolve the value by looking for call sites
+     * of aMethod and deduce the values that was passed in such call sites. If the call sites are more than one, this
+     * method return null meaning it cannot determine the value as there are more than one value definition and this 
+     * method should return just one. Another case it returns null is if the value can only be determined at runtime. 
+     * For instance if going up the call chain leads to the static entry point main(args) method
+     * 
+     * @param value the value to be resolved
+     * @param cs the call site where the value is being used
+     * @return the value string corresponding to the value at the call site or null if it cannot be determined    
+     * @see  MethodAnalysis.resolvePossibleValues
+     */
+    protected ValueString resolveValue(Value value, CallSite cs) {
         Variable v = convertToVariable(value);
         
-        Local localrepr = getSootValue(v, edge.src());
-        if (localrepr == null) {
-            if (SimpleIntraDataFlowAnalysis.isParameterLocal(edge.src(), localrepr)) {
-                List<CallSite> lst = cgo.getCallSites(callGraph, edge.src());
+        Local localrepr = getSootValue(v, cs.getSourceMethod());
+        if (localrepr == null) {       
+            throw new RuntimeException("Cannot resolve variable " + v + " in edge "
+                        + cs.getEdge() + " with src-method " + cs.getSourceMethod());           
+        }
+        
+        UnitGraph uv = new ExceptionalUnitGraph(cs.getSourceMethod().getActiveBody());
+        CombinedAnalysis ca = CombinedDUAnalysis.v(uv);
+        List<Unit> list = ca.getDefsOfAt(localrepr, cs.getEdge().srcStmt());
+        
+        if (list.isEmpty()) {
+            if (SimpleIntraDataFlowAnalysis.isParameterLocal(cs.getSourceMethod(), localrepr)) {
+                List<CallSite> lst = cgo.getCallSites(callGraph, cs.getSourceMethod());
                 if (lst.size() > 1) {
                     return null;
                 }
@@ -607,18 +633,9 @@ public class MethodAnalysis {
                     Stmt stmt = lst.get(0).getEdge().srcStmt();
                     Value val = stmt.getInvokeExpr().getArg(
                             SimpleIntraDataFlowAnalysis.getParameterLocalIndex(lst.get(0).getSourceMethod(), localrepr));
-                    return resolveValue(val, lst.get(0).getEdge());
+                    return resolveValue(val, lst.get(0));
                 }
             }
-            else {
-                throw new RuntimeException("Cannot resolve variable " + v + " in edge " + edge + " with src-method " + edge.src());
-            }
-        }
-        
-        UnitGraph uv = new ExceptionalUnitGraph(edge.src().getActiveBody());
-        CombinedAnalysis ca = CombinedDUAnalysis.v(uv);
-        List<Unit> list = ca.getDefsOfAt(localrepr, edge.srcStmt());
-        if (list.isEmpty()) {
             return null;
         }
         
@@ -655,7 +672,7 @@ public class MethodAnalysis {
             
         }
         else if (rightOp instanceof JimpleLocal) {
-            return resolveValue(rightOp, edge);
+            return resolveValue(rightOp, cs);
         }
         else {// currently doesnt handle fieldref and static values
             return null;
@@ -664,6 +681,105 @@ public class MethodAnalysis {
         
     }
     
+    public List<ValueString> resolvePossibleValues(Value value, CallSite cs) {        
+        List<ValueString> listVals = new ArrayList<>();
+        List<Edge> listEdges = new ArrayList<>();
+        return resolvePossibleValues(value, cs, listVals, listEdges);
+    }
+    
+    protected List<ValueString> resolvePossibleValues(Value value, CallSite cs, List<ValueString> listVS, 
+            List<Edge> calTraceEdges) {
+        Variable v = convertToVariable(value);
+        
+        Local localrepr = getSootValue(v, cs.getSourceMethod());
+        if (localrepr == null) {
+            throw new RuntimeException("Cannot resolve variable " + v + " in edge "
+                        + cs.getEdge() + " with src-method " + cs.getSourceMethod());            
+        }
+        
+        UnitGraph uv = new ExceptionalUnitGraph(cs.getSourceMethod().getActiveBody());
+        CombinedAnalysis ca = CombinedDUAnalysis.v(uv);
+        List<Unit> list = ca.getDefsOfAt(localrepr, cs.getEdge().srcStmt());
+        if (list.isEmpty()) {
+            if (SimpleIntraDataFlowAnalysis.isParameterLocal(cs.getSourceMethod(), localrepr)) {
+                List<CallSite> lst = cgo.getCallSites(callGraph, cs.getSourceMethod());
+                if (lst.size() > 1) {
+                    for(CallSite aCS : lst) {
+                        if (!calTraceEdges.contains(aCS.getEdge())) {
+                            resolvePossibleValues(value, aCS, listVS, calTraceEdges);
+                        }
+                    }
+                    return listVS;
+                }
+                else {
+                    Stmt stmt = lst.get(0).getEdge().srcStmt();
+                    Value val = stmt.getInvokeExpr().getArg(
+                            SimpleIntraDataFlowAnalysis.getParameterLocalIndex(lst.get(0).getSourceMethod(), localrepr));
+                    ValueString vs = resolveValue(val, lst.get(0));
+                    listVS.add(vs);
+                    
+                    return listVS;
+                }
+            }
+            return listVS;
+        }
+        
+        if (list.size() > 1) {
+            System.out.println("warning: number defsofvar > " + 1);
+        }
+        
+        JAssignStmt stmt = (JAssignStmt) list.get(list.size()-1);        
+        Value rightOp = stmt.getRightOp();
+        
+        if (rightOp instanceof Constant) {
+            Constant constnt = (Constant) stmt.getRightOp();
+            String valstr = constantToString(constnt, v.getType().equals("boolean"));
+            
+            ValueString vs = new ValueString(v.getType(), v.getName(), valstr);
+            listVS.add(vs);
+            return listVS;
+        }
+        else if (rightOp instanceof StaticFieldRef) {
+            StaticFieldRef srf = (StaticFieldRef) stmt.getRightOp();
+            SootField f = srf.getField();//SootFieldRef sf = srf.getFieldRef();;
+            String type = srf.getType().toString();
+            String name = f.getDeclaringClass().getName() + "." + f.getName();
+            if (f.isFinal()) {// if it is final, then the value never changes
+                ValueString vs = new ValueString(type, name, name);
+                listVS.add(vs);
+                return listVS;
+            }
+            else {// the actual value may be changed elsewhere
+                
+                ValueString vs = new ValueString(type, name, null);//edge.srcStmt().getTags()//ConstantFieldValueFinder//edge.src().getActiveBody(); SootU
+                listVS.add(vs);
+                return listVS;
+            }            
+        }
+        else if (rightOp instanceof JInstanceFieldRef) {
+            JInstanceFieldRef jfr = (JInstanceFieldRef) rightOp;
+            Value vv = jfr.getBase();
+            return null; 
+            
+        }
+        else if (rightOp instanceof JimpleLocal) {
+            ValueString vs = resolveValue(rightOp, cs);
+            listVS.add(vs);
+            return listVS;
+        }
+        else {// currently doesnt handle fieldref and static values
+            return listVS;
+        }
+        
+    }
+    
+    /**
+     * converts the variable definition in the specified method into a soot Local object
+     * @param v the variable definition
+     * @param parentMethod the parentMethod
+     * @return a local corresponding to the specified variable in the specified method or null if it 
+     * cannot be determined
+     */
     public Local getSootValue(Variable v, SootMethod parentMethod) {
         Iterator<Local> ite =  parentMethod.getActiveBody().getLocals().iterator();
         while (ite.hasNext()) {
