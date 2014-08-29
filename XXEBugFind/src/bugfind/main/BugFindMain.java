@@ -30,9 +30,10 @@ public class BugFindMain {
      */
     public static void main(String[] args) {//DavaPrinter h; h.
         // TODO code application logic here
-//        args = new String[]{"-d",         
+//        args = new String[]{"-d",      
+//            "C:\\Users\\Mikosh\\Dropbox\\Bug Variant Detection project\\xxebugfindtool\\xxebugfind\\play_2.10.jar",
 //            //"C:\\Users\\Mikosh\\Documents\\Netbeans Libs\\others\\play-2.0.8\\play-2.0.8\\repository\\local\\play\\play_2.9.1\\2.0.8\\jars\\play_2.9.1",
-//            "C:\\Users\\Mikosh\\Documents\\NetbeansProjects\\MyXMLTest\\dist\\MyXMLTest.jar",
+//            //"C:\\Users\\Mikosh\\Documents\\NetbeansProjects\\MyXMLTest\\dist\\MyXMLTest.jar",
 //            //"C:\\Users\\Mikosh\\Documents\\NetbeansProjects\\MyXMLTest2\\dist\\MyXMLTest2.jar",
 //            //"C:\\Users\\Mikosh\\Documents\\NetbeansProjects\\xmlmaster2\\dist\\xmlmaster2.jar",
 //            //"C:\\Users\\Mikosh\\Documents\\NetbeansProjects\\MyXMLTest\\dist\\lib\\xml-apis.jar;" +//,    
@@ -88,7 +89,9 @@ public class BugFindMain {
 //
 ////            "-rs",
 ////            "C:\\f\\vmis.xml",
-//        
+////            "-f",
+////            "xml",
+//            
 //            "-vmd",
 //            //"java.net.InetAddress.getLocalHost()"
 //            //"database.objects.Post.getPost();eazychat.ChatClient.requestInterSystemViewer(java.lang.String)"
@@ -108,7 +111,7 @@ public class BugFindMain {
 //        };
         Map<String, String> inputMap = OptionsParser.parse(args);
   //CallGraphObject.doTest2();
-        CallGraphObject cgo = new CallGraphObject(inputMap);
+        CallGraphObject cgo = CallGraphObject.getInstance(inputMap);
         try {
             cgo.runAnalysis();
         } catch (FileSystemException ex) {

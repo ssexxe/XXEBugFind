@@ -6,7 +6,7 @@
 
 package bugfind.utils.misc;
 
-import bugfind.xxe.ActualVulnerabilityItems;
+import bugfind.xxe.xmlobjects.ActualVulnerabilityItems;
 import bugfind.xxe.VulnerabilityDefinitionItems;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -43,7 +43,7 @@ public class XMLUtils {
     }
     
     public static void writeXMLToStream(ActualVulnerabilityItems avis,  OutputStream os) throws JAXBException {
-        JAXBContext jaxbContext = JAXBContext.newInstance(VulnerabilityDefinitionItems.class);
+        JAXBContext jaxbContext = JAXBContext.newInstance(ActualVulnerabilityItems.class);
         Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
 
         jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);

@@ -7,14 +7,16 @@
 package bugfind.sootadapters;
 
 import bugfind.main.OptionsParser;
+import bugfind.utils.misc.BugFindConstants;
 import bugfind.utils.misc.FileUtil;
 import bugfind.utils.misc.Utils;
 import bugfind.utils.misc.XMLUtils;
 import bugfind.xxe.ActualVulnerabilityItem;
-import bugfind.xxe.ActualVulnerabilityItems;
+import bugfind.xxe.xmlobjects.ActualVulnerabilityItems;
 import bugfind.xxe.VulnerabilityDefinitionItems;
 import bugfind.xxe.VulnerableXMLMethodDefinitions;
 import bugfind.xxe.XXEVulnerabilityDetector;
+import bugfind.xxe.xmlobjects.ActualVulnerabilityItemForXML;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -77,13 +79,36 @@ import soot.tagkit.Tag;
  * @author Mikosh
  */
 public class CallGraphObject {
+    protected static CallGraphObject callGraphObject;
+    
     protected Map<String, String> bugFindParametersMap;
     protected List<MethodDefinition> vulMethodDefinitionList;
     private static List<SootClass> elevatedClasses = new ArrayList<>();
 
-    public CallGraphObject(Map<String, String> bugFindParametersMap) {
+    public static CallGraphObject getInstance() {
+        if (callGraphObject == null) {
+            callGraphObject = new CallGraphObject();
+        }
+        
+        return callGraphObject;
+    }
+    
+    public static CallGraphObject getInstance(Map<String, String> bugFindParametersMap) {
+        CallGraphObject cgo = getInstance();        
+        cgo.setBugFindParametersMap(bugFindParametersMap);
+        
+        return cgo;
+    }
+    
+    
+    protected CallGraphObject() {}
+
+    
+    protected CallGraphObject(Map<String, String> bugFindParametersMap) {
         this.bugFindParametersMap = bugFindParametersMap;
     }   
+    
+    
     
     public void runAnalysis() throws FileNotFoundException, FileSystemException, Exception {
         FileUtil fileUtil = FileUtil.getFileUtil();        
@@ -142,18 +167,19 @@ public class CallGraphObject {
         }
         
         if (outputFormat != null) {
-            if (!outputFormat.trim().toLowerCase().equals("text") && !outputFormat.trim().toLowerCase().equals("xml")) {
+            if (!outputFormat.trim().toLowerCase().equals(BugFindConstants.TEXT_FORMAT) && 
+                    !outputFormat.trim().toLowerCase().equals(BugFindConstants.XML_FORMAT)) {
                 throw new Exception("Invalid value specified for " + OptionsParser.OUTPUT_FORMAT_OPT + " option. "
                         + "Acceptable values are either TEXT or XML ");
             }
             outputFormat = outputFormat.trim().toLowerCase();
-
-            if (outputFile == null && bugFindParametersMap.containsKey(OptionsParser.OUTPUT_FILE_OPT)) {
-                throw new Exception("There is no specified value for " + OptionsParser.OUTPUT_FILE_OPT + " option");
-            }
+            // ensure the exact value is set in bugfind
+            bugFindParametersMap.put(OptionsParser.OUTPUT_FORMAT_OPT, outputFormat);
         }
         
-        
+        if (outputFile == null && bugFindParametersMap.containsKey(OptionsParser.OUTPUT_FILE_OPT)) {
+            throw new Exception("There is no specified value for " + OptionsParser.OUTPUT_FILE_OPT + " option");
+        }
         
         // get rt directory location
         
@@ -228,7 +254,7 @@ public class CallGraphObject {
                        XXEVulnerabilityDetector xvd = new XXEVulnerabilityDetector(cgo);
                        List<ActualVulnerabilityItem> actualVulnerabilities = xvd.findVulnerabilities();
                        String outputFormat = (bugFindParametersMap.get(OptionsParser.OUTPUT_FORMAT_OPT) == null) ?
-                               "text": bugFindParametersMap.get(OptionsParser.OUTPUT_FORMAT_OPT); 
+                               BugFindConstants.TEXT_FORMAT: bugFindParametersMap.get(OptionsParser.OUTPUT_FORMAT_OPT); 
                     try {
                         String outputFile = bugFindParametersMap.get(OptionsParser.OUTPUT_FILE_OPT);
                         printActualVunerabilitesFound(cg, actualVulnerabilities, outputFormat, (outputFile != null));
@@ -666,6 +692,58 @@ public class CallGraphObject {
         //System.out.println("\n");
     }
     
+    public List<String> getStackTracesAsStringList(List<List<SootMethod>> list) {
+        List<String> retList = new ArrayList<>();
+        StringBuilder sb = new StringBuilder();
+        
+      
+        for (List<SootMethod> l : list) {            
+            sb.setLength(0);
+            sb.append("* ");//sb.append(n).append(". ");
+            for(int i=l.size(); i>0; --i) {
+                String s = l.get(i-1).toString();
+                s = s.replace("<", "[");
+                s= s.replace(">", "]");
+                sb.append(s).append(" --> ");
+            }
+            if (sb.toString().endsWith(" --> ")) {
+                sb.delete(sb.lastIndexOf(" --> "), sb.length());
+            }
+            retList.add(sb.toString());
+        }
+        
+        return retList;
+    }
+    
+    public static List<String> getCallTracesAsStringList(List<CallSite> listCS) {
+        CallGraph cg = Scene.v().getCallGraph();
+        CallGraphObject cgo = CallGraphObject.getInstance();
+        List<List<SootMethod>> ltrunk = new ArrayList<>();
+        List<SootMethod> atrace = new ArrayList<>();
+        for (CallSite cs : listCS) {
+
+            ltrunk = cgo.getCallStackTraces(cg, cs.getEdge().src(), atrace, ltrunk);
+            for (List<SootMethod> l : ltrunk) {
+                l.add(0, cs.getEdge().tgt());
+            }
+        }
+        
+        return cgo.getStackTracesAsStringList(ltrunk);
+    }
+    
+    public static List<String> getCallTracesForCallSiteAsStringList(CallSite cs) {
+        CallGraph cg = Scene.v().getCallGraph();
+        CallGraphObject cgo = CallGraphObject.getInstance();
+        List<List<SootMethod>> ltrunk = new ArrayList<>();
+        List<SootMethod> atrace = new ArrayList<>();
+       
+        ltrunk = cgo.getCallStackTraces(cg, cs.getEdge().src(), atrace, ltrunk);
+        for (List<SootMethod> l : ltrunk) {
+            l.add(0, cs.getEdge().tgt());
+        }
+        
+        return cgo.getStackTracesAsStringList(ltrunk);
+    }
     
     
     
@@ -816,6 +894,10 @@ public class CallGraphObject {
         return bugFindParametersMap;
     }
 
+    public void setBugFindParametersMap(Map<String, String> bugFindParametersMap) {
+        this.bugFindParametersMap = bugFindParametersMap;
+    }
+
     public static List<SootClass> getElevatedClasses() {
         return elevatedClasses;
     }
@@ -832,9 +914,9 @@ public class CallGraphObject {
                     new FileOutputStream(bugFindParametersMap.get(OptionsParser.OUTPUT_FILE_OPT))
                     : System.out;
         
-        if (outputFormat.toLowerCase().equals("xml")) {
+        if (outputFormat.toLowerCase().equals(BugFindConstants.XML_FORMAT)) {
             ActualVulnerabilityItems avis = new ActualVulnerabilityItems();
-            avis.setActualVulnerabilityItems(actualVulnerabilities);            
+            avis.setActualVulnerabilityItems(ActualVulnerabilityItemForXML.toActualVulnerabilityItemForXMLs(actualVulnerabilities));            
             XMLUtils.writeXMLToStream(avis, os);
         }
         else {

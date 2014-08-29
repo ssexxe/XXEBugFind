@@ -7,17 +7,8 @@
 package bugfind.xxe;
 
 import bugfind.sootadapters.MethodDefinition;
-import com.sun.org.apache.xerces.internal.impl.XMLStreamReaderImpl;
 import java.util.ArrayList;
 import java.util.List;
-import javax.xml.XMLConstants;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.SAXParser;
-import javax.xml.stream.XMLEventReader;
-import javax.xml.stream.XMLInputFactory;
-import javax.xml.stream.XMLStreamReader;
-import org.xml.sax.XMLReader;
 
 /**
  * This class holds the key to creating the default XML VulnerableMethodDefinitions programmatically. The important 
