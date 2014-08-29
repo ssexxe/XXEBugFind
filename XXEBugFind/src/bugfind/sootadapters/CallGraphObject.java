@@ -296,11 +296,11 @@ public class CallGraphObject {
 //                               int index = classShortName.lastIndexOf(".");
 //                               classShortName = classShortName.substring(index+1);
 //                           }
-//                           System.out.println("XXE Var-" + n + " due to using " + classShortName
+//                           System.out.println("XXE Variant-" + n + " due to using " + classShortName
 //                                   + " API. See detail: \n" + avi);
 //                           System.out.println("Reason: " + avi.getReason());
 //                           
-//                           System.out.println("Exploitation route");
+//                           System.out.println("Exploitation route(s)");
 //                           printCallTraces(avi, cg);
 //                           System.out.println("");
 //                       }
@@ -942,11 +942,11 @@ public class CallGraphObject {
                     int index = classShortName.lastIndexOf(".");
                     classShortName = classShortName.substring(index + 1);
                 }
-                ps.println("XXE Var-" + n + " due to using " + classShortName
+                ps.println("XXE Variant-" + n + " due to using " + classShortName
                         + " API. See detail: \n" + avi);
                 ps.println("Reason: " + avi.getReason());
 
-                ps.println("Exploitation route");
+                ps.println("Exploitation route(s)");
                 printCallTraces(avi, cg, ps);
                 ps.println("");
             }

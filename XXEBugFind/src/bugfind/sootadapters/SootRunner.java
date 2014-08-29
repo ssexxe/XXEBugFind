@@ -16,8 +16,8 @@ import java.io.PrintWriter;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
-import org.apache.log4j.Logger;
-import org.xml.sax.XMLReader;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import soot.CompilationDeathException;
 import soot.G;
 import soot.Main;
@@ -40,7 +40,6 @@ import soot.util.HashChain;
  * @author Mikosh
  */
 public class SootRunner extends Main {
-    private static Logger logger = Logger.getLogger(SootRunner.class);
     
     // Note most of the fields and methods here are just duplicates. This is due to the difficulty in inherting 
     // the soot Main class as most of the fields and methods are private.
@@ -240,7 +239,7 @@ public class SootRunner extends Main {
         }
     }
     
-    private static void loadNecessaryXMLParsingImplClasses(String specifiedLibPaths) {//Options.v().classes()
+    private static void loadNecessaryXMLParsingImplClasses() {//Options.v().classes()
         String s = null;
         try {
             s = "com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl";
@@ -260,8 +259,7 @@ public class SootRunner extends Main {
             s = "com.sun.xml.internal.stream.XMLEventReaderImpl";
             Scene.v().loadClassAndSupport(s).setLibraryClass();
         } catch (Exception ex) {
-            ex.printStackTrace();
-            logger.error("Cannot find some jdk XML parsing classes in the jdk. i.e. '" + s 
+            Logger.getLogger(SootRunner.class.getName()).log(Level.SEVERE, "Cannot find some jdk XML parsing classes in the jdk. i.e. '" + s 
                     + "'. It might have been changed or moved. This will lead to the tool missing possible XXE vulnerabilities. "
                     + "Consider using the -l option via the command-line to add XML lib "
                     + "dependables eg -l \"pathToXercesXMLlib/Xerces.jar\"", ex);
@@ -349,7 +347,7 @@ public class SootRunner extends Main {
             }
         }
         
-        loadNecessaryXMLParsingImplClasses(libPaths);
+        loadNecessaryXMLParsingImplClasses();
         
 
         prepareClasses();

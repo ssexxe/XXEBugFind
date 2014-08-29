@@ -10,6 +10,7 @@ import bugfind.sootadapters.CallGraphObject;
 import java.nio.file.FileSystemException;
 import java.util.Map;
 import java.util.logging.Level;
+import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
 
@@ -28,12 +29,13 @@ public class BugFindMain {
      * This is the main entry point into the application
      * @param args the command line arguments
      */
-    public static void main(String[] args) {
+    public static void main(String[] args) {      
+        setUpLogging();Logger.getLogger("foi").log(Level.INFO, "noto er ejr");
         
-        //args = mockargs();
+        args = mockargs();
         
         Map<String, String> inputMap = OptionsParser.parse(args);
-  //CallGraphObject.doTest2();
+  
         CallGraphObject cgo = CallGraphObject.getInstance(inputMap);
         try {
             cgo.runAnalysis();
@@ -47,7 +49,7 @@ public class BugFindMain {
     
     private static String[] mockargs() {
                 return new String[]{"-d",      
-            "C:\\Users\\Mikosh\\Dropbox\\Bug Variant Detection project\\xxebugfindtool\\xxebugfind\\play_2.10.jar",
+            //"C:\\Users\\Mikosh\\Dropbox\\Bug Variant Detection project\\xxebugfindtool\\xxebugfind\\play_2.10.jar",
             //"C:\\Users\\Mikosh\\Documents\\Netbeans Libs\\others\\play-2.0.8\\play-2.0.8\\repository\\local\\play\\play_2.9.1\\2.0.8\\jars\\play_2.9.1",
             //"C:\\Users\\Mikosh\\Documents\\NetbeansProjects\\MyXMLTest\\dist\\MyXMLTest.jar",
             //"C:\\Users\\Mikosh\\Documents\\NetbeansProjects\\MyXMLTest2\\dist\\MyXMLTest2.jar",
@@ -125,5 +127,12 @@ public class BugFindMain {
             //"org.​jdom2.​input.SAXBuilder.build(java.io.File)".length() // with two hidden chars
             //"org.h2.Driver.getMajorVersion()"
         };
+    }
+
+    private static void setUpLogging() {
+        //LogManager.getLogManager().
+        //System.setProperty("java.Util.logging.ConsoleHandler.level", "FINE");
+        
+        //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }
