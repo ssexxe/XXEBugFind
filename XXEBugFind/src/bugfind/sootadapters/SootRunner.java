@@ -13,22 +13,32 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import soot.ArrayType;
 import soot.CompilationDeathException;
 import soot.G;
+import soot.Local;
 import soot.Main;
+import soot.Modifier;
 import soot.Pack;
 import soot.PackManager;
+import soot.RefType;
 import soot.Scene;
 import soot.Singletons;
 import soot.SootClass;
+import soot.SootMethod;
 import soot.SourceLocator;
 import soot.Timers;
 import soot.Transform;
+import soot.Type;
+import soot.VoidType;
+import soot.jimple.Jimple;
+import soot.jimple.JimpleBody;
 import soot.options.Options;
 import soot.toolkits.astmetrics.ClassData;
 import soot.util.Chain;
@@ -40,6 +50,8 @@ import soot.util.HashChain;
  * @author Mikosh
  */
 public class SootRunner extends Main {
+    private static final Logger logger = Logger.getLogger(SootRunner.class.getName());
+    //{logger.setUseParentHandlers(false);}
     
     // Note most of the fields and methods here are just duplicates. This is due to the difficulty in inherting 
     // the soot Main class as most of the fields and methods are private.
@@ -248,9 +260,11 @@ public class SootRunner extends Main {
             Scene.v().loadClassAndSupport(s).setLibraryClass();
             s = "com.sun.org.apache.xerces.internal.jaxp.SAXParserFactoryImpl";
             Scene.v().loadClassAndSupport(s).setLibraryClass();//Scene.v().loadClassAndSupport("com.sun.org.apache.xerces.internal.jaxp.SAXParserFactojryImpl")
-            s = "com.sun.org.apache.xerces.internal.jaxp.SAXParser";
+            s = "com.sun.org.apache.xerces.internal.jaxp.SAXParserImpl";
             Scene.v().loadClassAndSupport(s).setLibraryClass();
             s = "com.sun.org.apache.xerces.internal.parsers.SAXParser";
+            Scene.v().loadClassAndSupport(s).setLibraryClass();
+            s = "com.sun.org.apache.xerces.internal.parsers.jaxp.SAXParserImpl.JAXPSAXParser";
             Scene.v().loadClassAndSupport(s).setLibraryClass();
             s = "com.sun.xml.internal.stream.XMLInputFactory";            
             Scene.v().loadClassAndSupport(s).setLibraryClass();
@@ -329,19 +343,22 @@ public class SootRunner extends Main {
             }
         }
         
+        //createCustomMainClassIfNecessary();//System.out.println("ENTRY POINTS" + Scene.v().getEntryPoints());
+        
         // wen need to load the lib paths as 
         List<String> libPathList = FileUtil.extractPaths(libPaths, File.pathSeparator);
         for( Iterator<String> pathLibLoc = libPathList.iterator(); pathLibLoc.hasNext(); ) {
 
             final String path = (String) pathLibLoc.next();
-            System.out.println("working in path: " + path);
+            logger.log(Level.INFO, "adding path: {0}", path);
+            
             for (String cl : SourceLocator.v().getClassesUnder(path)) {
                 //if (cl.toLowerCase().contains("jaxen")) continue;//System.out.println("cl: " + cl);
                 try {                   
                     Scene.v().loadClassAndSupport(cl).setLibraryClass();    
                     //Scene.v().loadClass(cl, SootClass.HIERARCHY).setLibraryClass();               //Scene.v().tryLoadClass(cl, SootClass.HIERARCHY).setLibraryClass();//loadClassAndSupport(cl).setLibraryClass();
                 } catch(Exception ex) {
-                    System.out.println("Error! resolving for " + cl + " err: " +ex.getMessage());
+                    logger.log(Level.SEVERE, "Error! resolving for " + cl + " err: ", ex);                    
                     //Scene.v().tryLoadClass(cl, SootClass.DANGLING).setLibraryClass();
                 }
             }
@@ -352,5 +369,55 @@ public class SootRunner extends Main {
 
         prepareClasses();
         Scene.v().setDoneResolving();
+    }
+    
+    /**
+     * Create a custom man application class for application with no main class
+     */
+    private static void createCustomMainClassIfNecessary() {
+        if (!Scene.v().hasMainClass()) {
+            Iterator<String> pathIt = Options.v().process_dir().iterator();
+            String path = pathIt.next();
+            
+            String cname = SourceLocator.v().getClassesUnder(path).get(0);
+            SootClass aClass = Scene.v().getSootClass(cname);
+                    
+            String pkgname = aClass.getPackageName();
+            
+            Scene.v().loadClassAndSupport("java.lang.Object");
+//            Scene.v().loadClassAndSupport("java.lang.System");
+                        
+            String custClass = pkgname + "." + "x3x4x5x6x7x8x9x8";
+            SootClass sc = new SootClass(custClass, Modifier.PUBLIC);
+        
+        // 'extends Object'
+           sc.setSuperclass(Scene.v().getSootClass("java.lang.Object"));
+           Scene.v().addClass(sc);
+            
+            //SootClass sc = Scene.v().forceResolve(custClass, SootClass.BODIES);//sc.setModifiers(Modifier.PUBLIC);
+            SootMethod sm = new SootMethod("main", Arrays.asList(new Type[] {ArrayType.v(RefType.v("java.lang.String"), 1)})
+                    , VoidType.v(),
+                    Modifier.PUBLIC | Modifier.STATIC);
+            JimpleBody body = Jimple.v().newBody(sm);
+            sm.setActiveBody(body);
+            
+            
+            Local arg = Jimple.v().newLocal("l0", ArrayType.v(RefType.v("java.lang.String"), 1));
+            body.getLocals().add(arg);
+            
+            Chain units = body.getUnits();
+            units.add(Jimple.v().newReturnVoidStmt());
+            
+            sc.addMethod(sm);
+            sc.setApplicationClass();
+            Scene.v().setMainClass(sc);            
+//            Scene.v().loadClassAndSupport(custClass).setApplicationClass();
+//          sc.getMethods().get(0).getActiveBody();
+//            List entryPoints = new ArrayList();
+//            entryPoints.add(sm);
+//            Scene.v().setEntryPoints(entryPoints);            
+                     
+            logger.log(Level.INFO, "Created custom entry point main class");            
+        }
     }
 }

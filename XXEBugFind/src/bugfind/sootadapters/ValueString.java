@@ -39,6 +39,15 @@ public class ValueString {
     public String getValue() {
         return value;
     }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Type: ").append(getType()).append(" Name: ")
+                .append(getName()).append(" Value: ").append(getValue());
+        return sb.toString();
+    }
+
     
     
     

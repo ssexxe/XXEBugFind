@@ -11,9 +11,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import javax.xml.stream.XMLInputFactory;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import soot.ArrayType;
+import soot.Body;
 import soot.Hierarchy;
 import soot.Local;
 import soot.NullType;
@@ -27,7 +28,6 @@ import soot.Type;
 import soot.Unit;
 import soot.Value;
 import soot.ValueBox;
-import soot.dava.toolkits.base.AST.interProcedural.ConstantFieldValueFinder;
 import soot.jimple.Constant;
 import soot.jimple.IntConstant;
 import soot.jimple.StaticFieldRef;
@@ -52,6 +52,9 @@ import soot.toolkits.scalar.CombinedDUAnalysis;
  * @author Mikosh
  */
 public class MethodAnalysis {
+    private static final Logger logger = Logger.getLogger(MethodAnalysis.class.getName());
+    {logger.setUseParentHandlers(false);}
+    
     public static final int CALLED_BEFORE = -1, CALLED_AFTER = 1, CALLED_SAME_TIME = 0;
     public static final int INDETERMINABLE_ARGUMENT_VALUES = -99, SAME_ARGUMENT_VALUES = -78, DIFF_ARGUMENT_VALUES = -45;
     private static final int START = 0;
@@ -405,10 +408,17 @@ public class MethodAnalysis {
                     }
                 } 
                 else {// otherwise it is variable                    
-                    ValueString paramVal = resolveValue(v, cs);
+                    ValueString paramVal = resolveValue(v, cs); //List<ValueString> pvals = resolvePossibleValues(v, cs);
                     if (paramVal == null || paramVal.getValue() == null) {// ie could not resolve value of the variavle
                         comparison = INDETERMINABLE_ARGUMENT_VALUES;
                         break;
+                    }
+                    
+                    // convert back to boolean if type should be boolean. This is a workaround for soot because it
+                    // converts boolean types to int
+                    if (mpv.getType().equals("boolean")) {
+                        paramVal = new ValueString("boolean", paramVal.getName(), 
+                                (paramVal.getValue().equals("1") ? "true" : "false"));
                     }
                     
                     if (!paramVal.getValue().equals(mpv.getValue())) {// if values are not equal
@@ -441,11 +451,19 @@ public class MethodAnalysis {
                         || (mpvTypeSC.isInterface() && vSC.implementsInterface(mpv.getType()))) {
                     MethodParameterValue mpv2 = new MethodParameterValue(vSC.getName(), mpv.getValue());
                     
-                    ValueString paramVal = resolveValue(v, cs);
-                    if (paramVal == null) {// ie could not resolve value of the variavle
+                    ValueString paramVal = resolveValue(v, cs);//List<ValueString> pvals = resolvePossibleValues(v, cs);
+                    if (paramVal == null || paramVal.getValue() == null) {// ie could not resolve value of the variavle
                         comparison = INDETERMINABLE_ARGUMENT_VALUES;
                         break;
                     }
+                    
+                    // convert back to boolean if type should be boolean. This is a workaround for soot because it
+                    // converts boolean types to int
+                    if (mpv.getType().equals("boolean")) {
+                        paramVal = new ValueString("boolean", paramVal.getName(), 
+                                (paramVal.getValue().equals("1") ? "true" : "false"));
+                    }
+                    
                     if (!paramVal.getValue().equals(mpv.getValue())) {// if values are not equal
                         comparison = DIFF_ARGUMENT_VALUES;
                         break;
@@ -595,6 +613,98 @@ public class MethodAnalysis {
         return c.toString();
     }
     
+    protected ValueString resolveValue(Local localrepr, Unit unit, SootMethod parentMethod) {
+        UnitGraph uv = new ExceptionalUnitGraph(parentMethod.getActiveBody());
+        CombinedAnalysis ca = CombinedDUAnalysis.v(uv);
+        List<Unit> list = ca.getDefsOfAt(localrepr, unit);
+        
+        if (list.isEmpty()) {
+            if (SimpleIntraDataFlowAnalysis.isParameterLocal(parentMethod, localrepr)) {
+                List<CallSite> lst = cgo.getCallSites(callGraph, parentMethod);
+                if (lst.size() > 1) {
+                    return null;
+                }
+                else {
+                    Stmt stmt = lst.get(0).getEdge().srcStmt();
+                    Value val = stmt.getInvokeExpr().getArg(
+                            SimpleIntraDataFlowAnalysis.getParameterLocalIndex(lst.get(0).getSourceMethod(), localrepr));
+                    return resolveValue(val, lst.get(0));
+                }
+            }
+            return null;
+        }
+        
+        if (list.size() > 1) {
+            logger.log(Level.WARNING, "Warning: number definitions for {0} > {1}", new Object[]{localrepr, 1});
+        }
+        
+        JAssignStmt stmt = (JAssignStmt) list.get(list.size()-1);        
+        Value rightOp = stmt.getRightOp();
+        
+        if (rightOp instanceof Constant) {
+            Constant constnt = (Constant) stmt.getRightOp();
+            String valstr = constantToString(constnt, false);
+            
+            return new ValueString(localrepr.getType().toString(), localrepr.getName(), valstr);
+        }
+        else if (rightOp instanceof StaticFieldRef) {
+            StaticFieldRef srf = (StaticFieldRef) stmt.getRightOp();
+            SootField f = srf.getField();//SootFieldRef sf = srf.getFieldRef();;
+            String type = srf.getType().toString();
+            String name = f.getDeclaringClass().getName() + "." + f.getName();
+            if (f.isFinal()) {// if it is final, then the value never changes
+                return new ValueString(type, name, name);
+            }
+            else {// the actual value may be changed elsewhere
+                
+                return new ValueString(type, name, null);//edge.srcStmt().getTags()//ConstantFieldValueFinder//edge.src().getActiveBody(); SootU
+            }            
+        }
+        else if (rightOp instanceof JInstanceFieldRef) {
+            JInstanceFieldRef jfr = (JInstanceFieldRef) rightOp;
+            Value vv = jfr.getBase();//((ValueBox)((JAssignStmt)new ArrayList(parentMethod.getActiveBody().getUnits()).get(8)).getDefBoxes().get(0)).getValue();//SimpleIntraDataFlowAnalysis f; f.getUsesOfLocalDefinedHere(unit)
+            
+            return null; 
+            
+        }
+        else if (rightOp instanceof JimpleLocal) {
+            return resolveValue((JimpleLocal)rightOp, stmt, parentMethod);
+        }
+        else if (rightOp instanceof JNewExpr) {
+            // In soot, after every JNewExpr is a JInvokeStatement (ie special invoke stmt  to be precise) for constructors
+            ((JInvokeStmt)parentMethod.getActiveBody().getUnits().getSuccOf(stmt))
+                    .getInvokeExpr().getArgs();
+            Body b = parentMethod.getActiveBody();
+            Stmt st = (Stmt) b.getUnits().getSuccOf(stmt);
+            List<Value> lArgs = st.getInvokeExpr().getArgs();
+            if (lArgs.size() > 1) {
+                logger.log(Level.WARNING, "Got a constructor with multiple "
+                        + "arguments while trying to resolve value for " + "simple type. This is not "
+                        + "currently supported yet. Detail: " + " var-{0}{1}", 
+                        new Object[]{stmt, lArgs});
+                return null;
+            }
+            else if (lArgs.size() == 1) {
+                Value argVal = lArgs.get(0);
+                if (argVal instanceof Constant) {
+                    Constant constnt = (Constant) argVal;
+                    String valstr = constantToString(constnt, false);
+                    return new ValueString(localrepr.getType().toString(), localrepr.getName(), valstr);
+                }
+                else {
+                    return resolveValue((Local) lArgs.get(0), st, parentMethod);
+                }
+            }
+            else {// for methods with empty args e.g new String(), var = ""
+                return new ValueString(localrepr.getType().toString(), localrepr.getName(), "\"\""); // the slashes to indicated double quotes
+            }
+            
+        }
+        else {// currently doesnt handle fieldref and static values
+            return null;
+        }
+    }
+    
     /**
      * Tries to resolve the value of a soot Value object (a variable eg local variable) and returns a value string. Should be used for simple types 
      * like String, int , float, etc. This method may have to walk up the method call chain to retrieve the value 
@@ -613,77 +723,79 @@ public class MethodAnalysis {
     protected ValueString resolveValue(Value value, CallSite cs) {
         Variable v = convertToVariable(value);
         
-        Local localrepr = getSootValue(v, cs.getSourceMethod());
+        Local localrepr = getSootValue(v, cs.getSourceMethod());// we want to ensure that the variable is in src the method
         if (localrepr == null) {       
             throw new RuntimeException("Cannot resolve variable " + v + " in edge "
                         + cs.getEdge() + " with src-method " + cs.getSourceMethod());           
         }
         
-        UnitGraph uv = new ExceptionalUnitGraph(cs.getSourceMethod().getActiveBody());
-        CombinedAnalysis ca = CombinedDUAnalysis.v(uv);
-        List<Unit> list = ca.getDefsOfAt(localrepr, cs.getEdge().srcStmt());
+        return resolveValue(localrepr, cs.getEdge().srcStmt(), cs.getSourceMethod());
         
-        if (list.isEmpty()) {
-            if (SimpleIntraDataFlowAnalysis.isParameterLocal(cs.getSourceMethod(), localrepr)) {
-                List<CallSite> lst = cgo.getCallSites(callGraph, cs.getSourceMethod());
-                if (lst.size() > 1) {
-                    return null;
-                }
-                else {
-                    Stmt stmt = lst.get(0).getEdge().srcStmt();
-                    Value val = stmt.getInvokeExpr().getArg(
-                            SimpleIntraDataFlowAnalysis.getParameterLocalIndex(lst.get(0).getSourceMethod(), localrepr));
-                    return resolveValue(val, lst.get(0));
-                }
-            }
-            return null;
-        }
-        
-        if (list.size() > 1) {
-            System.out.println("warning: number defsofvar > " + 1);
-        }
-        
-        JAssignStmt stmt = (JAssignStmt) list.get(list.size()-1);        
-        Value rightOp = stmt.getRightOp();
-        
-        if (rightOp instanceof Constant) {
-            Constant constnt = (Constant) stmt.getRightOp();
-            String valstr = constantToString(constnt, v.getType().equals("boolean"));
-            
-            return new ValueString(v.getType(), v.getName(), valstr);
-        }
-        else if (rightOp instanceof StaticFieldRef) {
-            StaticFieldRef srf = (StaticFieldRef) stmt.getRightOp();
-            SootField f = srf.getField();//SootFieldRef sf = srf.getFieldRef();;
-            String type = srf.getType().toString();
-            String name = f.getDeclaringClass().getName() + "." + f.getName();
-            if (f.isFinal()) {// if it is final, then the value never changes
-                return new ValueString(type, name, name);
-            }
-            else {// the actual value may be changed elsewhere
-                
-                return new ValueString(type, name, null);//edge.srcStmt().getTags()//ConstantFieldValueFinder//edge.src().getActiveBody(); SootU
-            }            
-        }
-        else if (rightOp instanceof JInstanceFieldRef) {
-            JInstanceFieldRef jfr = (JInstanceFieldRef) rightOp;
-            Value vv = jfr.getBase();
-            return null; 
-            
-        }
-        else if (rightOp instanceof JimpleLocal) {
-            return resolveValue(rightOp, cs);
-        }
-        else {// currently doesnt handle fieldref and static values
-            return null;
-        }
+//        UnitGraph uv = new ExceptionalUnitGraph(cs.getSourceMethod().getActiveBody());
+//        CombinedAnalysis ca = CombinedDUAnalysis.v(uv);
+//        List<Unit> list = ca.getDefsOfAt(localrepr, cs.getEdge().srcStmt());
+//        
+//        if (list.isEmpty()) {
+//            if (SimpleIntraDataFlowAnalysis.isParameterLocal(cs.getSourceMethod(), localrepr)) {
+//                List<CallSite> lst = cgo.getCallSites(callGraph, cs.getSourceMethod());
+//                if (lst.size() > 1) {
+//                    return null;
+//                }
+//                else {
+//                    Stmt stmt = lst.get(0).getEdge().srcStmt();
+//                    Value val = stmt.getInvokeExpr().getArg(
+//                            SimpleIntraDataFlowAnalysis.getParameterLocalIndex(lst.get(0).getSourceMethod(), localrepr));
+//                    return resolveValue(val, lst.get(0));
+//                }
+//            }
+//            return null;
+//        }
+//        
+//        if (list.size() > 1) {
+//            System.out.println("warning: number defsofvar > " + 1);
+//        }
+//        
+//        JAssignStmt stmt = (JAssignStmt) list.get(list.size()-1);        
+//        Value rightOp = stmt.getRightOp();
+//        
+//        if (rightOp instanceof Constant) {
+//            Constant constnt = (Constant) stmt.getRightOp();
+//            String valstr = constantToString(constnt, v.getType().equals("boolean"));
+//            
+//            return new ValueString(v.getType(), v.getName(), valstr);
+//        }
+//        else if (rightOp instanceof StaticFieldRef) {
+//            StaticFieldRef srf = (StaticFieldRef) stmt.getRightOp();
+//            SootField f = srf.getField();//SootFieldRef sf = srf.getFieldRef();;
+//            String type = srf.getType().toString();
+//            String name = f.getDeclaringClass().getName() + "." + f.getName();
+//            if (f.isFinal()) {// if it is final, then the value never changes
+//                return new ValueString(type, name, name);
+//            }
+//            else {// the actual value may be changed elsewhere
+//                
+//                return new ValueString(type, name, null);//edge.srcStmt().getTags()//ConstantFieldValueFinder//edge.src().getActiveBody(); SootU
+//            }            
+//        }
+//        else if (rightOp instanceof JInstanceFieldRef) {
+//            JInstanceFieldRef jfr = (JInstanceFieldRef) rightOp;
+//            Value vv = jfr.getBase();
+//            return null; 
+//            
+//        }
+//        else if (rightOp instanceof JimpleLocal) {
+//            return resolveValue(rightOp, cs);
+//        }
+//        else {// currently doesnt handle fieldref and static values
+//            return null;
+//        }
         
         
     }
     
     public List<ValueString> resolvePossibleValues(Value value, CallSite cs) {        
         List<ValueString> listVals = new ArrayList<>();
-        List<Edge> listEdges = new ArrayList<>();
+        List<Edge> listEdges = new ArrayList<>();// necessary to track list of edges traversed and stop program non-termination due to recurion
         return resolvePossibleValues(value, cs, listVals, listEdges);
     }
     
@@ -706,18 +818,26 @@ public class MethodAnalysis {
                 if (lst.size() > 1) {
                     for(CallSite aCS : lst) {
                         if (!calTraceEdges.contains(aCS.getEdge())) {
-                            resolvePossibleValues(value, aCS, listVS, calTraceEdges);
+                            int argPosition = SimpleIntraDataFlowAnalysis.getParameterLocalIndex(cs.getSourceMethod(), localrepr);
+                            Stmt stmtAtCallSite = aCS.getEdge().srcStmt();// the stmt at the callsite must have an invoke expression
+                            // sinc our source method is called there //hence we can call stmt.getInvokeExpr.getArg without exeception
+                            resolvePossibleValues(stmtAtCallSite.getInvokeExpr().getArg(argPosition), aCS, listVS, calTraceEdges);
                         }
                     }
                     return listVS;
                 }
-                else {
+                else if (lst.size() == 1) {
                     Stmt stmt = lst.get(0).getEdge().srcStmt();
-                    Value val = stmt.getInvokeExpr().getArg(
-                            SimpleIntraDataFlowAnalysis.getParameterLocalIndex(lst.get(0).getSourceMethod(), localrepr));
+                    int argPosition = SimpleIntraDataFlowAnalysis.getParameterLocalIndex(lst.get(0).getSourceMethod(), localrepr);
+                    Value val = stmt.getInvokeExpr().getArg(argPosition);
                     ValueString vs = resolveValue(val, lst.get(0));
                     listVS.add(vs);
                     
+                    return listVS;
+                }
+                else {
+                    ValueString vs = null;
+                    listVS.add(vs);
                     return listVS;
                 }
             }
@@ -725,7 +845,7 @@ public class MethodAnalysis {
         }
         
         if (list.size() > 1) {
-            System.out.println("warning: number defsofvar > " + 1);
+            logger.log(Level.WARNING, "Warning: number definitions for {0} > {1}", new Object[]{value, 1});
         }
         
         JAssignStmt stmt = (JAssignStmt) list.get(list.size()-1);        
@@ -759,11 +879,12 @@ public class MethodAnalysis {
         else if (rightOp instanceof JInstanceFieldRef) {
             JInstanceFieldRef jfr = (JInstanceFieldRef) rightOp;
             Value vv = jfr.getBase();
-            return null; 
+            listVS.add(null);
+            return listVS; 
             
         }
         else if (rightOp instanceof JimpleLocal) {
-            ValueString vs = resolveValue(rightOp, cs);
+            ValueString vs = resolveValue((JimpleLocal)rightOp, stmt, cs.getSourceMethod());
             listVS.add(vs);
             return listVS;
         }

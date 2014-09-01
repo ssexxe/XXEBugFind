@@ -90,6 +90,25 @@ public class CallSite implements Comparable<CallSite> {
             return (isBefore) ? -1 : 1;//throw new RuntimeException("Both call sites occur in the same line. This is not supported yet" + this.toString() + " against " + o.toString());
         }
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) return false;        
+        else if (this == obj) return true;
+        
+        else {
+            if (obj.getClass() != this.getClass()) return false;
+            
+            return edge.equals(((CallSite)obj).edge); //To change body of generated methods, choose Tools | Templates.
+        }
+    }
+
+    @Override
+    public int hashCode() {
+        return edge.hashCode();
+    }
+
+    
     
     
 }

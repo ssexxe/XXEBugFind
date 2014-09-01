@@ -23,7 +23,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
-import java.io.PrintWriter;
 import java.nio.file.FileSystemException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -41,6 +40,7 @@ import javax.xml.transform.Result;
 import javax.xml.transform.stream.StreamResult;
 import soot.Body;
 import soot.G;
+import soot.Local;
 import soot.PackManager;
 import soot.PatchingChain;
 import soot.PhaseOptions;
@@ -75,10 +75,14 @@ import soot.tagkit.LineNumberTag;
 import soot.tagkit.Tag;
 
 /**
- *
+ * This is the callgraph object that encapsulates the soot CallGraph and provides utility methods
+ * such as getCallTraces and so on which cannot be gotten directly from soot
  * @author Mikosh
  */
 public class CallGraphObject {
+    private static final Logger logger = Logger.getLogger(CallGraphObject.class.getName());
+    //{logger.setUseParentHandlers(false);}
+    
     protected static CallGraphObject callGraphObject;
     
     protected Map<String, String> bugFindParametersMap;
@@ -117,6 +121,7 @@ public class CallGraphObject {
         String outputFile = bugFindParametersMap.get(OptionsParser.OUTPUT_FILE_OPT);
         String[] dirLocs = null, libLocs = null;
         String pathSep = File.pathSeparator;
+        
 
         // first parse target application location
         if (dirLocation == null) {
@@ -228,10 +233,10 @@ public class CallGraphObject {
             if (!s.trim().isEmpty()) {
                 argsList.add("-process-dir");
                 argsList.add(s.trim());
-                System.out.println("-pdir: " + s.trim());
+                logger.log(Level.INFO, "process-dir: {0}", s.trim());                
             }
         }
-        System.out.println("-cp opt string:\n" + cpOptionString);
+        logger.log(Level.INFO, "class-path:\n{0}", cpOptionString);
         // get get vulnerable method definition list
         String vulmethodDefs = bugFindParametersMap.get(OptionsParser.VMD_OPT);
         //if (vulmethodDefs == null || vulmethodDefs.trim().isEmpty()) {
@@ -246,13 +251,17 @@ public class CallGraphObject {
 
         Options.v().set_keep_line_number(true);
         Options.v().set_include_all(true);
-        Options.v().set_allow_phantom_refs(true);
-        PhaseOptions.v().setPhaseOption("tag.ln", "on");
+        Options.v().set_allow_phantom_refs(true);        
+        PhaseOptions.v().setPhaseOption("tag.ln", "on");        
+        //PhaseOptions.v().setPhaseOption("cg", "enabled:false");        
+        PhaseOptions.v().setPhaseOption("cg", "all-reachable:true");
+        //PhaseOptions.v().setPhaseOption("jb", "use-original-names:false");
            //PhaseOptions.v().setPhaseOption("cg.spark", "enabled:true");
         //PhaseOptions.v().setPhaseOption("cg.paddle", "enabled:true");
+        //Options.v().parse(args);
         G.v().out = new PrintStream(new File("soot.txt"));
-        System.out.println("started...");
-
+        
+        logger.log(Level.INFO, "Started...");
         SootRunner.main(args, libLocation);//        soot.Main.main(args);
     }
 
@@ -271,17 +280,20 @@ public class CallGraphObject {
                 List<ActualVulnerabilityItem> actualVulnerabilities = xvd.findVulnerabilities();
                 String outputFormat = (bugFindParametersMap.get(OptionsParser.OUTPUT_FORMAT_OPT) == null)
                         ? BugFindConstants.TEXT_FORMAT : bugFindParametersMap.get(OptionsParser.OUTPUT_FORMAT_OPT);
-                if (actualVulnerabilities.isEmpty()) {
-                    System.out.println("No exploitable XXE vulnerabilities found");
-                }
-                System.out.println("Ended");
+                logger.log(Level.INFO, "Finsihed run");
+                
                 try {
                     String outputFile = bugFindParametersMap.get(OptionsParser.OUTPUT_FILE_OPT);
                     printActualVunerabilitesFound(cg, actualVulnerabilities, outputFormat, (outputFile != null));
+                    
                 } catch (JAXBException ex) {
                     Logger.getLogger(CallGraphObject.class.getName()).log(Level.SEVERE, null, ex);
                 } catch (FileNotFoundException ex) {
                     Logger.getLogger(CallGraphObject.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                
+                if (actualVulnerabilities == null || actualVulnerabilities.isEmpty()) {
+                    logger.log(Level.INFO, "No exploitable XXE vulnerabilities found");
                 }
 
 //                       if (actualVulnerabilities.size() > 0) {
@@ -316,6 +328,8 @@ public class CallGraphObject {
                         displayExecutionTraceForMethod(cg, md, System.out);
                     }
                 }
+                
+                logger.log(Level.INFO, "About to terminate...");
             }
 
         }));
@@ -361,8 +375,8 @@ public class CallGraphObject {
                 listCS.add(new CallSite(edge));
             }
         }
-        
-        if (listCS.isEmpty() && method.getDeclaringClass().isAbstract() || method.getDeclaringClass().isInterface()) {
+                
+        if (listCS.isEmpty() && method.getDeclaringClass().isAbstract() || method.getDeclaringClass().isInterface()) {            
             if (method.getDeclaringClass().isInterface()) {
                 List<SootClass> subclasses = Scene.v().getActiveHierarchy().getImplementersOf(method.getDeclaringClass());
                 
@@ -372,9 +386,29 @@ public class CallGraphObject {
                         Iterator<Edge> iteT = cg.edgesInto(sm);
                         while (iteT.hasNext()) {
                             Edge edge = iteT.next();
-                            if (edge.src().getDeclaringClass().isApplicationClass()) {
-                                listCS.add(new CallSite(edge));
+                            
+                            if (edge.src().getDeclaringClass().isApplicationClass()
+                                    && !isElevatedClass(edge.src().getDeclaringClass())) {
+                                Local l = (Local) SimpleIntraDataFlowAnalysis.getInvokedLocal(edge.srcStmt());
+
+                                if (l.getType().toString().equals(method.getDeclaringClass().getName())) {
+                                    // add missing edge for interface type
+                                    Edge missingEdge = new Edge(edge.src(), edge.srcStmt(), method);
+                                    
+                                    Scene.v().getCallGraph().addEdge(missingEdge);
+                                    
+                                    CallSite cs = new CallSite(missingEdge);
+                                    
+                                    // now add callsite to calltrace list returned
+                                    if (!listCS.contains(cs)) {
+                                        listCS.add(cs);
+                                    }
+                                }
                             }
+//                            if (edge.src().getDeclaringClass().isApplicationClass() && 
+//                                    !isElevatedClass(edge.src().getDeclaringClass())) {
+//                                listCS.add(new CallSite(edge));                                
+//                            }
                         }
                     }
                 }
@@ -387,7 +421,26 @@ public class CallGraphObject {
                     if (sm != null) {
                         Iterator<Edge> iteT = cg.edgesInto(sm);
                         while (iteT.hasNext()) {
-                            listCS.add(new CallSite(iteT.next()));
+                            Edge edge = iteT.next();
+                            
+                            if (edge.src().getDeclaringClass().isApplicationClass()
+                                    && !isElevatedClass(edge.src().getDeclaringClass())) {
+                                Local l = (Local) SimpleIntraDataFlowAnalysis.getInvokedLocal(edge.srcStmt());
+
+                                if (l.getType().toString().equals(method.getDeclaringClass().getName())) {
+                                    // add missing edge for interface type
+                                    Edge missingEdge = new Edge(edge.src(), edge.srcStmt(), method);
+                                    
+                                    Scene.v().getCallGraph().addEdge(missingEdge);
+                                    
+                                    CallSite cs = new CallSite(missingEdge);
+                                    
+                                    // now add callsite to calltrace list returned
+                                    if (!listCS.contains(cs)) {
+                                        listCS.add(cs);
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -420,6 +473,12 @@ public class CallGraphObject {
         return listCS;
     }
     
+    /**
+     * Get edges corresponding to all the methods that were called in the specified method
+     * @param cg the callgraph that contains the method
+     * @param method the specified method
+     * @return edges corresponding to all the methods that were called in the specified method 
+     */
     public List<CallSite> getMethodCallEdgesOutOfMethod(CallGraph cg, SootMethod method) {
         List<CallSite> listCS = new ArrayList<>();
         
@@ -431,7 +490,19 @@ public class CallGraphObject {
         return listCS;
     }
     
+    /**
+     * Gets the call traces for a specified method using backward flow analysis. It has been approximated to
+     * include only soot's application classes (ie classes in the main jar file being analysed; jars specifed
+     * using the -d option). Other classes such as library, javalibrary classes are not included to prevent 
+     * bloating of the call trace. Check Sable Soot online for more info
+     * @param cg the callgraph that contains the method
+     * @param meth the method whose call stack trace is to be traced
+     * @param atraceList a list contain a single-flow call trace
+     * @param mainList the main list containing branches of the calltraces if need
+     * @return  the call traces for a specified method
+     */
     protected List<List<SootMethod>> getCallStackTraces(CallGraph cg, SootMethod meth, List<SootMethod> atraceList, List<List<SootMethod>> mainList) {
+        // limit the max paths. to prevent infiite call traces.
         if (mainList.size() > 3000) return mainList;
         
         List<SootMethod> currCallersList = new ArrayList<>();
@@ -439,23 +510,27 @@ public class CallGraphObject {
             mainList.add(atraceList);
         }
         
+        // first get all the edges into the method
         Iterator<Edge> ite = cg.edgesInto(meth);
         
-        // first check if it has a caller
+        // first check if it has a caller (ie. ite.hasNext should return true). Also try to optimize call trace to
+        // include only application classes
         if (ite.hasNext() && (!atraceList.isEmpty() && !atraceList.get(atraceList.size() - 1).equals(meth)) 
                 && (meth.getDeclaringClass().isApplicationClass()) || atraceList.isEmpty()) {
             atraceList.add(meth);
         }
-        
-        //SootClass sc = meth.getDeclaringClass();Scene.v().getActiveHierarchy().
-        //        getDirectSubclassesOf(Scene.v().getActiveHierarchy().getDirectImplementersOf(sc).get(2))
-
+                
+        // now loop through all the occurrence edges and add them. Make sure to add only application classes as
+        // library classes (ie xml libs) will only make the call trace bloated and not understandable
         while (ite.hasNext()) {
             Edge currEdge = ite.next();// the tostring of this gives me what i want
-            if (currEdge.src().getDeclaringClass().isApplicationClass() && !atraceList.contains(currEdge.src())) {
+            if (currEdge.src().getDeclaringClass().isApplicationClass() && !atraceList.contains(currEdge.src())
+                    && !isElevatedClass(currEdge.src().getDeclaringClass())) {//NSOT
                 currCallersList.add(currEdge.src());       //((JAssignStmt)currEdge.srcUnit()).leftBox.getValue().getType()
             }
         }
+        
+        // duplicate traces if needed to get the tree like structure of the traces
         if (currCallersList.size() > 1) {
             List<SootMethod>[] l = new List[currCallersList.size()];
             for (int i=1; i<currCallersList.size(); ++i) {
@@ -633,7 +708,7 @@ public class CallGraphObject {
                 lList = getCallStackTraces(cg, MethodDefinition.getOverrideSootMethod(sc, meth)//sc.getMethod(meth.getName(), meth.getParameterTypes())
                             , lsm, lList);
                 int i = 0;
-                System.out.println("printing call trace for [" + meth.getDeclaringClass().getName() + " " + meth.getDeclaration() + "]");
+                ps.println("printing call trace for [" + meth.getDeclaringClass().getName() + " " + meth.getDeclaration() + "]");
                 printStackTraces(lList, ps);
             }
         }        
@@ -644,7 +719,8 @@ public class CallGraphObject {
 
             lList = getCallStackTraces(cg, meth, lsm, lList);
             int i = 0;
-            System.out.println("printing call trace for [" + meth.getDeclaringClass().getName() + " " + meth.getDeclaration() + "]");
+            
+            Logger.getLogger(CallGraphObject.class.getName()).log(Level.INFO, "printing call trace for [{0} {1}]", new Object[]{meth.getDeclaringClass().getName(), meth.getDeclaration()});
             printStackTraces(lList, ps);
         //for(List<SootMethod> l : ml) {
             //    System.out.println("Tgt ML src No: " + ++i
@@ -845,20 +921,6 @@ public class CallGraphObject {
     
     public static void doTest2() {
         try {
-//            Employee employee = new Employee("uiheroie", 56, 4, "permanent");
-//            JAXBContext jaxbContext = JAXBContext.newInstance(Employee.class);
-//            Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
-//            
-//            jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-//            
-//            jaxbMarshaller.marshal(employee, System.out);            
-//            jaxbMarshaller.marshal(employee, new File("C:/f/employees.xml"));
-//            
-//            Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
-//            Employee employee2 = (Employee) jaxbUnmarshaller.unmarshal(new File("C:/f/employees.xml"));
-//            System.out.println("\nreread emp");
-//            System.out.println(employee2.toString());
-            
             VulnerabilityDefinitionItems vmis = new VulnerabilityDefinitionItems();
             vmis.setVulnerabilityDefinitionItems(VulnerableXMLMethodDefinitions.getVulnerableMethodDefinitionList());
             
@@ -868,7 +930,7 @@ public class CallGraphObject {
             jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
             
             jaxbMarshaller.marshal(vmis, System.out);            
-            jaxbMarshaller.marshal(vmis, new File("C:/f/vmis.xml"));            
+            jaxbMarshaller.marshal(vmis, new File("C:/f/vmisAll.xml"));            
             
             SchemaOutputResolver sor = new SchemaOutputResolver() {
 
@@ -905,8 +967,17 @@ public class CallGraphObject {
         this.bugFindParametersMap = bugFindParametersMap;
     }
 
+    /**
+     * Gets the classes that were elevated from library level to application level. The elevation of
+     * some classes is necessary in order to solve the missing edge problem in soot 
+     * @return the classes that were elevated from library to application level
+     */
     public static List<SootClass> getElevatedClasses() {
         return elevatedClasses;
+    }
+    
+    public static boolean isElevatedClass(SootClass sc) {
+        return getElevatedClasses().contains(sc);
     }
     
     public static void elevateClassToApplicationLevel(SootClass sc) {        
@@ -916,10 +987,23 @@ public class CallGraphObject {
         }
     }
 
-    protected void printActualVunerabilitesFound(CallGraph cg, List<ActualVulnerabilityItem> actualVulnerabilities, String outputFormat, boolean printToFile) throws JAXBException, FileNotFoundException {
+    protected void printActualVunerabilitesFound(CallGraph cg, List<ActualVulnerabilityItem> actualVulnerabilities, 
+            String outputFormat, boolean printToFile) throws JAXBException, FileNotFoundException {
+        
+        logger.log(Level.FINE, "Compiling report");
+        
+        if (printToFile) {
+            logger.log(Level.FINE, "Writing to file {0}", bugFindParametersMap.get(OptionsParser.OUTPUT_FILE_OPT));
+        }
+        else {
+            logger.log(Level.FINE, "Writing to console");
+        }
+        
         OutputStream os = (printToFile) ? 
                     new FileOutputStream(bugFindParametersMap.get(OptionsParser.OUTPUT_FILE_OPT))
                     : System.out;
+        
+        logger.log(Level.FINE, "Output format {0}", outputFormat);
         
         if (outputFormat.toLowerCase().equals(BugFindConstants.XML_FORMAT)) {
             ActualVulnerabilityItems avis = new ActualVulnerabilityItems();
@@ -927,32 +1011,31 @@ public class CallGraphObject {
             XMLUtils.writeXMLToStream(avis, os);
         }
         else {
-            PrintStream ps = new PrintStream(os);
-         
-            if (actualVulnerabilities.size() > 0) {
-                ps.println("\n" + actualVulnerabilities.size() + " variant(s) of xxe vulnerabilities found");
-            }
-            
-            int n = 0;
-            for (ActualVulnerabilityItem avi : actualVulnerabilities) {
-                ++n;
-                String classShortName = avi.getVulnerabilityDefinitionItem().getMethodDefinition().getClassName();
-
-                if (classShortName.contains(".")) {
-                    int index = classShortName.lastIndexOf(".");
-                    classShortName = classShortName.substring(index + 1);
+            try (PrintStream ps = new PrintStream(os)) {
+                if (actualVulnerabilities.size() > 0) {
+                    ps.println("\n" + actualVulnerabilities.size() + " variant(s) of xxe vulnerabilities found");
                 }
-                ps.println("XXE Variant-" + n + " due to using " + classShortName
-                        + " API. See detail: \n" + avi);
-                ps.println("Reason: " + avi.getReason());
-
-                ps.println("Exploitation route(s)");
-                printCallTraces(avi, cg, ps);
-                ps.println("");
+                
+                int n = 0;
+                for (ActualVulnerabilityItem avi : actualVulnerabilities) {
+                    ++n;
+                    String classShortName = avi.getVulnerabilityDefinitionItem().getMethodDefinition().getClassName();
+                    
+                    if (classShortName.contains(".")) {
+                        int index = classShortName.lastIndexOf(".");
+                        classShortName = classShortName.substring(index + 1);
+                    }
+                    ps.println("XXE Variant-" + n + " due to using " + classShortName
+                            + " API. See detail: \n" + avi);
+                    ps.println("Reason: " + avi.getReason());
+                    
+                    ps.println("Exploitation route(s)");
+                    printCallTraces(avi, cg, ps);
+                    ps.println("");
+                }
+                
+                ps.flush();
             }
-            
-            ps.flush();
-            ps.close();
         }
         
     }
