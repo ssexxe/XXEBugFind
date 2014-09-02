@@ -111,7 +111,7 @@ public final class VulnerableXMLMethodDefinitions {
             listMI =  new ArrayList<>();
             
             // now create mitigation items and add to the vdi
-            vmi = createLocalMitigationItem("javax.xml.parsers.DocumentBuilderFactory", "setFeature", null, 
+            vmi = createFactoryMitigationItem("javax.xml.parsers.DocumentBuilderFactory", "setFeature", null, 
                     createMethodParameters("java.lang.String", "boolean"), 
                     new ParameterValueCreator().add("java.lang.String", "\"http://apache.org/xml/features/disallow-doctype-decl\"")
                             .add("boolean", "true").getParameters());
@@ -123,7 +123,7 @@ public final class VulnerableXMLMethodDefinitions {
                     + "DocumentBuilderFactory.setFeature(\"http://xml.org/sax/features/external-general-entities\", false); should be "
                     + " made before using parsers created from them i.e., before using DocumentBuilder.parse(...) methods");
             listMI.add(vmi);
-            vmi = createLocalMitigationItem("javax.xml.parsers.DocumentBuilderFactory", "setFeature", null, 
+            vmi = createFactoryMitigationItem("javax.xml.parsers.DocumentBuilderFactory", "setFeature", null, 
                     createMethodParameters("java.lang.String", "boolean"), 
                     new ParameterValueCreator().add("java.lang.String", "\"http://xml.org/sax/features/external-general-entities\"")
                             .add("boolean", "false").getParameters());
@@ -170,7 +170,7 @@ public final class VulnerableXMLMethodDefinitions {
             listMI =  new ArrayList<>();
             
             // now create mitigation items and add to the vdi
-            vmi = createLocalMitigationItem("javax.xml.parsers.SAXParserFactory", "setFeature", null, 
+            vmi = createFactoryMitigationItem("javax.xml.parsers.SAXParserFactory", "setFeature", null, 
                     createMethodParameters("java.lang.String", "boolean"), 
                     new ParameterValueCreator().add("java.lang.String", "\"http://apache.org/xml/features/disallow-doctype-decl\"")
                             .add("boolean", "true").getParameters());
@@ -181,7 +181,7 @@ public final class VulnerableXMLMethodDefinitions {
                     + "SAXParserFactory.setFeature(\"http://xml.org/sax/features/external-general-entities\", false); should be "
                     + " made before using parsers created from them i.e., before using SAXParser.parse(...) methods");
             listMI.add(vmi);
-            vmi = createLocalMitigationItem("javax.xml.parsers.SAXParserFactory", "setFeature", null, 
+            vmi = createFactoryMitigationItem("javax.xml.parsers.SAXParserFactory", "setFeature", null, 
                     createMethodParameters("java.lang.String", "boolean"), 
                     new ParameterValueCreator().add("java.lang.String", "\"http://xml.org/sax/features/external-general-entities\"")
                             .add("boolean", "false").getParameters());

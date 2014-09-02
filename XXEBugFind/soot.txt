@@ -1,21 +1,5 @@
-Soot started on Mon Sep 01 12:38:45 BST 2014
+Soot started on Tue Sep 02 09:51:16 BST 2014
 Warning: java.dyn.InvokeDynamic is a phantom class!
-Warning: org.jaxen.VariableContext is a phantom class!
-Warning: org.jaxen.FunctionContext is a phantom class!
-Warning: org.jaxen.NamespaceContext is a phantom class!
-Warning: org.jaxen.ContextSupport is a phantom class!
-Warning: org.jaxen.SimpleVariableContext is a phantom class!
-Warning: org.jaxen.Navigator is a phantom class!
-Warning: org.jaxen.SimpleNamespaceContext is a phantom class!
-Warning: org.jaxen.XPathFunctionContext is a phantom class!
-Warning: org.jaxen.pattern.PatternParser is a phantom class!
-Warning: org.jaxen.pattern.Pattern is a phantom class!
-Warning: org.jaxen.JaxenException is a phantom class!
-Warning: org.jaxen.dom4j.DocumentNavigator is a phantom class!
-Warning: org.jaxen.saxpath.SAXPathException is a phantom class!
-Warning: org.jaxen.Context is a phantom class!
-Warning: org.jaxen.dom4j.Dom4jXPath is a phantom class!
-Warning: org.jaxen.XPath is a phantom class!
 Warning: com.sun.msv.reader.util.IgnoreController is a phantom class!
 Warning: com.sun.msv.grammar.IDContextProvider2 is a phantom class!
 Warning: com.sun.msv.util.StartTagInfo is a phantom class!
@@ -36,13 +20,29 @@ Warning: com.sun.msv.reader.xmlschema.XMLSchemaReader is a phantom class!
 Warning: org.osgi.framework.BundleActivator is a phantom class!
 Warning: org.osgi.framework.ServiceRegistration is a phantom class!
 Warning: org.osgi.framework.BundleContext is a phantom class!
+Warning: org.jaxen.NamespaceContext is a phantom class!
+Warning: org.jaxen.VariableContext is a phantom class!
+Warning: org.jaxen.Navigator is a phantom class!
 Warning: org.jaxen.UnresolvableException is a phantom class!
+Warning: org.jaxen.XPath is a phantom class!
+Warning: org.jaxen.JaxenException is a phantom class!
 Warning: org.jaxen.BaseXPath is a phantom class!
 Warning: org.jaxen.DefaultNavigator is a phantom class!
 Warning: org.jaxen.util.SingleObjectIterator is a phantom class!
 Warning: org.jaxen.JaxenConstants is a phantom class!
 Warning: org.jaxen.UnsupportedAxisException is a phantom class!
 Warning: org.jaxen.FunctionCallException is a phantom class!
+Warning: org.jaxen.saxpath.SAXPathException is a phantom class!
+Warning: org.jaxen.SimpleVariableContext is a phantom class!
+Warning: org.jaxen.FunctionContext is a phantom class!
+Warning: org.jaxen.ContextSupport is a phantom class!
+Warning: org.jaxen.SimpleNamespaceContext is a phantom class!
+Warning: org.jaxen.XPathFunctionContext is a phantom class!
+Warning: org.jaxen.pattern.PatternParser is a phantom class!
+Warning: org.jaxen.pattern.Pattern is a phantom class!
+Warning: org.jaxen.dom4j.DocumentNavigator is a phantom class!
+Warning: org.jaxen.Context is a phantom class!
+Warning: org.jaxen.dom4j.Dom4jXPath is a phantom class!
 Warning: com.sun.msv.datatype.SerializationContext is a phantom class!
 Warning: org.relaxng.datatype.ValidationContext is a phantom class!
 Warning: com.sun.msv.datatype.DatabindableDatatype is a phantom class!
@@ -66,27 +66,15 @@ Warning: org.apache.xml.resolver.readers.SAXCatalogReader is a phantom class!
 Warning: org.apache.xml.resolver.Catalog is a phantom class!
 Warning: com.sun.org.apache.xerces.internal.parsers.jaxp.SAXParserImpl.JAXPSAXParser is a phantom class!
 Warning: com.sun.xml.internal.stream.XMLInputFactory is a phantom class!
-No main class given. Inferred 'a.PrettyPrinter' as main class.
 [Call Graph] For information on where the call graph may be incomplete, use the verbose option to the cg phase.
-Transforming a.PrettyPrinter... 
-Transforming b.PrettyPrinter2... 
-Transforming dom4j.Dom4JExample... 
-Transforming jaxb.JAXBExample... 
-Transforming kxml2.KXMLExample... 
 Transforming mydom.DomParserExample... 
-Transforming myjdom.PrettyPrinter... 
-Transforming mysax2.XMLReaderExample... 
+Transforming mysax.Employee... 
 Transforming mysax.SAXParserExample... 
-Transforming myxmltest.Employee... 
 Transforming myxmltest.GUIFrame$1... 
 Transforming myxmltest.GUIFrame$2... 
 Transforming myxmltest.GUIFrame$3... 
 Transforming myxmltest.GUIFrame$4... 
 Transforming myxmltest.GUIFrame... 
-Transforming myxmltest.MyDefaultHandler... 
 Transforming myxmltest.MyXMLTest... 
-Transforming myxmltest.basic.Utils... 
-Transforming piccolotest.MyPiccoloExample... 
-Transforming stax.StAXExample... 
-Soot finished on Mon Sep 01 12:40:36 BST 2014
-Soot has run for 1 min. 50 sec.
+Soot finished on Tue Sep 02 09:53:04 BST 2014
+Soot has run for 1 min. 48 sec.

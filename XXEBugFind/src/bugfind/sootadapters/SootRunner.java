@@ -13,21 +13,17 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import soot.ArrayType;
 import soot.CompilationDeathException;
 import soot.G;
-import soot.Local;
 import soot.Main;
-import soot.Modifier;
 import soot.Pack;
 import soot.PackManager;
-import soot.RefType;
 import soot.Scene;
 import soot.Singletons;
 import soot.SootClass;
@@ -35,10 +31,6 @@ import soot.SootMethod;
 import soot.SourceLocator;
 import soot.Timers;
 import soot.Transform;
-import soot.Type;
-import soot.VoidType;
-import soot.jimple.Jimple;
-import soot.jimple.JimpleBody;
 import soot.options.Options;
 import soot.toolkits.astmetrics.ClassData;
 import soot.util.Chain;
@@ -343,7 +335,7 @@ public class SootRunner extends Main {
             }
         }
         
-        //createCustomMainClassIfNecessary();//System.out.println("ENTRY POINTS" + Scene.v().getEntryPoints());
+        createCustomEntryPointsIfNecessary();//System.out.println("ENTRY POINTS" + Scene.v().getEntryPoints());
         
         // wen need to load the lib paths as 
         List<String> libPathList = FileUtil.extractPaths(libPaths, File.pathSeparator);
@@ -372,51 +364,24 @@ public class SootRunner extends Main {
     }
     
     /**
-     * Create a custom man application class for application with no main class
+     * This is necessary for applications that do not have a main class
      */
-    private static void createCustomMainClassIfNecessary() {
+    private static void createCustomEntryPointsIfNecessary() {
         if (!Scene.v().hasMainClass()) {
-            Iterator<String> pathIt = Options.v().process_dir().iterator();
-            String path = pathIt.next();
+            List<SootClass> allClasses = new ArrayList<>(Scene.v().getApplicationClasses());
+            ArrayList<SootMethod> entrypoints = new ArrayList<SootMethod>();
             
-            String cname = SourceLocator.v().getClassesUnder(path).get(0);
-            SootClass aClass = Scene.v().getSootClass(cname);
-                    
-            String pkgname = aClass.getPackageName();
+            for (SootClass klass : allClasses) {                
+                // adding all non-abstract method as entrypoint
+                for (SootMethod m : klass.getMethods()) {
+                    if (!m.isAbstract()) {
+                        entrypoints.add(m);
+                    }
+                }
+            }
             
-            Scene.v().loadClassAndSupport("java.lang.Object");
-//            Scene.v().loadClassAndSupport("java.lang.System");
-                        
-            String custClass = pkgname + "." + "x3x4x5x6x7x8x9x8";
-            SootClass sc = new SootClass(custClass, Modifier.PUBLIC);
-        
-        // 'extends Object'
-           sc.setSuperclass(Scene.v().getSootClass("java.lang.Object"));
-           Scene.v().addClass(sc);
+            Scene.v().setEntryPoints(entrypoints);
             
-            //SootClass sc = Scene.v().forceResolve(custClass, SootClass.BODIES);//sc.setModifiers(Modifier.PUBLIC);
-            SootMethod sm = new SootMethod("main", Arrays.asList(new Type[] {ArrayType.v(RefType.v("java.lang.String"), 1)})
-                    , VoidType.v(),
-                    Modifier.PUBLIC | Modifier.STATIC);
-            JimpleBody body = Jimple.v().newBody(sm);
-            sm.setActiveBody(body);
-            
-            
-            Local arg = Jimple.v().newLocal("l0", ArrayType.v(RefType.v("java.lang.String"), 1));
-            body.getLocals().add(arg);
-            
-            Chain units = body.getUnits();
-            units.add(Jimple.v().newReturnVoidStmt());
-            
-            sc.addMethod(sm);
-            sc.setApplicationClass();
-            Scene.v().setMainClass(sc);            
-//            Scene.v().loadClassAndSupport(custClass).setApplicationClass();
-//          sc.getMethods().get(0).getActiveBody();
-//            List entryPoints = new ArrayList();
-//            entryPoints.add(sm);
-//            Scene.v().setEntryPoints(entryPoints);            
-                     
             logger.log(Level.INFO, "Created custom entry point main class");            
         }
     }
