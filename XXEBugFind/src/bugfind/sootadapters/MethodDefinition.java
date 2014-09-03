@@ -98,13 +98,17 @@ public class MethodDefinition {
     }
 
     /**
-     * 
-     * @return 
+     * Gets method parameter list
+     * @return method parameter list 
      */
     public List<MethodParameter> getParameterList() {
         return parameterList;
     }
     
+    /**
+     * Gets the parameter types as a string list
+     * @return the parameter types as a string list 
+     */
     public List<String> getParameterTypesOnlyAsString() {
         List<String> list = new ArrayList<>();
         for (MethodParameter mp : getParameterList()) {
@@ -113,6 +117,10 @@ public class MethodDefinition {
         return list;
     }
     
+    /**
+     * Gets the parameter types as a list of type objects
+     * @return the parameter types as a list of type objects 
+     */
     public List<Type> getParameterTypesOnly() {
         List<Type> list = new ArrayList<>();
         for (MethodParameter mp : getParameterList()) {
@@ -137,6 +145,10 @@ public class MethodDefinition {
         return returnType;
     }
 
+    /**
+     * Sets the return type of the method definiton
+     * @param returnType the return type to be set
+     */
     public void setReturnType(String returnType) {
         this.returnType = returnType;
     }
@@ -146,43 +158,73 @@ public class MethodDefinition {
     
     
     
-    
+    /**
+     * A method parameter class
+     */
     @XmlRootElement
     @XmlAccessorType (XmlAccessType.FIELD)
     public static class MethodParameter {
+        
         @XmlElement (name = "ParameterType")
-        String type;
+        private String type;
         
         @XmlElement (name = "ParameterName")
-        String name;
+        private String name;
 
+        /**
+         * Creates a new method parameter object
+         */
         public MethodParameter() {
         }
 
+        /**
+         * Creates a method parameter object when given the type and its name
+         * @param type the type of the method parameter
+         * @param name the name of the method parameter
+         */
         public MethodParameter(String type, String name) {
             this.type = type;
             this.name = name;
         }
 
+        /**
+         * @return the type
+         */
         public String getType() {
             return type;
         }
 
-        public String getName() {
-            return name;
-        }
-
+        /**
+         * @param type the type to set
+         */
         public void setType(String type) {
             this.type = type;
         }
 
+        /**
+         * @return the name
+         */
+        public String getName() {
+            return name;
+        }
+
+        /**
+         * @param name the name to set
+         */
         public void setName(String name) {
             this.name = name;
         }
-        
+
     }
-    
-    
+
+    /**
+     * Gets the method definition from the given method signature. This is used for the purpose of the user using the 
+     * -vmd commanline option. The format is <code>ClassName.methodName(ParameterType1, ParameterType2)</code>
+     * e.g.<code> org.ucl.MyClass.amethod(java.lang.String, int, org.rmx.Options)</code>
+     * @param methodSignature the method sinature
+     * @return the method definition from the given method signature.
+     * @throws Exception 
+     */
     public static MethodDefinition getMethodDefinition(String methodSignature) throws Exception {        
         if (methodSignature == null || methodSignature.trim().isEmpty()) {
             throw new Exception("The method signuature given cannot be null or empty. It should have the format "
@@ -195,6 +237,7 @@ public class MethodDefinition {
                     + "e.g. org.ucl.MyClass.amethod(java.lang.String, int, org.rmx.OptionsList[])" );            
         }
         
+        // use the given sematics to parse the method
         int lastDotIndexBeforeParenthesis = methodSignature.substring(0, methodSignature.indexOf("(")).lastIndexOf(".");
         int firstIndexOfParen = methodSignature.indexOf("(");
         String classname = methodSignature.substring(0, lastDotIndexBeforeParenthesis);
@@ -204,6 +247,7 @@ public class MethodDefinition {
         if (argumentStr.length() == 0) {
             return new MethodDefinition(classname, methodName, null, null);
         }
+        // now create the method parameters
         List<MethodParameter> parameterList = new ArrayList<>();
         String[] parameters = argumentStr.split(",");
         for (String parameter : parameters) {
@@ -218,9 +262,19 @@ public class MethodDefinition {
         return new MethodDefinition(classname, methodName, parameterList, null);
     }
     
+    /**
+     * Gets the soot method with the specified method definition. This is used becaus soot's SootClass.getMethodByName() 
+     * does not return a soot method for abstact method or interface methods of class. that is methods that do not have
+     * bodies in the the class or interface inwhich it was declared. This method handles such scenario
+     * @param sc the sootclass to get the method from
+     * @param md the method definition to use
+     * @return the soot method with the specified method definition. 
+     */
     public static SootMethod getSootMethod(SootClass sc, MethodDefinition md) {
+        // Get a list of all the possible methods in this class including inherited ones
         List<SootMethod> list = new SootClassWrapper(sc).getAllMethodsDeclaredIncludingInherited();//sc.getMethods();
         
+        // loop through looking for one that matches it
         for (SootMethod meth : list) { 
             if (meth.getName().equals(md.getMethodName())) {
                 if (meth.getParameterCount() == md.getParameterList().size()) {       
@@ -231,7 +285,7 @@ public class MethodDefinition {
                     // method has parameters
                     List<Type> parameterTypeList = meth.getParameterTypes();
                     List<MethodParameter> methParameterList = md.getParameterList();
-                    boolean allThesame = true;
+                    boolean allThesame = true;// only break when all the parameter types are equal
                     for (int i=0; i<meth.getParameterCount(); ++i) {
                         if (!parameterTypeList.get(i).toString().equals(methParameterList.get(i).getType())) {
                             allThesame = false;
@@ -245,6 +299,7 @@ public class MethodDefinition {
             }
         }
         
+        // hanldes cases of phantom classes
         if (sc.isPhantomClass()) {
             md.getParameterTypesOnly();
             SootMethod m = new SootMethod(md.getMethodName(), md.getParameterTypesOnly(), convertToType(md.getReturnType()));
@@ -257,6 +312,14 @@ public class MethodDefinition {
         throw new RuntimeException("Couldn't find method signature " + md + " in " + sc);
     }
 
+    /**
+     * Gets a method in the specified class that overrides the specified method of the base class. ie if M of class BaseClass
+     * return MO of subclass SC where MO is the method of SC tht overrides M of baseclass
+     * @param sc the soot class
+     * @param baseMethod the base method
+     * @return a method in the specified class that overrides the specified method of the base class. return null if
+     * no override method exists
+     */
     public static SootMethod getOverrideSootMethod(SootClass sc, SootMethod baseMethod) {
         List<SootMethod> list = new SootClassWrapper(sc).getAllMethodsDeclaredIncludingInherited();//sc.getMethods();
         for (SootMethod meth : list) { 
@@ -296,6 +359,11 @@ public class MethodDefinition {
         throw new RuntimeException("Couldn't find method that override " + baseMethod + " in " + sc);
     }
     
+    /**
+     * Convert the type name to a soot Type
+     * @param type the string corresponding to the Soot type to be returned
+     * @return the type name to a soot Type 
+     */
     protected static Type convertToType(String type) {
         if (type.equals("void")) {
             return VoidType.v();

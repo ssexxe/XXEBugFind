@@ -18,8 +18,10 @@ import static org.junit.Assert.*;
  * @author Mikosh
  */
 public class VariableTest {
+    Variable variable;
     
     public VariableTest() {
+        variable = new Variable("var1", "java.lang.String", Variable.STATIC_VARIABLE);
     }
     
     @BeforeClass
@@ -44,12 +46,10 @@ public class VariableTest {
     @Test
     public void testGetName() {
         System.out.println("getName");
-        Variable instance = null;
-        String expResult = "";
+        Variable instance = variable;
+        String expResult = "var1";
         String result = instance.getName();
         assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
     }
 
     /**
@@ -58,12 +58,10 @@ public class VariableTest {
     @Test
     public void testGetType() {
         System.out.println("getType");
-        Variable instance = null;
-        String expResult = "";
+        Variable instance = variable;
+        String expResult = "java.lang.String";
         String result = instance.getType();
         assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
     }
 
     /**
@@ -72,12 +70,10 @@ public class VariableTest {
     @Test
     public void testGetLevel() {
         System.out.println("getLevel");
-        Variable instance = null;
-        int expResult = 0;
+        Variable instance = variable;
+        int expResult = Variable.STATIC_VARIABLE;
         int result = instance.getLevel();
         assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
     }
 
     /**
@@ -86,12 +82,10 @@ public class VariableTest {
     @Test
     public void testIsStatic() {
         System.out.println("isStatic");
-        Variable instance = null;
-        boolean expResult = false;
+        Variable instance = variable;
+        boolean expResult = true;
         boolean result = instance.isStatic();
         assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
     }
 
     /**
@@ -100,12 +94,10 @@ public class VariableTest {
     @Test
     public void testIsLocal() {
         System.out.println("isLocal");
-        Variable instance = null;
+        Variable instance = variable;
         boolean expResult = false;
         boolean result = instance.isLocal();
         assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
     }
 
     /**
@@ -114,12 +106,10 @@ public class VariableTest {
     @Test
     public void testIsField() {
         System.out.println("isField");
-        Variable instance = null;
+        Variable instance = variable;
         boolean expResult = false;
         boolean result = instance.isField();
         assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
     }
 
     /**
@@ -128,12 +118,10 @@ public class VariableTest {
     @Test
     public void testToString() {
         System.out.println("toString");
-        Variable instance = null;
-        String expResult = "";
-        String result = instance.toString();
+        Variable instance = variable;
+        String expResult = "var-name: var1 var-type: java.lang.String var-level: STATIC_VAR";
+        String result = instance.toString();System.out.println(result);
         assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
     }
     
 }

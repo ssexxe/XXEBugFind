@@ -58,6 +58,11 @@ public class OptionsParser {
      * This key corresponds to the soot library location
      */
     public static String SOOT_LIB_LOC_OPT = "-sootloc";
+    
+    /**
+     * This key corresponds to the help option
+     */
+    public static String HELP_OPT = "--help";
 
     private OptionsParser() {
     }
@@ -108,8 +113,29 @@ public class OptionsParser {
             return true;
         } else if (str.toLowerCase().equals(RULESET_OPT.toLowerCase())) {
             return true;
+        } else if (str.toLowerCase().equals(HELP_OPT.toLowerCase())) {
+            return true;
         } else {
             return false;
         }
+    }
+    
+    /**
+     * Checks if the help option has been specified in the given arguments
+     * @param args the string args to check
+     * @return true if the help option has been specified in the given arguments or false if otherwise
+     */
+    public static boolean containsHelpOption(String[] args) {
+        if (args == null || args.length == 0) {
+            return false;
+        }
+        
+        for (String str : args) {
+            if (str.toLowerCase().equals(HELP_OPT.toLowerCase())) {
+                return true;
+            }
+        }
+        
+        return false;
     }
 }

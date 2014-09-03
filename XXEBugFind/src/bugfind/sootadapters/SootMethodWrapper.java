@@ -13,22 +13,32 @@ import soot.SootMethod;
  * @author Mikosh
  */
 public class SootMethodWrapper {
-    protected SootMethod sootMethod;
+    private SootMethod sootMethod;
 
+    /**
+     * Creates a new soot method wrapper
+     * @param sootMethod 
+     */
     public SootMethodWrapper(SootMethod sootMethod) {
         this.sootMethod = sootMethod;
     }
-    
-    
-    
 
+    /**
+     * @return the sootMethod
+     */
     public SootMethod getSootMethod() {
         return sootMethod;
     }
 
+    /**
+     * @param sootMethod the sootMethod to set
+     */
     public void setSootMethod(SootMethod sootMethod) {
         this.sootMethod = sootMethod;
     }
+    
+    
+    
     
     
     

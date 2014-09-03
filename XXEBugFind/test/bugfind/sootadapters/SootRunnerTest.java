@@ -44,51 +44,37 @@ public class SootRunnerTest {
     @Test
     public void testGetInstance() {
         System.out.println("getInstance");
-        SootRunner expResult = null;
         SootRunner result = SootRunner.getInstance();
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        assertNotNull(result);
     }
 
     /**
      * Test of main method, of class SootRunner.
      */
-    @Test
-    public void testMain() {
-        System.out.println("main");
-        String[] args = null;
-        String libPaths = "";
-        SootRunner.main(args, libPaths);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
+//    @Test
+//    public void testMain() {
+//        System.out.println("main");
+//        String[] args = null;
+//        String libPaths = "";
+//        SootRunner.main(args, libPaths);
+//        // TODO review the generated test code and remove the default call to fail.
+//        fail("The test case is a prototype.");
+//    }
 
-    /**
-     * Test of run method, of class SootRunner.
-     */
-    @Test
-    public void testRun() {
-        System.out.println("run");
-        String[] args = null;
-        String libPaths = "";
-        SootRunner instance = null;
-        instance.run(args, libPaths);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
+//    /**
+//     * Test of run method, of class SootRunner.
+//     */
+//    @Test
+//    public void testRun() {
+//        System.out.println("run");
+//        String[] args = null;
+//        String libPaths = "";
+//        SootRunner instance = null;
+//        instance.run(args, libPaths);
+//        // TODO review the generated test code and remove the default call to fail.
+//        fail("The test case is a prototype.");
+//    }
 
-    /**
-     * Test of loadNecessaryClassesAndLibs method, of class SootRunner.
-     */
-    @Test
-    public void testLoadNecessaryClassesAndLibs() {
-        System.out.println("loadNecessaryClassesAndLibs");
-        String libPaths = "";
-        SootRunner instance = null;
-        instance.loadNecessaryClassesAndLibs(libPaths);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
+    
     
 }

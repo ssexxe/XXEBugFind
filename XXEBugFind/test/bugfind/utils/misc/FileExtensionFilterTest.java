@@ -45,12 +45,10 @@ public class FileExtensionFilterTest {
     @Test
     public void testGetExtension() {
         System.out.println("getExtension");
-        FileExtensionFilter instance = null;
-        String expResult = "";
+        FileExtensionFilter instance = new FileExtensionFilter(".png");
+        String expResult = ".png";
         String result = instance.getExtension();
         assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
     }
 
     /**
@@ -59,11 +57,10 @@ public class FileExtensionFilterTest {
     @Test
     public void testSetExtension() {
         System.out.println("setExtension");
-        String extension = "";
-        FileExtensionFilter instance = null;
+        String extension = ".bmp";
+        FileExtensionFilter instance = new FileExtensionFilter(".jpg");
         instance.setExtension(extension);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        assertEquals(extension, instance.getExtension());
     }
 
     /**
@@ -72,14 +69,13 @@ public class FileExtensionFilterTest {
     @Test
     public void testAccept() {
         System.out.println("accept");
-        File dir = null;
-        String name = "";
-        FileExtensionFilter instance = null;
-        boolean expResult = false;
+        File dir = new File("dir");
+        String name = "mypic.png";
+        FileExtensionFilter instance = new FileExtensionFilter(".png");
+        
+        boolean expResult = true;
         boolean result = instance.accept(dir, name);
         assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
     }
     
 }

@@ -6,6 +6,7 @@
 
 package bugfind.sootadapters;
 
+import java.util.ArrayList;
 import java.util.List;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -13,6 +14,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
+import polyglot.ext.param.Topics;
 import soot.SootClass;
 import soot.SootMethod;
 
@@ -21,8 +23,12 @@ import soot.SootMethod;
  * @author Mikosh
  */
 public class MethodDefinitionTest {
-    
+    private final MethodDefinition methodDefinition;
+    private final List<MethodDefinition.MethodParameter> listParam;
     public MethodDefinitionTest() {
+        listParam = new ArrayList<>();
+        listParam.add(new MethodDefinition.MethodParameter("java.lang.String", "param1"));
+        methodDefinition = new MethodDefinition("com.sun.Class", "method1", listParam, "void");
     }
     
     @BeforeClass
@@ -47,12 +53,10 @@ public class MethodDefinitionTest {
     @Test
     public void testGetClassName() {
         System.out.println("getClassName");
-        MethodDefinition instance = new MethodDefinition();
-        String expResult = "";
+        MethodDefinition instance = methodDefinition;
+        String expResult = "com.sun.Class";
         String result = instance.getClassName();
         assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
     }
 
     /**
@@ -61,11 +65,10 @@ public class MethodDefinitionTest {
     @Test
     public void testSetClassName() {
         System.out.println("setClassName");
-        String className = "";
+        String className = "com.sun.Class1";
         MethodDefinition instance = new MethodDefinition();
         instance.setClassName(className);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        assertEquals(className, instance.getClassName());
     }
 
     /**
@@ -74,12 +77,10 @@ public class MethodDefinitionTest {
     @Test
     public void testGetMethodName() {
         System.out.println("getMethodName");
-        MethodDefinition instance = new MethodDefinition();
-        String expResult = "";
+        MethodDefinition instance = methodDefinition;
+        String expResult = "method1";
         String result = instance.getMethodName();
         assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
     }
 
     /**
@@ -88,11 +89,10 @@ public class MethodDefinitionTest {
     @Test
     public void testSetMethodName() {
         System.out.println("setMethodName");
-        String methodName = "";
+        String methodName = "method1";
         MethodDefinition instance = new MethodDefinition();
-        instance.setMethodName(methodName);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        instance.setClassName(methodName);
+        assertEquals(methodName, instance.getClassName());
     }
 
     /**
@@ -101,12 +101,10 @@ public class MethodDefinitionTest {
     @Test
     public void testGetParameterList() {
         System.out.println("getParameterList");
-        MethodDefinition instance = new MethodDefinition();
-        List<MethodDefinition.MethodParameter> expResult = null;
+        MethodDefinition instance = methodDefinition;
+        List<MethodDefinition.MethodParameter> expResult = listParam;
         List<MethodDefinition.MethodParameter> result = instance.getParameterList();
         assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
     }
 
     /**
@@ -115,11 +113,10 @@ public class MethodDefinitionTest {
     @Test
     public void testSetParameterList() {
         System.out.println("setParameterList");
-        List<MethodDefinition.MethodParameter> parameterList = null;
+        List<MethodDefinition.MethodParameter> parameterList = listParam;
         MethodDefinition instance = new MethodDefinition();
         instance.setParameterList(parameterList);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        assertEquals(listParam, instance.getParameterList());
     }
 
     /**
@@ -128,12 +125,10 @@ public class MethodDefinitionTest {
     @Test
     public void testGetReturnType() {
         System.out.println("getReturnType");
-        MethodDefinition instance = new MethodDefinition();
-        String expResult = "";
+        MethodDefinition instance = methodDefinition;
+        String expResult = "void";
         String result = instance.getReturnType();
         assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
     }
 
     /**
@@ -142,11 +137,11 @@ public class MethodDefinitionTest {
     @Test
     public void testSetReturnType() {
         System.out.println("setReturnType");
-        String returnType = "";
+        String returnType = "int";
         MethodDefinition instance = new MethodDefinition();
         instance.setReturnType(returnType);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        assertEquals("int", instance.getReturnType());
+        
     }
 
     /**
@@ -155,42 +150,10 @@ public class MethodDefinitionTest {
     @Test
     public void testGetMethodDefinition() throws Exception {
         System.out.println("getMethodDefinition");
-        String methodSignature = "";
-        MethodDefinition expResult = null;
+        String methodSignature = "com.sun.Class1.parse()";
+        MethodDefinition expResult = new MethodDefinition("com.sun.Class1", "parse", null, "null");
         MethodDefinition result = MethodDefinition.getMethodDefinition(methodSignature);
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
-
-    /**
-     * Test of getSootMethod method, of class MethodDefinition.
-     */
-    @Test
-    public void testGetSootMethod() {
-        System.out.println("getSootMethod");
-        SootClass sc = null;
-        MethodDefinition md = null;
-        SootMethod expResult = null;
-        SootMethod result = MethodDefinition.getSootMethod(sc, md);
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
-    }
-
-    /**
-     * Test of getOverrideSootMethod method, of class MethodDefinition.
-     */
-    @Test
-    public void testGetOverrideSootMethod() {
-        System.out.println("getOverrideSootMethod");
-        SootClass sc = null;
-        SootMethod baseMethod = null;
-        SootMethod expResult = null;
-        SootMethod result = MethodDefinition.getOverrideSootMethod(sc, baseMethod);
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        assertEquals(expResult.toString(), result.toString());
     }
 
     /**
@@ -199,12 +162,10 @@ public class MethodDefinitionTest {
     @Test
     public void testToString() {
         System.out.println("toString");
-        MethodDefinition instance = new MethodDefinition();
-        String expResult = "";
-        String result = instance.toString();
+        MethodDefinition instance = methodDefinition;
+        String expResult = "com.sun.Class.method1(java.lang.String);";
+        String result = instance.toString();System.out.println(result);
         assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
     }
     
 }

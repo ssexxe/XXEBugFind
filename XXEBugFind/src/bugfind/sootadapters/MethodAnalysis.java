@@ -48,23 +48,44 @@ import soot.toolkits.scalar.CombinedAnalysis;
 import soot.toolkits.scalar.CombinedDUAnalysis;
 
 /**
- * As the name of the class implies, this class does analyses of some method.
+ * As the name of the class implies, this class does analyses on some method.
  * @author Mikosh
  */
 public class MethodAnalysis {
     private static final Logger logger = Logger.getLogger(MethodAnalysis.class.getName());
-    {logger.setUseParentHandlers(false);}
+    //{logger.setUseParentHandlers(false);}
+    /**
+     * Used as a constant to indicate whether a method was called before another in a parent method
+     */
+    public static final int CALLED_BEFORE = -1;
+    /**
+     * Used as a constant to indicate whether a method was called after another in a parent method
+     */
+    public static final int CALLED_AFTER = 1;
     
-    public static final int CALLED_BEFORE = -1, CALLED_AFTER = 1, CALLED_SAME_TIME = 0;
-    public static final int INDETERMINABLE_ARGUMENT_VALUES = -99, SAME_ARGUMENT_VALUES = -78, DIFF_ARGUMENT_VALUES = -45;
+    /**
+     * Indicates the argument value is indeterminate
+     */
+    public static final int INDETERMINABLE_ARGUMENT_VALUES = -99;
+    
+    /**
+     * Indicates the argument values being compared are the same
+     */
+    public static final int SAME_ARGUMENT_VALUES = -78; 
+    /**
+     * Indicates the argument values being compared are different
+     */
+    public static final int DIFF_ARGUMENT_VALUES = -45;
+    
     private static final int START = 0;
+    
     private CallGraphObject cgo;
     private CallGraph callGraph;
 
     /**
      * Creates a MethodAnalysis object from a CallGraphObject and a Soot CallGraph
-     * @param cgo
-     * @param callGraph 
+     * @param cgo the call graph object to use
+     * @param callGraph the call graph to use
      */
     public MethodAnalysis(CallGraphObject cgo, CallGraph callGraph) {
         this.cgo = cgo;
@@ -89,7 +110,14 @@ public class MethodAnalysis {
     }
     
    
-    
+    /**
+     * Compares which soot method is called first in the caller method
+     * @param callerMethod the caller method
+     * @param callee1 callee 1
+     * @param callee2 callee 2
+     * @return which soot method is called first in the caller method
+     * @throws RuntimeException throws a runtime exception if either of the specified callee method is not called by the caller
+     */   
     public int compare(SootMethod callerMethod, SootMethod callee1, SootMethod callee2) {
         if (!isCalledInMethod(callerMethod, callee1)) {
             throw new RuntimeException("Specified callee method not called in specified soot caller method.\nDetail: "
@@ -100,17 +128,20 @@ public class MethodAnalysis {
                     + callee2 + " is never called in " + callerMethod);            
         }
         
+        // first get call sites for each callee method in caller method
         List<CallSite> listCS1 = cgo.getCallSitesInMethod(callGraph, callee1, callerMethod);
         Collections.sort(listCS1);
         List<CallSite> listCS2 = cgo.getCallSitesInMethod(callGraph, callee2, callerMethod);
         Collections.sort(listCS2);
         
+        // now compare their line location
         if (listCS1.get(0).getLineLocation() < listCS2.get(0).getLineLocation()) {
             return CALLED_BEFORE;
         }
         else if (listCS1.get(0).getLineLocation() > listCS2.get(0).getLineLocation()) {
             return CALLED_AFTER;
         }
+        // if they are at the same line number, use data flow analysis to determine which is first
         else if (listCS1.get(0).getLineLocation() == listCS2.get(0).getLineLocation()) {
             boolean b = SimpleIntraDataFlowAnalysis.isBefore(callerMethod, listCS1.get(0).getEdge().srcStmt(), 
                     listCS2.get(0).getEdge().srcStmt());
@@ -123,36 +154,17 @@ public class MethodAnalysis {
         }
     }
     
-    @Deprecated
-    public List<CallSite> getAllCallsBefore(SootMethod callerMethod, SootMethod calleeToBeBefore, SootMethod callee2, Unit callee2Location) {
-        if (!isCalledInMethod(callerMethod, calleeToBeBefore)) {
-            throw new RuntimeException("Specified callee method not called in specified soot caller method.\nDetail: "
-                    + calleeToBeBefore + " is never called in " + callerMethod);            
-        }
-        if (!isCalledInMethod(callerMethod, callee2)) {
-            throw new RuntimeException("Specified callee method not called in specified soot caller method.\nDetail: "
-                    + callee2 + " is never called in " + callerMethod);            
-        }
-        
-        List<CallSite> listCBefore = cgo.getCallSitesInMethod(callGraph, calleeToBeBefore, callerMethod);
-        Collections.sort(listCBefore);
-        List<CallSite> listCS2 = cgo.getCallSitesInMethod(callGraph, callee2, callerMethod);
-        Collections.sort(listCS2);
-        
-        Iterator<CallSite> ite = listCBefore.iterator();
-        
-        while (ite.hasNext()) {
-            CallSite cs = ite.next();
-            
-            if (cs.getLineLocation() >= listCS2.get(0).getLineLocation()) {// remeber to account for same line
-                ite.remove();
-            }
-        }
-        
-        return listCBefore;
-    }
-    
+    /**
+     * Gets all calls of one method before the target method location in a parent method
+     * @param callerMethod the parent method that acts as the caller for the two method
+     * @param calleeToBeBefore the method to be called before
+     * @param targetCS the target method to which the <code>calleeToBeBefore</code> should be before
+     * @return  all calls of one method before the target method location in a parent method or an empty list if
+     * all occurrences fall after
+     * @throws RuntimeException when if either method is not called at least once in the caller method
+     */
     public List<CallSite> getAllCallsBefore(SootMethod callerMethod, SootMethod calleeToBeBefore, CallSite targetCS) {
+        // make sure both methods are called in parent method
         if (!isCalledInMethod(callerMethod, calleeToBeBefore)) {
             throw new RuntimeException("Specified callee method not called in specified soot caller method.\nDetail: "
                     + calleeToBeBefore + " is never called in " + callerMethod);            
@@ -162,6 +174,7 @@ public class MethodAnalysis {
             throw new RuntimeException("Specified call site [" + targetCS + "] is not in the specified caller method " + callerMethod);
         }
 
+        // get callsite of the method to be called
         List<CallSite> listCBefore = cgo.getCallSitesInMethod(callGraph, calleeToBeBefore, callerMethod);
         Collections.sort(listCBefore);
         
@@ -169,6 +182,7 @@ public class MethodAnalysis {
         
         Iterator<CallSite> ite = listCBefore.iterator();
         
+        // iterate throuh the list removing any in the list which falls after our taget
         while (ite.hasNext()) {
             CallSite cs = ite.next();
             
@@ -187,17 +201,23 @@ public class MethodAnalysis {
         return listCBefore;
     }
     
+    /**
+     * Get all calls of a method before the target unit (ie. soot statemet)
+     * @param callerMethod the caller method
+     * @param calleeToBeBefore the method to be called before the target unot
+     * @param targetUnit the target unit to use
+     * @return  all calls of a method before the target unit (ie. soot statemet)
+     */
     public List<CallSite> getAllCallsBefore(SootMethod callerMethod, SootMethod calleeToBeBefore, Unit targetUnit) {
         List<CallSite> listCBefore = cgo.getCallSitesInMethod(callGraph, calleeToBeBefore, callerMethod);
         Collections.sort(listCBefore);
-        
-        //int loc = targetCS.getLineLocation();
         
         Iterator<CallSite> ite = listCBefore.iterator();
         
         while (ite.hasNext()) {
             CallSite cs = ite.next();
-            
+        
+            // use simple data flow analysis to decide which is first
             boolean isBefore = SimpleIntraDataFlowAnalysis.isBefore(callerMethod, cs.getEdge().srcStmt(),
                     targetUnit);
             if (!isBefore) {
@@ -208,6 +228,10 @@ public class MethodAnalysis {
         return listCBefore;
     }
 
+    /**
+     * Sets the call graph used by this object
+     * @param callGraph 
+     */
     public void setCallGraph(CallGraph callGraph) {
         this.callGraph = callGraph;
     }
@@ -221,7 +245,7 @@ public class MethodAnalysis {
     }
 
     /**
-     * Converts a JArrayRef object to a Variable
+     * Converts a soot JArrayRef object to a Variable
      * @param ar the JArrayRef object to convert
      * @return a Variable corresponding to ar
      */
@@ -229,6 +253,7 @@ public class MethodAnalysis {
         Type arrayRefType = ar.getType();
         String typeName = null;
         
+        // check the type of the array ref and get its base type name 
         if (arrayRefType instanceof PrimType) {
             typeName = ((PrimType) arrayRefType).getClass().getName();
         } else if (arrayRefType instanceof RefType) {
@@ -245,6 +270,7 @@ public class MethodAnalysis {
         int varType = 0;
         String varName = null;
         
+        // use the type of the array ref to get the variable object
         if (base instanceof JimpleLocal) {
             varName = ((JimpleLocal)base).getName() + "[" + ar.getIndex() + "]";
             varType = Variable.LOCAL_VARIABLE;
@@ -271,8 +297,10 @@ public class MethodAnalysis {
      * Convets the specified Soot Value object to a Variable object
      * @param v the soot value to be converted
      * @return the converted Variable form of v 
+     * @throws RuntimeException if the value type is not supported
      */
     protected Variable convertToVariable(Value v) {
+        // based in the type, convert to variable
         if (v instanceof JimpleLocal) {
             JimpleLocal jl = (JimpleLocal) v;
 
@@ -292,7 +320,8 @@ public class MethodAnalysis {
             }
             Variable retVal = new Variable(jl.getName(), typeName, Variable.LOCAL_VARIABLE);
             return retVal;
-        } else if (v instanceof JInstanceFieldRef) {
+        } 
+        else if (v instanceof JInstanceFieldRef) {// means it's an instance field type
             JInstanceFieldRef fr = (JInstanceFieldRef) v;
 
             SootField sf = fr.getField();
@@ -315,7 +344,8 @@ public class MethodAnalysis {
             Variable retVal = new Variable(sf.getName(), typeName, (sf.isStatic()) ? Variable.STATIC_VARIABLE
                     : Variable.FIELD_VARIABLE);
             return retVal;
-        } else if (v instanceof SootField) {
+        } 
+        else if (v instanceof SootField) {// the soot field
             SootField sf = (SootField) v;
 
             Type sootfieldType = v.getType();
@@ -345,11 +375,33 @@ public class MethodAnalysis {
         }
     }
     
+    /**
+     * Gets the variable that is defined in a JAssign statement e.g., 
+     * <code>
+     * r19 = virtualinvoke r5.<org.jdom2.input.SAXBuilder: org.jdom2.Document build(java.io.File)>($r18);
+     * </code>
+     * returns <code>r19</code> as the variable
+     * 
+     * @param stmt the statement to check
+     * @return the variable that is defined in a JAssign statement
+     */
     public Variable getDefinedVariable(JAssignStmt stmt) {
         Value v = stmt.getLeftOp();        
         return convertToVariable(v);        
     }
     
+    /**
+     * Gets the variable invoked in the specified assign statement e.g., 
+     * <code>
+     * r19 = virtualinvoke r5.<org.jdom2.input.SAXBuilder: org.jdom2.Document build(java.io.File)>($r18);
+     * </code>
+     * returns <code>r5</code> as the variable
+     * 
+     * @param stmt the statement to check
+     * @return  the variable invoked in the specified assign statement or throws a runtime exception if the invocation is
+     * a static one.
+     * @throws RuntimeException
+     */
     public Variable getInvokedVariable(JAssignStmt stmt) {
         //first ensure statement is non static
         ensureNonStaticExpr(stmt);
@@ -364,6 +416,17 @@ public class MethodAnalysis {
         }
     }
     
+    /**
+     * Gets the variable invoked in the specified JInvoke statement e.g., 
+     * <code>
+     * virtualinvoke r5.<org.jdom2.input.SAXBuilder: org.jdom2.Document build(java.io.File)>($r18);
+     * </code>
+     * returns <code>r5</code> as the variable
+     * 
+     * @param stmt the invoke statement to be used
+     * @return  the variable invoked in the specified invoke statement or throws a runtime exception if the invocation is
+     * a static one. 
+     */
     public Variable getInvokedVariable(JInvokeStmt stmt) {       
         //first ensure statement is non static
         ensureNonStaticExpr(stmt);
@@ -373,12 +436,30 @@ public class MethodAnalysis {
         return convertToVariable(v);
     }
     
+    /**
+     * Gets the variable invoked in the specified JInvoke expression e.g., 
+     * <code>
+     * virtualinvoke r5.<org.jdom2.input.SAXBuilder: org.jdom2.Document build(java.io.File)>($r18);
+     * </code>
+     * returns <code>r5</code> as the variable
+     * 
+     * @param invokeExpr the invoke expression to be used
+     * @return  the variable invoked in the specified invoke expression or throws a runtime exception if the invocation is
+     * a static one. 
+     */
     protected Variable getInvokedVariable(JVirtualInvokeExpr invokeExpr) {       
         // the first use box of a jinvoke expression is the variable being used, others may be arguments
         Value v = ((ValueBox) invokeExpr.getUseBoxes().get(0)).getValue();
         return convertToVariable(v);
     }
     
+    /**
+     * Compare arguments for the method invocation at the call site to the list of expected method parameter values
+     * A practical use of this is in checking whether the the mitigation settings were correctly applied.
+     * @param cs the callsite of the method
+     * @param listMPV the list containing the method parameter values to compare with
+     * @return 
+     */
     public int compareArguments(CallSite cs, List<MethodParameterValue> listMPV) {
         Edge edge = cs.getEdge();
         Stmt stmt = edge.srcStmt();
@@ -392,8 +473,7 @@ public class MethodAnalysis {
             throw new RuntimeException("The method arguments are not compatible. ");            
         }
         
-        //SootMethod calleeMeth = edge.tgt();
-        
+        // start the comparison
         int comparison = START;
         for (int i=0; i<argumentList.size(); ++i) {
             Value v = argumentList.get(i);
@@ -486,10 +566,24 @@ public class MethodAnalysis {
         return comparison;
     }
     
+    /**
+     * Converts int to boolean string. This is necessary because soot doesn't hava a boolean type
+     * @param val the value to convert
+     * @return false if the integer value is 0 and returns true if otherwise eg -2 will return true so be careful
+     */
     protected final String converIntToBoolean(int val) {
         return (val == 0) ? "false" : "true";
     }
     
+    /**
+     * Checks and see if the assinger->assignee relation holds. 
+     * @param parentMethod the parenter method
+     * @param assignerClassName the assigner class name
+     * @param assigneeClassName the assignee class name
+     * @return true if there is an occurrence where assigner was assigned to assigneee class e.g. 
+     * DocumentBuilder db = dbf.newDocumentBuilder. in a caller method will make 
+     * this method return true if (assigner class = DocumentBuilderFactory and assignee class = DocumentBuilder)
+     */
     public boolean isAssignedTo(SootMethod parentMethod, String assignerClassName, String assigneeClassName) {
         Iterator<Unit> iteUnits = parentMethod.getActiveBody().getUnits().iterator();
         
@@ -516,6 +610,13 @@ public class MethodAnalysis {
         return false;
     }
     
+    /**
+     * Gets the assigner variable
+     * @param parentMethod the method
+     * @param assignerClassName the assigner class name
+     * @param assigneeClassName the assignee class name
+     * @return  the assigner variable
+     */
     public Variable getAssignerVariable(SootMethod parentMethod, String assignerClassName, String assigneeClassName) {
         Iterator<Unit> iteUnits = parentMethod.getActiveBody().getUnits().iterator();
         
@@ -545,6 +646,16 @@ public class MethodAnalysis {
         return null;
     }
     
+    /**
+     * Gets the invoked variable on a stmt eg
+     * <code>
+     * r19 = virtualinvoke r5.<org.jdom2.input.SAXBuilder: org.jdom2.Document build(java.io.File)>($r18);
+     * </code>
+     * returns <code>r19</code> as the variable
+     * @param stmt the statmet
+     * @return the invoked variable in that statement or throws a runtime exception if the statement is a static invocation
+     * @throws RuntimeException a runtime exception if the statement is a static invocation or is not supported
+     */
     public Variable getInvokedVariable(Stmt stmt) {
         if (stmt instanceof JInvokeStmt) {
             return getInvokedVariable((JInvokeStmt)stmt);
@@ -557,6 +668,12 @@ public class MethodAnalysis {
         }
     }
     
+    /**
+     * Check if the method invocation in the two statements are on the same variable
+     * @param stmt1 statement1
+     * @param stmt2 statment2
+     * @return  true if the method invocation in the two statements are on the same variable or false otherwise
+     */
     public boolean isInvokedOnSameVariable(Stmt stmt1, Stmt stmt2) {
         Variable var1 = getInvokedVariable(stmt1);
         Variable var2 = getInvokedVariable(stmt2);
@@ -568,20 +685,21 @@ public class MethodAnalysis {
         }          
     }
     
+    /**
+     * Filter the callsites in the list of callsites by the specified variable
+     * @param listCS the list of call sites
+     * @param filter the filter to use
+     * @return a filtered list of callsites from the list of callsites by the specified variable
+     */
     public List<CallSite> filterByVariable(List<CallSite> listCS, Variable filter) {
         
         if (filter == null) {
             throw new RuntimeException("The variable filter given cannot be null");
         }
         
-//        List<CallSite> retListCS = new ArrayList<>(listCS.size());
-//        
-//        for (CallSite cs: listCS) {
-//            retListCS.add(cs);
-//        }
-        
         Iterator<CallSite> ite = listCS.iterator();        
         
+        // filter by the given variable
         while (ite.hasNext()) {
             CallSite cs = ite.next();
             Stmt stmt = cs.getEdge().srcStmt();
@@ -600,6 +718,13 @@ public class MethodAnalysis {
         return listCS;
     }
     
+    /**
+     * Converts a soot constant to a string form
+     * @param c the constant to be converted
+     * @param isBoolean this is for special case when an int constant passed should be a boolean. This is
+     * necessary because soot has no boolean type
+     * @return 
+     */
     protected String constantToString(Constant c, boolean isBoolean) {
        
         if (isBoolean && c instanceof IntConstant) {
@@ -613,11 +738,24 @@ public class MethodAnalysis {
         return c.toString();
     }
     
+    /**
+     * Resolves the value of a local are return a ValueString object corresponding to its value. It may have
+     * to do some interprocedural analysis to get this if possible
+     * @param localrepr the local object to the parent method
+     * @param unit the statement the local object is in
+     * @param parentMethod the parent method containing the unit statement
+     * @return  the value of a local are return a ValueString object corresponding to its value
+     */
     protected ValueString resolveValue(Local localrepr, Unit unit, SootMethod parentMethod) {
+        // get the unit graph of the method and a flow analysis object
         UnitGraph uv = new ExceptionalUnitGraph(parentMethod.getActiveBody());
         CombinedAnalysis ca = CombinedDUAnalysis.v(uv);
+        // get the definition site(s) of the localrepr object in the unit.
         List<Unit> list = ca.getDefsOfAt(localrepr, unit);
         
+        // if no definition in method, check if it is a parameter variable and then try to resolve it
+        // if it has jsut one call site. Otherwise we cannot be sure of the exact value if this method
+        // is called in more than one location
         if (list.isEmpty()) {
             if (SimpleIntraDataFlowAnalysis.isParameterLocal(parentMethod, localrepr)) {
                 List<CallSite> lst = cgo.getCallSites(callGraph, parentMethod);
@@ -638,9 +776,12 @@ public class MethodAnalysis {
             logger.log(Level.WARNING, "Warning: number definitions for {0} > {1}", new Object[]{localrepr, 1});
         }
         
+        // use the last variable definition site as must have ovverriden the value of previous one if it exists
         JAssignStmt stmt = (JAssignStmt) list.get(list.size()-1);        
+        // r1 = "ASSignedValue" // is why get the rightOP
         Value rightOp = stmt.getRightOp();
         
+        // based on the local's type get the valuestring
         if (rightOp instanceof Constant) {
             Constant constnt = (Constant) stmt.getRightOp();
             String valstr = constantToString(constnt, false);
@@ -730,75 +871,39 @@ public class MethodAnalysis {
         }
         
         return resolveValue(localrepr, cs.getEdge().srcStmt(), cs.getSourceMethod());
-        
-//        UnitGraph uv = new ExceptionalUnitGraph(cs.getSourceMethod().getActiveBody());
-//        CombinedAnalysis ca = CombinedDUAnalysis.v(uv);
-//        List<Unit> list = ca.getDefsOfAt(localrepr, cs.getEdge().srcStmt());
-//        
-//        if (list.isEmpty()) {
-//            if (SimpleIntraDataFlowAnalysis.isParameterLocal(cs.getSourceMethod(), localrepr)) {
-//                List<CallSite> lst = cgo.getCallSites(callGraph, cs.getSourceMethod());
-//                if (lst.size() > 1) {
-//                    return null;
-//                }
-//                else {
-//                    Stmt stmt = lst.get(0).getEdge().srcStmt();
-//                    Value val = stmt.getInvokeExpr().getArg(
-//                            SimpleIntraDataFlowAnalysis.getParameterLocalIndex(lst.get(0).getSourceMethod(), localrepr));
-//                    return resolveValue(val, lst.get(0));
-//                }
-//            }
-//            return null;
-//        }
-//        
-//        if (list.size() > 1) {
-//            System.out.println("warning: number defsofvar > " + 1);
-//        }
-//        
-//        JAssignStmt stmt = (JAssignStmt) list.get(list.size()-1);        
-//        Value rightOp = stmt.getRightOp();
-//        
-//        if (rightOp instanceof Constant) {
-//            Constant constnt = (Constant) stmt.getRightOp();
-//            String valstr = constantToString(constnt, v.getType().equals("boolean"));
-//            
-//            return new ValueString(v.getType(), v.getName(), valstr);
-//        }
-//        else if (rightOp instanceof StaticFieldRef) {
-//            StaticFieldRef srf = (StaticFieldRef) stmt.getRightOp();
-//            SootField f = srf.getField();//SootFieldRef sf = srf.getFieldRef();;
-//            String type = srf.getType().toString();
-//            String name = f.getDeclaringClass().getName() + "." + f.getName();
-//            if (f.isFinal()) {// if it is final, then the value never changes
-//                return new ValueString(type, name, name);
-//            }
-//            else {// the actual value may be changed elsewhere
-//                
-//                return new ValueString(type, name, null);//edge.srcStmt().getTags()//ConstantFieldValueFinder//edge.src().getActiveBody(); SootU
-//            }            
-//        }
-//        else if (rightOp instanceof JInstanceFieldRef) {
-//            JInstanceFieldRef jfr = (JInstanceFieldRef) rightOp;
-//            Value vv = jfr.getBase();
-//            return null; 
-//            
-//        }
-//        else if (rightOp instanceof JimpleLocal) {
-//            return resolveValue(rightOp, cs);
-//        }
-//        else {// currently doesnt handle fieldref and static values
-//            return null;
-//        }
-        
-        
     }
-    
+
+    /**
+     * Tries to resolve the value of a soot Value object (a variable eg local variable) and returns a list of possible value strings. 
+     * Should be used for simple types like String, int , float, etc. This method may have to walk up the method call chain to retrieve the value 
+     * if it has been defined some where in the code. For instance, when the value is a parameter/argument to a method 
+     * eg. str in <code> aMethod(String str); </code>, this method tries to resolve the value by looking for call sites
+     * of aMethod and deduce the values that was passed in such call sites. If the call sites are more than one, this
+     * method return null meaning it cannot determine the value as there are more than one value definition and this 
+     * method should return just one. Another case it returns null is if the value can only be determined at runtime. 
+     * For instance if going up the call chain leads to the static entry point main(args) method
+     * 
+     * @param value the value to be resolved
+     * @param cs the call site where the value is being used
+     * @return a list of value strings corresponding to the possible values at the call site. Note that the list may 
+     * contain null values for paths where the value could not be determined
+     * @see  MethodAnalysis.resolvePossibleValues
+     */
     public List<ValueString> resolvePossibleValues(Value value, CallSite cs) {        
         List<ValueString> listVals = new ArrayList<>();
         List<Edge> listEdges = new ArrayList<>();// necessary to track list of edges traversed and stop program non-termination due to recurion
         return resolvePossibleValues(value, cs, listVals, listEdges);
     }
     
+    /**
+     * This method should not be called directly. It is used by <code>resolvePossibleValues(Value, CallSite);</code> method
+     * @param value the value
+     * @param cs the call site
+     * @param listVS the list to store possible values in
+     * @param calTraceEdges the calltrace edges to prevent recursion problem
+     * @return a list of possible values
+     * @see MethodAnalysis.resolvePossibleValues(Value value, Callsite cs)
+     */
     protected List<ValueString> resolvePossibleValues(Value value, CallSite cs, List<ValueString> listVS, 
             List<Edge> calTraceEdges) {
         Variable v = convertToVariable(value);
@@ -809,8 +914,11 @@ public class MethodAnalysis {
                         + cs.getEdge() + " with src-method " + cs.getSourceMethod());            
         }
         
+        // first get a unit graph and a dataflow analysis object
         UnitGraph uv = new ExceptionalUnitGraph(cs.getSourceMethod().getActiveBody());
         CombinedAnalysis ca = CombinedDUAnalysis.v(uv);
+
+        // get the definition points of the local object in the current method
         List<Unit> list = ca.getDefsOfAt(localrepr, cs.getEdge().srcStmt());
         if (list.isEmpty()) {
             if (SimpleIntraDataFlowAnalysis.isParameterLocal(cs.getSourceMethod(), localrepr)) {
@@ -844,13 +952,16 @@ public class MethodAnalysis {
             return listVS;
         }
         
+        // warn if def points is more than one
         if (list.size() > 1) {
             logger.log(Level.WARNING, "Warning: number definitions for {0} > {1}", new Object[]{value, 1});
         }
         
+        // get the right side of the assignment
         JAssignStmt stmt = (JAssignStmt) list.get(list.size()-1);        
         Value rightOp = stmt.getRightOp();
         
+        // based on the type get the possible values
         if (rightOp instanceof Constant) {
             Constant constnt = (Constant) stmt.getRightOp();
             String valstr = constantToString(constnt, v.getType().equals("boolean"));
@@ -913,10 +1024,12 @@ public class MethodAnalysis {
         return null;
     }
     
-    protected int getCallType(Edge edge) {
-        throw new UnsupportedOperationException("not supported yet");
-    }
-    
+    /**
+     * Used to ensure that the method invocation in the method is non static. Throws an exception if this is the case
+     * otherwise it just returns
+     * 
+     * @param stmt the statement to be tested
+     */
     protected void ensureNonStaticExpr(Stmt stmt) {
         if (!stmt.containsInvokeExpr()) {
             throw new RuntimeException("This statement is not an invoke expression");

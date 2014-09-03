@@ -8,7 +8,8 @@ package bugfind.sootadapters;
 
 /**
  * Encapsulates the value of a variable in string form. It stores the type, name and value as a string. For simple 
- * types like int, float, char, the value can retrieved by appropriate conversion mechanisms
+ * types like int, float, char, the value can retrieved by appropriate conversion mechanisms.
+ * It has only getter methods to make these objects immutable.
  * @author Mikosh
  */
 public class ValueString {
@@ -28,17 +29,6 @@ public class ValueString {
         this.value = value;
     }
 
-    public String getType() {
-        return type;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public String getValue() {
-        return value;
-    }
 
     @Override
     public String toString() {
@@ -46,6 +36,27 @@ public class ValueString {
         sb.append("Type: ").append(getType()).append(" Name: ")
                 .append(getName()).append(" Value: ").append(getValue());
         return sb.toString();
+    }
+
+    /**
+     * @return the type
+     */
+    public String getType() {
+        return type;
+    }
+
+    /**
+     * @return the name
+     */
+    public String getName() {
+        return name;
+    }
+
+    /**
+     * @return the value
+     */
+    public String getValue() {
+        return value;
     }
 
     

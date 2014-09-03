@@ -21,26 +21,38 @@ import soot.jimple.internal.JStaticInvokeExpr;
 import soot.toolkits.graph.UnitGraph;
 import soot.toolkits.scalar.CombinedAnalysis;
 import soot.toolkits.scalar.CombinedDUAnalysis;
-import soottest.GuaranteedDefs;
+import soot.toolkits.scalar.GuaranteedDefs;
 
 /**
- *
+ * This class contains some utility methods for simple-intra dataflow analysis
  * @author Mikosh
  */
 public class SimpleIntraDataFlowAnalysis {
     private SootMethod method;
-    //private ExceptionalUnitGraph exceptionalUnitGraph;
     private UnitGraph unitGraph;
     private GuaranteedDefs guaranteedDefs;
     private CombinedAnalysis combinedAnalysis;
 
+    /**
+     * Creates a simple intra data flow analysis
+     */
     public SimpleIntraDataFlowAnalysis() {
     }
 
+    /**
+     * Creates a simple intra data flow analysis when given the method and the unit graph
+     * @param method the method
+     * @param unitGraph the unit graph
+     */
     public SimpleIntraDataFlowAnalysis(SootMethod method, UnitGraph unitGraph) {
         setConstraints(method, unitGraph);
     }
-    
+
+    /**
+     * Sets constraints used by this class
+     * @param method the method to use
+     * @param unitGraph the unit graph to use
+     */
     public void setConstraints(SootMethod method, UnitGraph unitGraph) {
         this.method = method;
         this.unitGraph = unitGraph;
@@ -48,7 +60,13 @@ public class SimpleIntraDataFlowAnalysis {
         guaranteedDefs = new GuaranteedDefs(this.unitGraph);
     }
     
-    
+    /**
+     * Get definition locations for the specified local that is used in the specified unit
+     * @param local the local
+     * @param unit the unit that contains the local
+     * @return  the definition locations for the specified local that is used in the specified unit or an empty list
+     * if local is not defined in unit's parent method or the local is not contained in the unit's statement
+     */
     public List<Unit> getDefineLocations(Local local, Unit unit) {
         List<Unit> retlist = combinedAnalysis.getDefsOfAt(local, unit);
         
@@ -58,17 +76,31 @@ public class SimpleIntraDataFlowAnalysis {
         return retlist;
     }
     
+    /**
+     * Gets a list of the Units that use the Local that is defined by a given Unit. 
+     * @param definitionPoint the unit where the local whose uses is to be obtained is defined
+     * @return  a list of the Units that use the Local that is defined by a given Unit. 
+     */
     public List<Unit> getUsesOfLocalDefinedHere(Unit definitionPoint) {
         return combinedAnalysis.getUsesOf(definitionPoint);
     }
     
+    /**
+     * Gets the occurrences of a local before the specified target unit whether it be a definition or use case in the specified parent method
+     * @param parentMethod the parent method
+     * @param local the local
+     * @param targetPoint the target unit
+     * @return the occurrences of a local before the specified target unit whether it be a definition or use case in the specified parent method
+     */
     public List<Unit> getOccurrencesOfLocalBeforeHere(SootMethod parentMethod, Local local, Unit targetPoint) {
         Body body = parentMethod.getActiveBody();
+        // get all the statements in the parent method
         PatchingChain<Unit> pUnits = body.getUnits();
         Iterator<Unit> ite = pUnits.iterator();
         
         List<Unit> matchingUnits = new ArrayList<>();
-        
+
+        // contine until the target unit is reached
         while (ite.hasNext()) {
             Unit u = ite.next();            
             if (u == targetPoint || pUnits.follows(u, targetPoint)) {
@@ -87,7 +119,13 @@ public class SimpleIntraDataFlowAnalysis {
         return matchingUnits;
     }
     
-    
+    /**
+     * Returns whether a unit 1 is before unit 2 in the method body. Throws 
+     * @param unit1 unit 1
+     * @param unit2 unit 2
+     * @return true if unit 1 is before unit 2, and false if otherwise
+     * @throws RuntimeException throws a runtime exception if the units do not belong to the same method
+     */
     public boolean isBefore(Unit unit1, Unit unit2) {//JAssignStmt
         //throw new UnsupportedOperationException("not supported yet");        
         Iterator<Unit> ite = method.getActiveBody().getUnits().iterator(unit1, unit2);
@@ -106,6 +144,14 @@ public class SimpleIntraDataFlowAnalysis {
         }
     }
     
+    /**
+     * Returns whether a unit 1 is before unit 2 in the same parent method body. Throws 
+     * @param parentMethod the parent method
+     * @param unit1 unit 1
+     * @param unit2 unit 2
+     * @return true if unit 1 is before unit 2, and false if otherwise
+     * @throws RuntimeException throws a runtime exception if the units do not belong to the same method
+     */
     public static boolean isBefore(SootMethod parentMethod, Unit unit1, Unit unit2) {//JAssignStmt
         //throw new UnsupportedOperationException("not supported yet");        
         Iterator<Unit> ite = parentMethod.getActiveBody().getUnits().iterator(unit1, unit2);
@@ -124,6 +170,11 @@ public class SimpleIntraDataFlowAnalysis {
         }
     }
     
+    /**
+     * Get locals of the specified type in the method pointed to by this object
+     * @param localType the type
+     * @return  locals of the specified type in the method pointed to by this object or an empty list if none exists
+     */
     public List<Local> getLocalsOfType(String localType) {
         Iterator<Local> ite = method.getActiveBody().getLocals().iterator();
         List<Local> list = new ArrayList<>();
@@ -137,10 +188,19 @@ public class SimpleIntraDataFlowAnalysis {
         return list;
     }
    
+    /**
+     * Gets the parameter locals for the method
+     * @return the parameter locals for the method 
+     */
     public List<Local> getParameterLocals() {
         return getParameterLocals(method);
     }
     
+    /**
+     * Gets the parameter locals for the specified method 
+     * @param sm the method to use
+     * @return the parameter locals for the specified method  
+     */
     public static List<Local> getParameterLocals(SootMethod sm) {
         List<Local> list = new ArrayList<>();
         int paramCount = sm.getParameterCount();
@@ -152,11 +212,22 @@ public class SimpleIntraDataFlowAnalysis {
         return list;
     }
     
+    /**
+     * Get a soot value corresponding to the object invoked at the specified unit. 
+     * Note a soot value can be a jimple-local.
+     * @param unit the unit
+     * @return  a soot value corresponding to the object invoked at the specified unit. 
+     */
     public static Value getInvokedLocal(Unit unit) {
         ensureNonStaticExpr((Stmt) unit);
         return unit.getUseBoxes().get(0).getValue();
     }
     
+    /**
+     * Get the locals used in the specified statement
+     * @param unit the unit to use
+     * @return  the locals used in the specified statement
+     */
     public static List<Value> getUsedLocals(Unit unit) {
         List<ValueBox> lVB = unit.getUseBoxes();
         
@@ -167,7 +238,12 @@ public class SimpleIntraDataFlowAnalysis {
         return retList;
     }
     
-    
+    /**
+     * Used to ensure that the method invocation in the method is non static. Throws an exception if this is the case
+     * otherwise it just returns
+     * 
+     * @param stmt the statement to be tested
+     */
     protected static void ensureNonStaticExpr(Stmt stmt) {
         if (!stmt.containsInvokeExpr()) {
             throw new RuntimeException("This statement is not an invoke expression");
@@ -187,11 +263,24 @@ public class SimpleIntraDataFlowAnalysis {
         return list.contains(l);
     }
     
+    /**
+     * Checks if the specified local is a parameter local in the specified soot method
+     * @param sm the soot method to check
+     * @param l the local to be tested
+     * @return  true if the specified local is a parameter local in the specified soot method, false otherwise
+     */
     public static boolean isParameterLocal(SootMethod sm, Local l) {
         List<Local> list = getParameterLocals(sm);
         return list.contains(l);
     }
     
+    /**
+     * Gets the index of the parameter local in the specified method.
+     * @param sm the specified method
+     * @param l the parameter local whose index is to be obtained
+     * @return  the index of the parameter local in the specified method or -1 if the local is not a parameter for
+     * the specified method
+     */
     public static int getParameterLocalIndex(SootMethod sm, Local l) {
         List<Local> list = getParameterLocals(sm);
         return list.indexOf(l);

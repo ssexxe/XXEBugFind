@@ -55,6 +55,10 @@ public class SootRunner extends Main {
     private Date start;
     private Date finish;
     
+    /**
+     * Gets the instance of SootRunner for the application
+     * @return the instance of SootRunner for the application
+     */
     public static SootRunner getInstance() {
         if (instance == null) {
             instance = new SootRunner(null);
@@ -63,7 +67,7 @@ public class SootRunner extends Main {
         return instance;
     }
     
-    public SootRunner(Singletons.Global g) {
+    private SootRunner(Singletons.Global g) {
         super(g);
     }
    
@@ -315,7 +319,7 @@ public class SootRunner extends Main {
         }
     }
     
-    public void loadNecessaryClassesAndLibs(String libPaths) {
+    private void loadNecessaryClassesAndLibs(String libPaths) {
 	Scene.v().loadBasicClasses();
 
         Iterator<String> it = Options.v().classes().iterator();

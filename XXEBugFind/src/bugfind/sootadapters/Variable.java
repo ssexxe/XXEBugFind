@@ -19,17 +19,17 @@ public class Variable {
     /**
      * The name of the variable
      */
-    protected String name;
+    private String name;
     
     /**
      * The type of the variable
      */
-    protected String type;
+    private String type;
     
     /**
      * The level of the variable
      */
-    protected int level;
+    private int level;
 
     /**
      * Constructs a Variable object when given the name, type and level
@@ -43,28 +43,29 @@ public class Variable {
         this.level = level;
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public String getType() {
-        return type;
-    }
-
-    public int getLevel() {
-        return level;
-    }
     
+    /**
+     * Returns true if this variable is static, or false otherwise
+     * @return true if this variable is static, or false otherwise 
+     */
     public boolean isStatic() {
-        return (level == STATIC_VARIABLE);
+        return (getLevel() == STATIC_VARIABLE);
     }
     
+    /**
+     * Returns true if this variable is static, or false otherwise
+     * @return true if this variable is static, or false otherwise 
+     */
     public boolean isLocal() {
-        return (level == LOCAL_VARIABLE);
+        return (getLevel() == LOCAL_VARIABLE);
     }
     
+    /**
+     *  true if this variable is a field, or false otherwise
+     * @return true if this variable is a field, or false otherwise 
+     */
     public boolean isField() {
-        return (level == FIELD_VARIABLE);
+        return (getLevel() == FIELD_VARIABLE);
     }
 
     @Override
@@ -86,6 +87,27 @@ public class Variable {
 
         }
         return sb.toString();
+    }
+
+    /**
+     * @return the name
+     */
+    public String getName() {
+        return name;
+    }
+
+    /**
+     * @return the type
+     */
+    public String getType() {
+        return type;
+    }
+
+    /**
+     * @return the level
+     */
+    public int getLevel() {
+        return level;
     }
 
     

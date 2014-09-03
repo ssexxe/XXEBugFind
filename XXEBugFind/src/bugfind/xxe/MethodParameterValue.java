@@ -30,7 +30,7 @@ public final class MethodParameterValue {
 
     /**
      * Creates a new MethodParameterValue object when given the type and value
-     * @param type the type of the method paramter
+     * @param type the type of the method parameter
      * @param value the value of the method parameter as String
      */
     public MethodParameterValue(String type, String value) {
@@ -78,6 +78,13 @@ public final class MethodParameterValue {
         return sb.toString();
     }
 
+    /**
+     * Returns if the method parameter value is a constant e.g "fish", for string, 1 for int returns true , but fish 
+     * will return false since in the latter case, it is a variable
+     * @param mpv the mpv to check
+     * @return  if the method parameter value is a constant e.g "fish", for string, 1 for int returns true , but fish 
+     * will return false since in the latter case, it is a variable
+     */
     public static boolean isConstant(MethodParameterValue mpv) {
         // try conveting to double, then boolean then string starts with "
         String value = mpv.getValue();

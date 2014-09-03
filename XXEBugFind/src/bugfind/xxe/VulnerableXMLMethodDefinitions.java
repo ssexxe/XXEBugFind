@@ -19,6 +19,12 @@ import java.util.List;
 public final class VulnerableXMLMethodDefinitions {
     private static List<VulnerabilityDefinitionItem> vulnerableMethodDefinitionList; 
 
+    /**
+     * Gets the default XXE vulnerability definition list. The list returned should not be added by 
+     * adding or removing from it. If that has been done in error, clear the list, and then call this method
+     * again
+     * @return the default XXE vulnerability definition list. 
+     */
     public static List<VulnerabilityDefinitionItem> getVulnerableMethodDefinitionList() {
         if (vulnerableMethodDefinitionList == null) {
             vulnerableMethodDefinitionList = new ArrayList<>();            
@@ -27,7 +33,7 @@ public final class VulnerableXMLMethodDefinitions {
         if (vulnerableMethodDefinitionList.isEmpty()) {
            
             // first create vulnerable definition, then add various mitigations to it
-//            
+            
 //            // create vdi
             MethodDefinition md = createMethodDefinition("org.jdom2.input.SAXBuilder", "build", "org.jdom2.Document"
                     , "java.io.InputStream");
@@ -372,7 +378,150 @@ public final class VulnerableXMLMethodDefinitions {
             vdi = new VulnerabilityDefinitionItem(md);
             vdi.addMitigationItemsFromList(listMI);
             vulnerableMethodDefinitionList.add(vdi);      
-        }
+            
+            
+            // for JAXB           
+            // Note no mitigation item for jaxb as the context is xxe vul by default. Only the unmarshal method that takes 
+            // SAXSource (via xmlinputfactory) and and saxparser 
+            md = createMethodDefinition("javax.xml.bind.Unmarshaller", "unmarshal", "java.lang.Object"
+                    , "java.io.File"); // method parameters
+            vdi = new VulnerabilityDefinitionItem(md);
+            vulnerableMethodDefinitionList.add(vdi);      
+
+            md = createMethodDefinition("javax.xml.bind.Unmarshaller", "unmarshal", "java.lang.Object"
+                    , "org.xml.sax.InputSource"); // method parameters
+            vdi = new VulnerabilityDefinitionItem(md);
+            vulnerableMethodDefinitionList.add(vdi);      
+            
+            md = createMethodDefinition("javax.xml.bind.Unmarshaller", "unmarshal", "java.lang.Object"
+                    , "java.io.InputStream"); // method parameters
+            vdi = new VulnerabilityDefinitionItem(md);
+            vulnerableMethodDefinitionList.add(vdi);      
+            
+            md = createMethodDefinition("javax.xml.bind.Unmarshaller", "unmarshal", "java.lang.Object"
+                    , "java.io.Reader"); // method parameters
+            vdi = new VulnerabilityDefinitionItem(md);
+            vulnerableMethodDefinitionList.add(vdi);      
+           
+            md = createMethodDefinition("javax.xml.bind.Unmarshaller", "unmarshal", "java.lang.Object"
+                    , "java.net.URL"); // method parameters
+            vdi = new VulnerabilityDefinitionItem(md);
+            vulnerableMethodDefinitionList.add(vdi);      
+            
+            md = createMethodDefinition("javax.xml.bind.Unmarshaller", "unmarshal", "java.lang.Object"
+                    , "javax.xml.transform.Source"); // method parameters
+            vdi = new VulnerabilityDefinitionItem(md);
+            vulnerableMethodDefinitionList.add(vdi);      
+           
+            md = createMethodDefinition("javax.xml.bind.Unmarshaller", "unmarshal", "java.lang.Object"
+                    , "javax.xml.stream.XMLStreamReader"); // method parameters
+            vdi = new VulnerabilityDefinitionItem(md);
+            vulnerableMethodDefinitionList.add(vdi);      
+            
+            md = createMethodDefinition("javax.xml.bind.Unmarshaller", "unmarshal", "java.lang.Object"
+                    , "javax.xml.stream.XMLEventReader"); // method parameters
+            vdi = new VulnerabilityDefinitionItem(md);
+            vulnerableMethodDefinitionList.add(vdi);      
+            
+            md = createMethodDefinition("javax.xml.bind.Unmarshaller", "unmarshal", "java.lang.Object"
+                    , "javax.xml.transform.Source", "java.lang.Class"); // method parameters
+            vdi = new VulnerabilityDefinitionItem(md);
+            vulnerableMethodDefinitionList.add(vdi);      
+           
+            md = createMethodDefinition("javax.xml.bind.Unmarshaller", "unmarshal", "java.lang.Object"
+                    , "javax.xml.stream.XMLStreamReader", "java.lang.Class"); // method parameters
+            vdi = new VulnerabilityDefinitionItem(md);
+            vulnerableMethodDefinitionList.add(vdi);      
+            
+            md = createMethodDefinition("javax.xml.bind.Unmarshaller", "unmarshal", "java.lang.Object"
+                    , "javax.xml.stream.XMLEventReader", "java.lang.Class"); // method parameters
+            vdi = new VulnerabilityDefinitionItem(md);
+            vulnerableMethodDefinitionList.add(vdi);      
+            
+            
+            
+            // DOM4J
+            //org.​dom4j.
+            md = createMethodDefinition("org.dom4j.io.SAXReader", "read", "org.dom4j.Document"
+                    , "java.io.InputStream");
+            vdi = new VulnerabilityDefinitionItem(md);
+            listMI =  new ArrayList<>();
+            
+            // now create mitigation items and add to the vdi
+            vmi = createLocalMitigationItem("org.dom4j.io.SAXReader", "setFeature", null, 
+                    createMethodParameters("java.lang.String", "boolean"), 
+                    new ParameterValueCreator().add("java.lang.String", "\"http://apache.org/xml/features/disallow-doctype-decl\"")
+                            .add("boolean", "true").getParameters());
+            // now add mitigation spoilers. mitigation spoilers are incorrect settings which if set/left can nullify the effect of a previous mitigation
+            // Occurrence of this usually indicates a mistake by the programmer
+            vmi.addMitigationSpoiler(new MitigationSpoiler(new ParameterValueCreator().add("java.lang.String", "\"http://apache.org/xml/features/disallow-doctype-decl\"")
+                            .add("boolean", "false").getParameters()));
+            // give a string describing solution 
+            vmi.setSolutionDescription("A call to SAXReader.setFeature(\"http://apache.org/xml/features/disallow-doctype-decl\", true); or "
+                    + "SAXReader.setFeature(\"http://xml.org/sax/features/external-general-entities\", false); should be "
+                    + " made before using parsers created from them i.e., before using SAXReader.read(...) methods");
+                    
+            listMI.add(vmi);
+            
+            vmi = createLocalMitigationItem("org.dom4j.io.SAXReader", "setFeature", null, 
+                    createMethodParameters("java.lang.String", "boolean"), 
+                    new ParameterValueCreator().add("java.lang.String", "\"http://xml.org/sax/features/external-general-entities\"")
+                            .add("boolean", "false").getParameters());
+            // now add mitigation spoilers. mitigation spoilers are incorrect settings which if set/left can nullify the effect of a previous mitigation
+            // Occurrence of this usually indicates a mistake by the programmer
+            vmi.addMitigationSpoiler(new MitigationSpoiler(new ParameterValueCreator().add("java.lang.String", "\"http://xml.org/sax/features/external-general-entities\"")
+                            .add("boolean", "true").getParameters()));
+            // give a string describing solution 
+            vmi.setSolutionDescription("A call to SAXReader.setFeature(\"http://apache.org/xml/features/disallow-doctype-decl\", true); or "
+                    + "SAXReader.setFeature(\"http://xml.org/sax/features/external-general-entities\", false); should be "
+                    + " made before using parsers created from them i.e., before using SAXReader.read(...) methods");
+                    
+            listMI.add(vmi);            
+            vdi.addMitigationItemsFromList(listMI);
+            vulnerableMethodDefinitionList.add(vdi);
+            
+            md = createMethodDefinition("org.dom4j.io.SAXReader", "read", "org.dom4j.Document"
+                    , "java.io.File");
+            vdi = new VulnerabilityDefinitionItem(md);
+            vdi.addMitigationItemsFromList(listMI);
+            vulnerableMethodDefinitionList.add(vdi);      
+            
+            md = createMethodDefinition("org.dom4j.io.SAXReader", "read", "org.dom4j.Document"
+                    , "org.xml.sax.InputSource");
+            vdi = new VulnerabilityDefinitionItem(md);
+            vdi.addMitigationItemsFromList(listMI);
+            vulnerableMethodDefinitionList.add(vdi);      
+            
+            md = createMethodDefinition("org.dom4j.io.SAXReader", "read", "org.dom4j.Document"
+                    , "java.io.Reader");
+            vdi = new VulnerabilityDefinitionItem(md);
+            vdi.addMitigationItemsFromList(listMI);
+            vulnerableMethodDefinitionList.add(vdi);      
+            
+            md = createMethodDefinition("org.dom4j.io.SAXReader", "read", "org.dom4j.Document"
+                    , "java.lang.String");
+            vdi = new VulnerabilityDefinitionItem(md);
+            vdi.addMitigationItemsFromList(listMI);
+            vulnerableMethodDefinitionList.add(vdi);      
+            
+            md = createMethodDefinition("org.dom4j.io.SAXReader", "read", "org.dom4j.Document"
+                    , "java.net.URL");
+            vdi = new VulnerabilityDefinitionItem(md);
+            vdi.addMitigationItemsFromList(listMI);
+            vulnerableMethodDefinitionList.add(vdi);      
+            
+            md = createMethodDefinition("org.dom4j.io.SAXReader", "read", "org.dom4j.Document"
+                    , "java.io.InputStream", "java.lang.String");
+            vdi = new VulnerabilityDefinitionItem(md);
+            vdi.addMitigationItemsFromList(listMI);
+            vulnerableMethodDefinitionList.add(vdi);       
+            
+            md = createMethodDefinition("org.dom4j.io.SAXReader", "read", "org.dom4j.Document"
+                    , "java.io.Reader", "java.lang.String");
+            vdi = new VulnerabilityDefinitionItem(md);
+            vdi.addMitigationItemsFromList(listMI);
+            vulnerableMethodDefinitionList.add(vdi);       
+       }
         
         
         

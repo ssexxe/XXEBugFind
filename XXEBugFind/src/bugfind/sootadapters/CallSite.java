@@ -15,6 +15,9 @@ import soot.tagkit.LineNumberTag;
  * @author Mikosh
  */
 public class CallSite implements Comparable<CallSite> {
+    /**
+     * A line number tag
+     */
     protected static final String LINE_NUMBER_TAG = "LineNumberTag";
     
     /**

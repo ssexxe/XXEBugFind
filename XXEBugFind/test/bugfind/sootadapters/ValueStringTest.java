@@ -18,8 +18,10 @@ import static org.junit.Assert.*;
  * @author Mikosh
  */
 public class ValueStringTest {
+    private ValueString valueString;    
     
     public ValueStringTest() {
+        valueString = new ValueString("java.lang.String", "s4", "\"a string value\"");
     }
     
     @BeforeClass
@@ -44,12 +46,10 @@ public class ValueStringTest {
     @Test
     public void testGetType() {
         System.out.println("getType");
-        ValueString instance = null;
-        String expResult = "";
+        ValueString instance = valueString;
+        String expResult = "java.lang.String";
         String result = instance.getType();
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        assertEquals(expResult, result);        
     }
 
     /**
@@ -58,12 +58,10 @@ public class ValueStringTest {
     @Test
     public void testGetName() {
         System.out.println("getName");
-        ValueString instance = null;
-        String expResult = "";
+        ValueString instance = valueString;
+        String expResult = "s4";
         String result = instance.getName();
         assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
     }
 
     /**
@@ -72,12 +70,10 @@ public class ValueStringTest {
     @Test
     public void testGetValue() {
         System.out.println("getValue");
-        ValueString instance = null;
-        String expResult = "";
+        ValueString instance = valueString;
+        String expResult = "\"a string value\"";
         String result = instance.getValue();
         assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
     }
     
 }

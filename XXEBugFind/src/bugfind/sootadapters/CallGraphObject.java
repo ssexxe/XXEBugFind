@@ -13,14 +13,11 @@ import bugfind.utils.misc.Utils;
 import bugfind.utils.misc.XMLUtils;
 import bugfind.xxe.ActualVulnerabilityItem;
 import bugfind.xxe.xmlobjects.ActualVulnerabilityItems;
-import bugfind.xxe.VulnerabilityDefinitionItems;
-import bugfind.xxe.VulnerableXMLMethodDefinitions;
 import bugfind.xxe.XXEVulnerabilityDetector;
 import bugfind.xxe.xmlobjects.ActualVulnerabilityItemForXML;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.nio.file.FileSystemException;
@@ -31,48 +28,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.SchemaOutputResolver;
-import javax.xml.bind.Unmarshaller;
-import javax.xml.transform.Result;
-import javax.xml.transform.stream.StreamResult;
-import soot.Body;
 import soot.G;
 import soot.Local;
 import soot.PackManager;
-import soot.PatchingChain;
 import soot.PhaseOptions;
 import soot.Scene;
 import soot.SceneTransformer;
 import soot.SootClass;
 import soot.SootMethod;
-import soot.SourceLocator;
 import soot.Transform;
-import soot.Unit;
-import soot.UnitBox;
-import soot.Value;
-import soot.ValueBox;
-import soot.dava.Dava;
-import soot.dava.DavaBody;
-import soot.grimp.Grimp;
-import soot.grimp.GrimpBody;
-import soot.grimp.internal.GNewInvokeExpr;
-import soot.grimp.internal.GRValueBox;
-import soot.grimp.internal.GStaticInvokeExpr;
-import soot.grimp.internal.GVirtualInvokeExpr;
-import soot.jimple.InvokeExpr;
-import soot.jimple.JimpleBody;
-import soot.jimple.Stmt;
-import soot.jimple.internal.AbstractInvokeExpr;
-import soot.jimple.internal.JInvokeStmt;
-import soot.jimple.internal.StmtBox;
 import soot.jimple.toolkits.callgraph.CallGraph;
 import soot.jimple.toolkits.callgraph.Edge;
 import soot.options.Options;
-import soot.tagkit.LineNumberTag;
-import soot.tagkit.Tag;
 
 /**
  * This is the callgraph object that encapsulates the soot CallGraph and provides utility methods
@@ -83,12 +51,31 @@ public class CallGraphObject {
     private static final Logger logger = Logger.getLogger(CallGraphObject.class.getName());
     //{logger.setUseParentHandlers(false);}
     
+    /**
+     * The instance of the call graph object used by this class
+     */
     protected static CallGraphObject callGraphObject;
     
+    /**
+     * Holds all the parameters and their values entered by the user via the command-line
+     */
     protected Map<String, String> bugFindParametersMap;
+    
+    /**
+     * Holds a list of vulnerable method definitions used by this class
+     */
     protected List<MethodDefinition> vulMethodDefinitionList;
+    
+    /**
+     * This holds a list of all elevated classes.i.e, classes that were elevated from library or javalibrary level
+     * to application level. It's sometimes necessary to elevate classes so that they can be returned in a call trace
+     */
     private static List<SootClass> elevatedClasses = new ArrayList<>();
 
+    /**
+     * Gets the call graph instance of this class
+     * @return the call graph instance of this class 
+     */
     public static CallGraphObject getInstance() {
         if (callGraphObject == null) {
             callGraphObject = new CallGraphObject();
@@ -97,6 +84,11 @@ public class CallGraphObject {
         return callGraphObject;
     }
     
+    /**
+     * Gets the call graph instance of this class having the specified bug find parameters
+     * @return the call graph instance of this class having the specified bug find parameters
+     * @param bugFindParametersMap the bugfind parameters to set
+     */
     public static CallGraphObject getInstance(Map<String, String> bugFindParametersMap) {
         CallGraphObject cgo = getInstance();        
         cgo.setBugFindParametersMap(bugFindParametersMap);
@@ -104,14 +96,26 @@ public class CallGraphObject {
         return cgo;
     }
     
+    /**
+     * Made private  to prevent instatiation of this class directly
+     */
+    private CallGraphObject() {}
     
-    protected CallGraphObject() {}
-
-    
+    /**
+     * Constructs a new call graph object when given the  parameters
+     * @param bugFindParametersMap the parameters to set
+     */
     protected CallGraphObject(Map<String, String> bugFindParametersMap) {
         this.bugFindParametersMap = bugFindParametersMap;
     }   
     
+    /**
+     * Runs an analysis over the given application. It constructs a call graph for the whole application for use by the
+     * XXE Vulnerability detector
+     * @throws FileNotFoundException
+     * @throws FileSystemException
+     * @throws Exception 
+     */
     public void runAnalysis() throws FileNotFoundException, FileSystemException, Exception {
         FileUtil fileUtil = FileUtil.getFileUtil();
         StringBuilder sb = new StringBuilder();
@@ -185,7 +189,7 @@ public class CallGraphObject {
             throw new Exception("There is no specified value for " + OptionsParser.OUTPUT_FILE_OPT + " option");
         }
 
-        // get rt directory location
+        // get rt directory location // rt.jar and other java libs are necessary to run soot        
         String rtDirectory = null;
         String userSpecifiedRTLocation = bugFindParametersMap.get(OptionsParser.RT_LIB_LOC_OPT);
 
@@ -216,17 +220,13 @@ public class CallGraphObject {
 
         // add all the necessary aguments to start the call graph generation
         argsList.addAll(Arrays.asList(new String[]{
-            "-w",
-            //"-allow-phantom-refs",
-            //"-via-grimp",
-            //"-f",
-            //"dava",
+            "-w",            
             "-p",
             "cg",
             "all-reachable:true",
             "-p",
             "jb",
-            "use-original-names:false", //"-f", "dava",not in graph!
+            "use-original-names:false",
             "-cp",
             cpOptionString}));
         for (String s : dirLocs) {
@@ -245,7 +245,7 @@ public class CallGraphObject {
         this.vulMethodDefinitionList = getVulnerableMethodDefinitions(vulmethodDefs);
         
         // add our custom scene transformer to deal with the call graph finds
-        addCustomSootTransformer();
+        addBugFindSootTransformer();
 
         String[] args = argsList.toArray(new String[0]);
 
@@ -255,37 +255,49 @@ public class CallGraphObject {
         PhaseOptions.v().setPhaseOption("tag.ln", "on");        
         //PhaseOptions.v().setPhaseOption("cg", "enabled:false");        
         PhaseOptions.v().setPhaseOption("cg", "all-reachable:true");
-        //PhaseOptions.v().setPhaseOption("jb", "use-original-names:false");
-           //PhaseOptions.v().setPhaseOption("cg.spark", "enabled:true");
-        //PhaseOptions.v().setPhaseOption("cg.paddle", "enabled:true");
-        //Options.v().parse(args);
-        G.v().out = new PrintStream(new File("soot.txt"));
+        //PhaseOptions.v().setPhaseOption("jb", "use-original-names:false");//PhaseOptions.v().setPhaseOption("cg.spark", "enabled:true");
+        //PhaseOptions.v().setPhaseOption("cg.paddle", "enabled:true");//Options.v().parse(args);
+        
+        //redirect all soots outputs to soot.txt as it annoyingly affects the output of our program.
+        G.v().out = new PrintStream(new File("soot.txt")); 
+        
         
         logger.log(Level.INFO, "Started...");
+        // start our custom soot runnet
         SootRunner.main(args, libLocation);//        soot.Main.main(args);
     }
 
-    protected void addCustomSootTransformer() {
+    /**
+     * Adds bugfind's transformer to be called by soot.
+     * This is necessary for our analysis
+     */
+    protected void addBugFindSootTransformer() {
         final CallGraphObject cgo = this;
         
         // add our custom scene transformer to deal with the call graph finds
         PackManager.v().getPack("wjtp").add(new Transform("wjtp.BugFindTrans", new SceneTransformer() {
-            //PackManager.v().getPack("gb").add(new Transform("gb.BugFindTrans", new SceneTransformer() {
-
+            
             @Override
             protected void internalTransform(String phaseName, Map options) {
                 //CHATransformer.v().transform();
-                CallGraph cg = Scene.v().getCallGraph();//src.getActiveBody().
+                CallGraph cg = Scene.v().getCallGraph();
+                
+                // create our xxe vulnerability detector and find vulnerabilities
                 XXEVulnerabilityDetector xvd = new XXEVulnerabilityDetector(cgo);
                 List<ActualVulnerabilityItem> actualVulnerabilities = xvd.findVulnerabilities();
+                
+                // get the output format
                 String outputFormat = (bugFindParametersMap.get(OptionsParser.OUTPUT_FORMAT_OPT) == null)
                         ? BugFindConstants.TEXT_FORMAT : bugFindParametersMap.get(OptionsParser.OUTPUT_FORMAT_OPT);
-                logger.log(Level.INFO, "Finsihed run");
+                logger.log(Level.INFO, "Finished run");
                 
                 try {
                     String outputFile = bugFindParametersMap.get(OptionsParser.OUTPUT_FILE_OPT);
                     printActualVunerabilitesFound(cg, actualVulnerabilities, outputFormat, (outputFile != null));
                     
+                    if (outputFile != null) {
+                        logger.log(Level.INFO, "Finished writing to file " + outputFile);
+                    }
                 } catch (JAXBException ex) {
                     Logger.getLogger(CallGraphObject.class.getName()).log(Level.SEVERE, null, ex);
                 } catch (FileNotFoundException ex) {
@@ -295,39 +307,6 @@ public class CallGraphObject {
                 if (actualVulnerabilities == null || actualVulnerabilities.isEmpty()) {
                     logger.log(Level.INFO, "No exploitable XXE vulnerabilities found");
                 }
-
-//                       if (actualVulnerabilities.size() > 0) {
-//                           System.out.println("\n" + actualVulnerabilities.size() + " variant(s) of xxe vulnerabilities found");
-//                       }                                        
-//                       int n = 0;
-//                       for (ActualVulnerabilityItem avi : actualVulnerabilities) {
-//                           ++n;
-//                           String classShortName = avi.getVulnerabilityDefinitionItem().getMethodDefinition().getClassName();
-//                           
-//                           if (classShortName.contains(".")) {
-//                               int index = classShortName.lastIndexOf(".");
-//                               classShortName = classShortName.substring(index+1);
-//                           }
-//                           System.out.println("XXE Variant-" + n + " due to using " + classShortName
-//                                   + " API. See detail: \n" + avi);
-//                           System.out.println("Reason: " + avi.getReason());
-//                           
-//                           System.out.println("Exploitation route(s)");
-//                           printCallTraces(avi, cg);
-//                           System.out.println("");
-//                       }
-                //List l = CallGraphObject.getElevatedClasses();
-//                       
-                for (MethodDefinition md : vulMethodDefinitionList) {
-                           //Scene.v().loadClassAndSupport("org.apache.xerces.jaxp.DocumentBuilderImpl")//getLibraryClasses().toString()
-                    //Scene.v().getSootClass("org.apache.xerces.jaxp.DocumentBuilderImpl")
-                    //new FastHierarchy().getSubclassesOf(Scene.v().getSootClass(md.getClassName()));
-
-                    //List l = Scene.v().getActiveHierarchy().getSubclassesOf(Scene.v().getSootClass(md.getClassName()));
-                    if (false) {
-                        displayExecutionTraceForMethod(cg, md, System.out);
-                    }
-                }
                 
                 logger.log(Level.INFO, "About to terminate...");
             }
@@ -336,6 +315,12 @@ public class CallGraphObject {
     }
         
         
+    /**
+     * Gets a list of calling ancestors in a single list. Does not allow for tree-like call
+     * @param cg the callgraph to use
+     * @param src the method whose calling ancestors is to be obtained
+     * @return list of calling ancestors in a single list 
+     */
     public static List<SootMethod> getCallingAncestors(CallGraph cg, SootMethod src) {
         List<SootMethod> ancestors = new ArrayList<SootMethod>();
         List<SootMethod> workList = new ArrayList<SootMethod>();
@@ -348,7 +333,7 @@ public class CallGraphObject {
 
             while (eIte.hasNext()) {
                 Edge e = eIte.next();
-                // TODO: for now we only consider applications classes (to scale up at the cost of soundness)
+                //consider only applications classes (to scale up at the cost of soundness)
                 SootMethod srcMethod = e.src();
                 if (srcMethod.getDeclaringClass().isApplicationClass()) {
                     boolean isAddedIn = ancestors.add(srcMethod);
@@ -364,10 +349,17 @@ public class CallGraphObject {
 
         return ancestors;
     }
-    
+
+    /**
+     * Get all the callsites for a particular soot method. 
+     * Note: An approximation is done to return only application class
+     * @param cg the callgraph to use
+     * @param method the method whose call sites are to be obtained
+     * @return all the callsites for a particular soot method 
+     */
     public List<CallSite> getCallSites(CallGraph cg, SootMethod method) {
         List<CallSite> listCS = new ArrayList<>();
-        
+        // get edges into the method and return the list
         Iterator<Edge> ite = cg.edgesInto(method);
         while (ite.hasNext()) {
             Edge edge = ite.next();
@@ -376,17 +368,23 @@ public class CallGraphObject {
             }
         }
                 
+        // this is necessary to rectify the problem of missing edges for Interfaces and abstact classes types
+        // The reason is that soot CHA will return edges only for the concrete class implementations.
+        // Hence we get the concrete classes and use it to track the base class
         if (listCS.isEmpty() && method.getDeclaringClass().isAbstract() || method.getDeclaringClass().isInterface()) {            
             if (method.getDeclaringClass().isInterface()) {
+                // get all implemeters of the interface
                 List<SootClass> subclasses = Scene.v().getActiveHierarchy().getImplementersOf(method.getDeclaringClass());
                 
+                // get all subclasses
                 for (SootClass subclass : subclasses) {
                     SootMethod sm = MethodDefinition.getOverrideSootMethod(subclass, method);
                     if (sm != null) {
+                        // get the edges                        
                         Iterator<Edge> iteT = cg.edgesInto(sm);
                         while (iteT.hasNext()) {
                             Edge edge = iteT.next();
-                            
+                            // ensure that only application classes are considered
                             if (edge.src().getDeclaringClass().isApplicationClass()
                                     && !isElevatedClass(edge.src().getDeclaringClass())) {
                                 Local l = (Local) SimpleIntraDataFlowAnalysis.getInvokedLocal(edge.srcStmt());
@@ -405,15 +403,12 @@ public class CallGraphObject {
                                     }
                                 }
                             }
-//                            if (edge.src().getDeclaringClass().isApplicationClass() && 
-//                                    !isElevatedClass(edge.src().getDeclaringClass())) {
-//                                listCS.add(new CallSite(edge));                                
-//                            }
                         }
                     }
                 }
             }
             else if (method.getDeclaringClass().isAbstract()) {
+                // the steps are similar for the interface if clause just above this one
                 List<SootClass> subclasses = Scene.v().getActiveHierarchy().getSubclassesOf(method.getDeclaringClass());
                 
                 for (SootClass subclass : subclasses) {
@@ -451,6 +446,13 @@ public class CallGraphObject {
         return listCS;
     }
     
+    /**
+     * Gets a list of all callsites of the callee method in the caller method's body
+     * @param cg the callgraph to use
+     * @param callee the method being called
+     * @param caller the caller
+     * @return a list of all callsites of the callee method in the caller method's body 
+     */
     public List<CallSite> getCallSitesInMethod(CallGraph cg, SootMethod callee, SootMethod caller) {
         List<CallSite> listCS = getCallSites(cg, callee);
         Iterator<CallSite> ite = listCS.iterator();
@@ -460,15 +462,6 @@ public class CallGraphObject {
                 ite.remove();
             }
         }
-        
-//        List<CallSite> listCS = new ArrayList<>();
-//        
-//        Iterator<Edge> ite = cg.edgesInto(callee);
-//        while (ite.hasNext()) {
-//            if (ite.next().src().getSignature().equals(caller.getSignature())) {
-//                listCS.add(new CallSite(ite.next()));
-//            }
-//        }
         
         return listCS;
     }
@@ -491,7 +484,7 @@ public class CallGraphObject {
     }
     
     /**
-     * Gets the call traces for a specified method using backward flow analysis. It has been approximated to
+     * Gets the call traces for a specified method using backward trace analysis. It has been approximated to
      * include only soot's application classes (ie classes in the main jar file being analysed; jars specifed
      * using the -d option). Other classes such as library, javalibrary classes are not included to prevent 
      * bloating of the call trace. Check Sable Soot online for more info
@@ -502,7 +495,7 @@ public class CallGraphObject {
      * @return  the call traces for a specified method
      */
     protected List<List<SootMethod>> getCallStackTraces(CallGraph cg, SootMethod meth, List<SootMethod> atraceList, List<List<SootMethod>> mainList) {
-        // limit the max paths. to prevent infiite call traces.
+        // limit the max paths. to prevent infinite call traces.
         if (mainList.size() > 3000) return mainList;
         
         List<SootMethod> currCallersList = new ArrayList<>();
@@ -557,6 +550,12 @@ public class CallGraphObject {
         return mainList;
     }
     
+    /**
+     * Duplicates a list. Use specifically for the getCallStackTraces(...) method
+     * @param <T> the type of the object contained in the list
+     * @param list the list to be duplicated
+     * @return the duplicated of the list
+     */
     protected <T> List<T> duplicateList(List<T> list) {
         List<T> l = new ArrayList<>();
         for(T t : list) {
@@ -566,6 +565,18 @@ public class CallGraphObject {
         return l;
     }
    
+    /**
+     * Gets vulnerable method definitions from the conforming string as a List. For instance when the following
+     * command is given via the command-line (-vmd stands for vulnerable method definitons)
+     * <code>
+     * -vmd "com.mypack.VulnerableMethod1(java.lang.String, int);com.parsers.MyVulparser(int, boolean)"
+     * <code>
+     * will be split into 2 objects contained int the list returned.
+     * Note theo use ';' as the separator of the two methods
+     * @param methodDefListAsString the string containing the method defs
+     * @return a list contiaining vulnerable method definitions
+     * @throws Exception 
+     */
     protected List<MethodDefinition> getVulnerableMethodDefinitions(String methodDefListAsString) throws Exception {
         List<MethodDefinition> list = new ArrayList<>();
         if (methodDefListAsString == null) {
@@ -574,7 +585,7 @@ public class CallGraphObject {
         
         String[] methods;
         String stringSep = ";";
-        
+                
         if (methodDefListAsString.contains(stringSep)) {
             methods = methodDefListAsString.split(stringSep);            
             
@@ -591,50 +602,24 @@ public class CallGraphObject {
         return list;
     }
 
-    protected void displayExecutionTraceForMethod(CallGraph cg, MethodDefinition md, PrintStream ps) {
-        List<MethodDefinition.MethodParameter> lparams = md.getParameterList();
-        List<String> paramList2 = new ArrayList<>();
-        
-        for (MethodDefinition.MethodParameter mp : lparams) {
-            paramList2.add(mp.getType());
-        }
-       
-        //System.out.println(Options.v().classes().getFirst());
-        //System.out.println("dynamic_class");
-        //System.out.println(Options.v().dynamic_class().get(0));
-        //Scene.v().addBasicClass("org.apache.xerces.parsers.SAXParser");//, SootClass.SIGNATURES);
-        //System.out.println("scp: "+Options.v().soot_classpath());
-        //Scene.v().tryLoadClass(md.getClassName(), SootClass.BODIES);
-        SootClass msc = //Scene.v().tryLoadClass("org.apache.xerces.parsers.SAXParser", SootClass.SIGNATURES);//loadClassAndSupport("org.apache.xerces.parsers.SAXParser");//(md.getClassName());
-                Scene.v().getSootClass(md.getClassName());
-                //Scene.v().tryLoadClass(md.getClassName(), SootClass.SIGNATURES);
+    /**
+     * Displays the call traces for a particular method and writes it to the specified stream.
+     * Note: the stream is not closed after the write and hence is the responsibility of the developer to close it
+     * @param cg the callgraph to use
+     * @param md the method defintion to use
+     * @param ps the print stream to write to
+     */
+    protected void displayCallTracesForMethod(CallGraph cg, MethodDefinition md, PrintStream ps) {
+        SootClass msc = Scene.v().getSootClass(md.getClassName());
+        // elevate the class if needed or else it wont return edges
         if (msc.isJavaLibraryClass() || msc.isLibraryClass()) {
             msc = Scene.v().loadClassAndSupport(msc.getName());
-            CallGraphObject.elevateClassToApplicationLevel(msc);//msc.setApplicationClass();
+            CallGraphObject.elevateClassToApplicationLevel(msc);
         }
         
-        //SootClass sc = Scene.v().getSootClass(md.getClassName());        
-        SootMethod meth = MethodDefinition.getSootMethod(msc, md);//.ge//getMethodByName(md.getMethodName());//getMethod(md.getMethodName(), paramList2);
-
+        SootMethod meth = MethodDefinition.getSootMethod(msc, md);
         
-
-        //meth.getActiveBody().getDefBoxes().ge
-//        Iterator<Edge> ite = cg.edgesInto(meth);
-//        if (ite.hasNext()) {
-//            System.out.println("Possible calls on method: " + meth);
-//        }
-//        while (ite.hasNext()) {
-//            Edge edge = ite.next();
-//            SootMethod srcMth = edge.src(); //LineNumberTag tag = (LineNumberTag)srcMth.getActiveBody().getAllUnitBoxes().get(0).getUnit().getTags().getTag("LineNumberTag");//srcMth.getActiveBody().toString()
-//            System.out.println("src context " + edge.srcCtxt());//srcMth.getActiveBody().getLocals().
-//            System.out.println("src stmt " + edge.srcStmt());//edge.tgt()
-//            System.out.println("src unit " + edge.srcUnit());
-//            System.out.println(meth + " may be called by " + srcMth);
-//        }
-//        List mm = getCallingAncestors(cg, meth);
-//        System.out.println("Tgt CI src No: " + meth.getNumber()//getActiveBody()
-//                + "\nTgt: " + meth + "\nSet: " + mm);
-        
+        // work around for interfacce method as Soot's CHA doesn't return eges for this
         if (msc.isInterface()) {
             List<SootClass> listSC = Scene.v().getActiveHierarchy().getImplementersOf(meth.getDeclaringClass());
             for (SootClass sc : listSC) {
@@ -648,7 +633,9 @@ public class CallGraphObject {
                 printStackTraces(lList, ps);
             }
         }
-        else if (msc.isAbstract()) {//Scene.v().getActiveHierarchy().getSubclassesOf(Scene.v().getSootClass("javax.xml.parsers.DocumentBuilder"));//meth.getDeclaringClass().getMethods()
+        
+        // work around for abstract method as Soot's CHA doesn't return eges for this
+        else if (msc.isAbstract()) {
             List<SootClass> listSC = Scene.v().getActiveHierarchy().getSubclassesOfIncluding(meth.getDeclaringClass());//getDirectSubclassesOf(meth.getDeclaringClass());
             for (SootClass sc : listSC) {
                 List<List<SootMethod>> lList = new ArrayList<>();
@@ -670,76 +657,16 @@ public class CallGraphObject {
             int i = 0;
             ps.println("printing call trace for [" + meth.getDeclaringClass().getName() + " " + meth.getDeclaration() + "]");
             printStackTraces(lList, ps);
-        //for(List<SootMethod> l : ml) {
-            //    System.out.println("Tgt ML src No: " + ++i
-            //        + "\nTgt: " + meth + "\nSet: " + l);
-            //}
         }
     }
     
-    protected void displayExecutionTraceForMethod(CallGraph cg, SootMethod meth, PrintStream ps) {
-      
-        SootClass msc = meth.getDeclaringClass();
-                //Scene.v().tryLoadClass(md.getClassName(), SootClass.SIGNATURES);
-        if (msc.isJavaLibraryClass() || msc.isLibraryClass()) {
-            msc = Scene.v().loadClassAndSupport(msc.getName());
-            CallGraphObject.elevateClassToApplicationLevel(msc);//msc.setApplicationClass();
-        }
-        
-        if (msc.isInterface()) {
-            List<SootClass> listSC = Scene.v().getActiveHierarchy().getImplementersOf(meth.getDeclaringClass());
-            for (SootClass sc : listSC) {
-                List<List<SootMethod>> lList = new ArrayList<>();
-                List<SootMethod> lsm = new ArrayList<>();
-
-                lList = getCallStackTraces(cg, MethodDefinition.getOverrideSootMethod(sc, meth)//sc.getMethod(meth.getName(), meth.getParameterTypes())
-                        , lsm, lList);
-                int i = 0;
-                ps.println("printing call trace for [" + meth.getDeclaringClass().getName() + " " + meth.getDeclaration() + "]");
-                printStackTraces(lList, ps);
-            }
-        }
-        else if (msc.isAbstract()) {//Scene.v().getActiveHierarchy().getSubclassesOf(Scene.v().getSootClass("javax.xml.parsers.DocumentBuilder"));//meth.getDeclaringClass().getMethods()
-            List<SootClass> listSC = Scene.v().getActiveHierarchy().getSubclassesOfIncluding(meth.getDeclaringClass());//getDirectSubclassesOf(meth.getDeclaringClass());
-            for (SootClass sc : listSC) {
-                List<List<SootMethod>> lList = new ArrayList<>();
-                List<SootMethod> lsm = new ArrayList<>();
-
-                lList = getCallStackTraces(cg, MethodDefinition.getOverrideSootMethod(sc, meth)//sc.getMethod(meth.getName(), meth.getParameterTypes())
-                            , lsm, lList);
-                int i = 0;
-                ps.println("printing call trace for [" + meth.getDeclaringClass().getName() + " " + meth.getDeclaration() + "]");
-                printStackTraces(lList, ps);
-            }
-        }        
-        else {
-
-            List<List<SootMethod>> lList = new ArrayList<>();
-            List<SootMethod> lsm = new ArrayList<>();
-
-            lList = getCallStackTraces(cg, meth, lsm, lList);
-            int i = 0;
-            
-            Logger.getLogger(CallGraphObject.class.getName()).log(Level.INFO, "printing call trace for [{0} {1}]", new Object[]{meth.getDeclaringClass().getName(), meth.getDeclaration()});
-            printStackTraces(lList, ps);
-        //for(List<SootMethod> l : ml) {
-            //    System.out.println("Tgt ML src No: " + ++i
-            //        + "\nTgt: " + meth + "\nSet: " + l);
-            //}
-        }
-    }
-    
-    protected int getLineNumber(Stmt s) {
-        Iterator ti = s.getTags().iterator();
-        while (ti.hasNext()) {
-            Object o = ti.next();
-            if (o instanceof LineNumberTag) {
-                return Integer.parseInt(o.toString());
-            }
-        }
-        return -1;
-    }
-    
+    /**
+     * Print all call traces for vulnerable points found in the actual vulnerability item passed to it
+     * Note the print stream is not closed after the printing.
+     * @param avi the actual vulnerability item
+     * @param cg the call graph to use
+     * @param ps the print stream to use
+     */
     public void printCallTraces(ActualVulnerabilityItem avi, CallGraph cg, PrintStream ps) {
         List<List<SootMethod>> ltrunk = new ArrayList<>();
         List<SootMethod> atrace = new ArrayList<>();
@@ -754,6 +681,11 @@ public class CallGraphObject {
         }      
     }
     
+    /**
+     * Print stack traces. Used for displayCallTraces and printCall
+     * @param list the list containg the call traces
+     * @param ps the printstream to use
+     */
     public void printStackTraces(List<List<SootMethod>> list, PrintStream ps) {
         StringBuilder sb = new StringBuilder();
         int n=0;
@@ -772,9 +704,13 @@ public class CallGraphObject {
             }
             ps.println(sb);
         }
-        //System.out.println("\n");
     }
-    
+
+    /**
+     * Gets the stack traces as a string list
+     * @param list
+     * @return 
+     */
     public List<String> getStackTracesAsStringList(List<List<SootMethod>> list) {
         List<String> retList = new ArrayList<>();
         StringBuilder sb = new StringBuilder();
@@ -798,11 +734,18 @@ public class CallGraphObject {
         return retList;
     }
     
+    /**
+     * Gets the call traces a string list
+     * @param listCS the list containing the call sites
+     * @return the call traces a string list 
+     */
     public static List<String> getCallTracesAsStringList(List<CallSite> listCS) {
         CallGraph cg = Scene.v().getCallGraph();
         CallGraphObject cgo = CallGraphObject.getInstance();
         List<List<SootMethod>> ltrunk = new ArrayList<>();
         List<SootMethod> atrace = new ArrayList<>();
+        
+        // for each call site
         for (CallSite cs : listCS) {
 
             ltrunk = cgo.getCallStackTraces(cg, cs.getEdge().src(), atrace, ltrunk);
@@ -814,6 +757,11 @@ public class CallGraphObject {
         return cgo.getStackTracesAsStringList(ltrunk);
     }
     
+    /**
+     * Get call traces for a call site as a string list
+     * @param cs the call site to use
+     * @return call traces for a call site as a string list 
+     */
     public static List<String> getCallTracesForCallSiteAsStringList(CallSite cs) {
         CallGraph cg = Scene.v().getCallGraph();
         CallGraphObject cgo = CallGraphObject.getInstance();
@@ -828,141 +776,18 @@ public class CallGraphObject {
         return cgo.getStackTracesAsStringList(ltrunk);
     }
     
-    
-    
-    private void loadNecessaryClass(String name) {
-        SootClass c;
-        c = Scene.v().loadClassAndSupport(name);
-        c.setApplicationClass();
-    }
-    
-    public void loadMyNecessaryClasses() {
-	Scene.v().loadBasicClasses();
-
-        Iterator<String> it = Options.v().classes().iterator();
-
-        while (it.hasNext()) {
-            String name = (String) it.next();
-            loadNecessaryClass(name);
-        }
-
-        Scene.v().loadDynamicClasses();
-
-        for( Iterator<String> pathIt = Options.v().process_dir().iterator(); pathIt.hasNext(); ) {
-
-            final String path = (String) pathIt.next();
-            for (String cl : SourceLocator.v().getClassesUnder(path)) {
-                Scene.v().loadClassAndSupport(cl).setApplicationClass();
-            }
-        }
-
-        //Scene.v().prepareClasses();
-        //Scene.v().setDoneResolving();
-    
-    }
-    
-    private void doTest() {
-        SootClass sc = Scene.v().getSootClass("mydom.DomParserExample");
-        SootMethod sm = sc.getMethodByName("parseXmlFile");
-        PatchingChain<Unit> pcu = sm.getActiveBody().getUnits();JInvokeStmt h;
-        
-        List<CallSite> listCs = getCallSites(Scene.v().getCallGraph(), sm);
-        List<CallSite> listMCE = getMethodCallEdgesOutOfMethod(Scene.v().getCallGraph(), sm);
-        for (CallSite cs : listCs) {
-            System.out.println(cs);
-        }
-        for (CallSite cs : listMCE) {
-            System.out.println(cs);
-        }
-        
-        Body b = sm.getActiveBody();
-        GrimpBody gb = Grimp.v().newBody(b, "jb");//.getUnits()
-        List<UnitBox> lut = gb.getUnitBoxes(true); //(lut.get(3))//getUnit().getTags().getUnitBoxes()
-        List<UnitBox> luf = gb.getUnitBoxes(false);        
-        
-        Iterator<Unit> units = gb.getUnits().iterator();
-        
-        while (units.hasNext()) {
-            Unit unit = units.next();
-            List<Tag> listTag = unit.getTags();
-            List<UnitBox> listUB = unit.getUnitBoxes();
-            List<ValueBox> listDB = unit.getDefBoxes();//GStaticInvokeExpr gsie; //gsie.
-            List<ValueBox> listVB = unit.getUseBoxes();//Value v; v.getType()
-            List<ValueBox> listUDB = unit.getUseAndDefBoxes();
-            
-            for (ValueBox vb : listUDB) {
-                Value v = vb.getValue();
-                if (v instanceof InvokeExpr) {
-                    AbstractInvokeExpr aie = (AbstractInvokeExpr) v;//Scene.v().getCallGraph().edgesInto(aie.getMethod()).next().srcUnit().getTags()getSrc()//aie.getMethod()
-                    GStaticInvokeExpr gsie; GVirtualInvokeExpr gvie; GNewInvokeExpr gnie; 
-                    int i=7;
-                }                
-            }
-            
-            //((GStaticInvokeExpr)listVB.get(0).getValue()).getMethod();
-            GRValueBox grv;//((GRValueBox)listVB.get(0)).
-            int i = 6;
-            i=5;
-            
-        }
-        StmtBox sb;ValueBox vb;Value v; //v.
-        //gb.getUnits().getFirst().getDefBoxes().get(0).getValue().getType().getUseBoxes().getUseBoxes();
-        //gb.getLocals().getFirst().
-                
-        Scene.v().loadClassAndSupport("mydom.DomParserExample").getMethodByName("parseXmlFile").retrieveActiveBody();
-        Scene.v().getSootClass("mydom.DomParserExample").getMethodByName("parseXmlFile").getActiveBody();
-        DavaBody db = Dava.v().newBody(Grimp.v().newBody(b, "jb"));
-        JimpleBody jb;
-        //sm.
-        List<ValueBox> lud = sm.getActiveBody().getUseAndDefBoxes();
-        List<ValueBox> lub = sm.getActiveBody().getUseBoxes();
-        int i=0;
-    }
-    
-    public static void doTest2() {
-        try {
-            VulnerabilityDefinitionItems vmis = new VulnerabilityDefinitionItems();
-            vmis.setVulnerabilityDefinitionItems(VulnerableXMLMethodDefinitions.getVulnerableMethodDefinitionList());
-            
-            JAXBContext jaxbContext = JAXBContext.newInstance(VulnerabilityDefinitionItems.class);
-            Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
-            
-            jaxbMarshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-            
-            jaxbMarshaller.marshal(vmis, System.out);            
-            jaxbMarshaller.marshal(vmis, new File("C:/f/vmisAll.xml"));            
-            
-            SchemaOutputResolver sor = new SchemaOutputResolver() {
-
-                @Override
-                public Result createOutput(String namespaceUri, String suggestedFileName) throws IOException {
-                    File file = new File("C:/f", suggestedFileName);
-                    StreamResult result = new StreamResult(file);
-                    result.setSystemId(file.toURI().toURL().toString());
-                    return result;
-                }
-            };
-            jaxbContext.generateSchema(sor);
-            
-            Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
-            VulnerabilityDefinitionItems vmis2 = (VulnerabilityDefinitionItems) jaxbUnmarshaller.unmarshal(new File("C:/f/vmis.xml"));
-            System.out.println("\nreread emp");
-            System.out.println(vmis2.toString());
-            jaxbMarshaller.marshal(vmis2, System.out);  
-            jaxbMarshaller.marshal(vmis2, new File("C:/f/vmis2.xml"));            
-            System.exit(0);
-        } catch (JAXBException ex) {
-            Logger.getLogger(CallGraphObject.class.getName()).log(Level.SEVERE, null, ex);
-            System.exit(0);
-        } catch (IOException ex) {
-            Logger.getLogger(CallGraphObject.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
-
+    /**
+     * Get the find bug parameters map object
+     * @return the find bug parameters map object
+     */
     public Map<String, String> getBugFindParametersMap() {
         return bugFindParametersMap;
     }
 
+    /**
+     * Sets the find bugs parameters map object
+     * @param bugFindParametersMap the map to use
+     */
     public void setBugFindParametersMap(Map<String, String> bugFindParametersMap) {
         this.bugFindParametersMap = bugFindParametersMap;
     }
@@ -976,10 +801,19 @@ public class CallGraphObject {
         return elevatedClasses;
     }
     
+    /**
+     * Returns whether a class was elevated from a library or java-library level to application level
+     * @param sc the soot class to use
+     * @return whether a class was elevated from a library or java-library level to application level 
+     */
     public static boolean isElevatedClass(SootClass sc) {
         return getElevatedClasses().contains(sc);
     }
     
+    /**
+     *  Elevates a class from a library or java-library level to application level
+     * @param sc the soot class to elevate
+     */
     public static void elevateClassToApplicationLevel(SootClass sc) {        
         if (!sc.isApplicationClass()) {
             sc.setApplicationClass();
@@ -987,6 +821,15 @@ public class CallGraphObject {
         }
     }
 
+    /**
+     * Used to print actual vulnerabilites found
+     * @param cg the call graph to use
+     * @param actualVulnerabilities the actual vulnerabilities found
+     * @param outputFormat the output format
+     * @param printToFile whether to print to file or not
+     * @throws JAXBException
+     * @throws FileNotFoundException 
+     */
     protected void printActualVunerabilitesFound(CallGraph cg, List<ActualVulnerabilityItem> actualVulnerabilities, 
             String outputFormat, boolean printToFile) throws JAXBException, FileNotFoundException {
         

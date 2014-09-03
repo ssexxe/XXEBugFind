@@ -6,21 +6,31 @@
 
 package bugfind.sootadapters;
 
+import java.util.ArrayList;
+import java.util.List;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
+import soot.IntType;
 import soot.SootMethod;
+import soot.VoidType;
 
 /**
  *
  * @author Mikosh
  */
 public class SootMethodWrapperTest {
+    private SootMethodWrapper sootmethodwrapper;
+    private SootMethod sootMethod;
     
     public SootMethodWrapperTest() {
+        List list = new ArrayList();
+        list.add(IntType.v());
+        sootMethod = new SootMethod("meth", list, VoidType.v());
+        sootmethodwrapper = new SootMethodWrapper(sootMethod);
     }
     
     @BeforeClass
@@ -45,12 +55,12 @@ public class SootMethodWrapperTest {
     @Test
     public void testGetSootMethod() {
         System.out.println("getSootMethod");
-        SootMethodWrapper instance = null;
-        SootMethod expResult = null;
+        SootMethodWrapper instance = sootmethodwrapper;
+        SootMethod expResult = sootMethod;
         SootMethod result = instance.getSootMethod();
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        boolean b = expResult == result;
+        System.out.print(b);
+        assertTrue(b);
     }
 
     /**
@@ -59,11 +69,10 @@ public class SootMethodWrapperTest {
     @Test
     public void testSetSootMethod() {
         System.out.println("setSootMethod");
-        SootMethod sootMethod = null;
-        SootMethodWrapper instance = null;
-        instance.setSootMethod(sootMethod);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        
+        SootMethodWrapper instance = sootmethodwrapper;
+        instance.setSootMethod(this.sootMethod);
+        assertSame(sootMethod, instance.getSootMethod());
     }
     
 }

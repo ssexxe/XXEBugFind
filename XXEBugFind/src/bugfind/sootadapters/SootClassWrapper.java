@@ -21,6 +21,9 @@ import soot.util.Chain;
  * @author Mikosh
  */
 public class SootClassWrapper {
+    /**
+     * Holds a reference to it's soot class
+     */
     protected SootClass sootClass;
 
     /**
@@ -31,11 +34,19 @@ public class SootClassWrapper {
         this.sootClass = sootClass;
     }
     
+    /**
+     * Get all concrete methods declared in this class
+     * @return a list containing all concrete methods returned in this class
+     */
     public List<SootMethod> getAllMethodsDeclaredInThisClassOnly() {
         List<SootMethod> methods = getSootClass().getMethods();        
         return methods;
     }
     
+    /**
+     * Gets all the methods declared in this class including inherited ones
+     * @return all the methods declared in this class including inherited ones 
+     */
     public List<SootMethod> getAllMethodsDeclaredIncludingInherited() {
         List<SootMethod> methods = getSootClass().getMethods();
         
@@ -49,7 +60,7 @@ public class SootClassWrapper {
         
         while(superClass != null) {// while the superclasses are not null, add the methods
             // Get the declared methods in superclass and add to this method. 
-            addMethodsFromSuperClassToThisClassMethods(superClass, methods);       
+            addMethodsFromSuperClassToSpecifiedMethodList(superClass, methods);       
 
             ensureIsSupported(superClass);
             // if it doesnt have a super class or it is the java.lang.Object, break the loop
@@ -75,13 +86,18 @@ public class SootClassWrapper {
         for (SootClass iface : setIfaces) {
             ensureIsSupported(iface);
             // add methods from all implemeted interfaces
-            addMethodsFromSuperClassToThisClassMethods(iface, methods);
+            addMethodsFromSuperClassToSpecifiedMethodList(iface, methods);
         }
-//Scene.v().loadNecessaryClasses();PackManager.v().runPacks();
+        
         return methods;
     }
     
-    protected void addMethodsFromSuperClassToThisClassMethods(SootClass superClass, List<SootMethod> methods) {
+    /**
+     * Adds method from super class to the specified method list
+     * @param superClass the super class
+     * @param methods the list which will contain the added methods
+     */
+    protected void addMethodsFromSuperClassToSpecifiedMethodList(SootClass superClass, List<SootMethod> methods) {
         List<SootMethod> superMethods = superClass.getMethods();
             List<SootMethod> tmpList = new ArrayList<>();
 
@@ -89,9 +105,6 @@ public class SootClassWrapper {
             for (SootMethod superMethod : superMethods) {
                 boolean shouldAdd = true;
                 for (SootMethod subMeth : methods) {
-                    if (superMethod.getName().equals("parse")) {
-                        int i = 0;
-                    }
                     // if they are same name and same parameters, then that means this class has overridden that method, 
                     // also do no include static initializer methods
                     if ((subMeth.getName().equals(superMethod.getName()) && 
@@ -114,14 +127,27 @@ public class SootClassWrapper {
             }
     }
 
+    /**
+     * Gets the soot class
+     * @return  the soot class
+     */
     public SootClass getSootClass() {
         return sootClass;
     }
 
+    /**
+     * Sets the soot class
+     * @param sootClass the soot class to set
+     */
     public void setSootClass(SootClass sootClass) {
         this.sootClass = sootClass;
     }
     
+    /**
+     * Ensure the given class is supported by soot. This is by loading it
+     * @param sc the soot class to use
+     * @return true if the class was reloaded 
+     */
     private static boolean ensureIsSupported(SootClass sc) {
         boolean neededSupport = false;
         if (!sc.isApplicationClass()) {
@@ -131,57 +157,5 @@ public class SootClassWrapper {
         }
         return neededSupport;
     }
-    
-    public static boolean needsApplicationElevation(SootClass sc) {
-        boolean needsToBeApplication = false;
-        
-        if (!sc.isApplicationClass()) {
-            sc = Scene.v().loadClassAndSupport(sc.getName());
-            CallGraphObject.elevateClassToApplicationLevel(sc);
-            needsToBeApplication = true;
-        }
-        
-        if (!sc.hasSuperclass() || sc.getSuperclass().getName().equals("java.lang.Object")) {
-            return needsToBeApplication;
-        }        
-        
-        SootClass superClass = sc.getSuperclass();         
-        
-        while(superClass != null) {
-
-            boolean val =  ensureIsSupported(superClass);
-            if (val) needsToBeApplication = true;
-            
-            // if it doesnt have a super class or it is the java.lang.Object, break the loop
-            if (!superClass.hasSuperclass() || superClass.getSuperclass().getName().equals("java.lang.Object")) {
-                break;
-            } else { // else get a reference to the superclass
-                superClass = superClass.getSuperclass();
-            }
-        }
-        
-        // now for interfaces support
-        //Scene.v().getFastHierarchy().getSuperinterfacesOf(getSootClass())
-        Set<SootClass> setIfaces = new HashSet<>();//getSootClass().getSuperclass().getInterfaces().isApplicationClass()
-        SootClass currClass = sc;
-        while(currClass != null) {
-            Chain<SootClass> ifaces = currClass.getInterfaces();
-            for (SootClass iface : ifaces) {
-                setIfaces.add(iface);
-            }
-            currClass = (currClass.hasSuperclass()) ? currClass.getSuperclass() : null;
-        }        
-        
-        for (SootClass iface : setIfaces) {
-            boolean val = ensureIsSupported(iface);
-            if (val ) {
-                needsToBeApplication = true;
-            }
-            
-        }
-
-        return needsToBeApplication;
-    }    
-    
     
 }

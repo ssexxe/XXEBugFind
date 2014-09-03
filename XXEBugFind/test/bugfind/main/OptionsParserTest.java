@@ -45,12 +45,21 @@ public class OptionsParserTest {
     @Test
     public void testParse() {
         System.out.println("parse");
-        String[] args = null;
-        Map<String, String> expResult = null;
+        String[] args = new String[]{
+            "-d", "C:/app/javaApp1", 
+            "-l", "C:/app/lib/javaLib1",
+            "-f", "xml",    
+            "-o", "C:/app/output.xml",
+            "-rs", "C:/myruleset.xml",
+        };
+        
         Map<String, String> result = OptionsParser.parse(args);
-        assertEquals(expResult, result);
-        // TODO review the generated test code and remove the default call to fail.
-        fail("The test case is a prototype.");
+        assertEquals(result.get(OptionsParser.DIR_OPT), "C:/app/javaApp1");
+        assertEquals(result.get(OptionsParser.LIB_OPT), "C:/app/lib/javaLib1");
+        assertEquals(result.get(OptionsParser.OUTPUT_FORMAT_OPT), "xml");
+        assertEquals(result.get(OptionsParser.OUTPUT_FILE_OPT), "C:/app/output.xml");
+        assertEquals(result.get(OptionsParser.RULESET_OPT), "C:/myruleset.xml");
+        assertEquals(result.get(OptionsParser.RT_LIB_LOC_OPT), null);
     }
     
 }
