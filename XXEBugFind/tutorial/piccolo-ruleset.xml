@@ -5,6 +5,80 @@
             <ClassName>com.bluecast.xml.Piccolo</ClassName>
             <MethodName>parse</MethodName>
             <MethodParameter>
+                <ParameterType>java.lang.String</ParameterType>
+            </MethodParameter>
+            <ReturnType>void</ReturnType>
+        </MethodDefinition>
+        <VulnerabilityMitigationItem>
+            <methodDefinition>
+                <ClassName>com.bluecast.xml.Piccolo</ClassName>
+                <MethodName>setFeature</MethodName>
+                <MethodParameter>
+                    <ParameterType>java.lang.String</ParameterType>
+                </MethodParameter>
+                <MethodParameter>
+                    <ParameterType>boolean</ParameterType>
+                </MethodParameter>
+            </methodDefinition>
+            <ParameterValue>
+                <ParameterType>java.lang.String</ParameterType>
+                <ParameterValue>&quot;http://apache.org/xml/features/disallow-doctype-decl&quot;</ParameterValue>
+            </ParameterValue>
+            <ParameterValue>
+                <ParameterType>boolean</ParameterType>
+                <ParameterValue>true</ParameterValue>
+            </ParameterValue>
+            <MitigationType>LOCAL</MitigationType>
+            <SolutionDescription>A call to XMLReader.setFeature(&quot;http://apache.org/xml/features/disallow-doctype-decl&quot;, true); or XMLReader.setFeature(&quot;http://xml.org/sax/features/external-general-entities&quot;, false); should be  made before using parsers created from them i.e., before using XMLReader.parse(...) methods</SolutionDescription>
+            <MitigationSpoiler>
+                <ParameterValue>
+                    <ParameterType>java.lang.String</ParameterType>
+                    <ParameterValue>&quot;http://apache.org/xml/features/disallow-doctype-decl&quot;</ParameterValue>
+                </ParameterValue>
+                <ParameterValue>
+                    <ParameterType>boolean</ParameterType>
+                    <ParameterValue>false</ParameterValue>
+                </ParameterValue>
+            </MitigationSpoiler>
+        </VulnerabilityMitigationItem>
+        <VulnerabilityMitigationItem>
+            <methodDefinition>
+                <ClassName>com.bluecast.xml.Piccolo</ClassName>
+                <MethodName>setFeature</MethodName>
+                <MethodParameter>
+                    <ParameterType>java.lang.String</ParameterType>
+                </MethodParameter>
+                <MethodParameter>
+                    <ParameterType>boolean</ParameterType>
+                </MethodParameter>
+            </methodDefinition>
+            <ParameterValue>
+                <ParameterType>java.lang.String</ParameterType>
+                <ParameterValue>&quot;http://xml.org/sax/features/external-general-entities&quot;</ParameterValue>
+            </ParameterValue>
+            <ParameterValue>
+                <ParameterType>boolean</ParameterType>
+                <ParameterValue>false</ParameterValue>
+            </ParameterValue>
+            <MitigationType>LOCAL</MitigationType>
+            <SolutionDescription>A call to XMLReader.setFeature(&quot;http://apache.org/xml/features/disallow-doctype-decl&quot;, true); or XMLReader.setFeature(&quot;http://xml.org/sax/features/external-general-entities&quot;, false); should be  made before using parsers created from them i.e., before using XMLReader.parse(...) methods</SolutionDescription>
+            <MitigationSpoiler>
+                <ParameterValue>
+                    <ParameterType>java.lang.String</ParameterType>
+                    <ParameterValue>&quot;http://xml.org/sax/features/external-general-entities&quot;</ParameterValue>
+                </ParameterValue>
+                <ParameterValue>
+                    <ParameterType>boolean</ParameterType>
+                    <ParameterValue>true</ParameterValue>
+                </ParameterValue>
+            </MitigationSpoiler>
+        </VulnerabilityMitigationItem>
+    </VulnerabilityDefinitionItem>
+    <VulnerabilityDefinitionItem>
+        <MethodDefinition>
+            <ClassName>com.bluecast.xml.Piccolo</ClassName>
+            <MethodName>parse</MethodName>
+            <MethodParameter>
                 <ParameterType>org.xml.sax.InputSource</ParameterType>
             </MethodParameter>
             <ReturnType>void</ReturnType>
