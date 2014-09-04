@@ -1,0 +1,56 @@
+
+6 variant(s) of xxe vulnerabilities found
+XXE Variant-1 due to using SAXBuilder API. See detail: 
+org.jdom2.input.SAXBuilder.build(java.io.InputStream);.
+1 occurrence(s) at: 
+* class: myjdom.PrettyPrinter method: public static void main(java.lang.String[]) at line 27
+Reason: A call to SAXBuilder.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true); should be made before using SAXBuilder.parse(...) methods to prevent possible XXE attacks. Note that for JDOM version 2.0.5, the setting SAXBuilder.setFeature("http://xml.org/sax/features/external-general-entities", false); does not work and so is disregarded as a mitigation procedure. If this is not the case in a later version, you may decide passing a user-defined ruleset into the application
+Exploitation route(s)
+* [myjdom.PrettyPrinter: void main(java.lang.String[])] --> [org.jdom2.input.SAXBuilder: org.jdom2.Document build(java.io.InputStream)]
+
+XXE Variant-2 due to using SAXBuilder API. See detail: 
+org.jdom2.input.SAXBuilder.build(java.io.File);.
+2 occurrence(s) at: 
+* class: b.PrettyPrinter2 method: public static void main(java.lang.String[]) at line 41
+* class: a.PrettyPrinter method: public static void main(java.lang.String[]) at line 38
+Reason: A call to SAXBuilder.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true); should be made before using SAXBuilder.parse(...) methods to prevent possible XXE attacks. Note that for JDOM version 2.0.5, the setting SAXBuilder.setFeature("http://xml.org/sax/features/external-general-entities", false); does not work and so is disregarded as a mitigation procedure. If this is not the case in a later version, you may decide passing a user-defined ruleset into the application
+Exploitation route(s)
+* [b.PrettyPrinter2: void main(java.lang.String[])] --> [org.jdom2.input.SAXBuilder: org.jdom2.Document build(java.io.File)]
+* [b.PrettyPrinter2: void main(java.lang.String[])] --> [org.jdom2.input.SAXBuilder: org.jdom2.Document build(java.io.File)] --> [org.jdom2.input.SAXBuilder: org.jdom2.Document build(java.io.File)]
+
+XXE Variant-3 due to using DocumentBuilder API. See detail: 
+javax.xml.parsers.DocumentBuilder.parse(java.io.File);.
+1 occurrence(s) at: 
+* class: mydom.DomParserExample method: private void parse2(java.io.File) throws org.xml.sax.SAXException, java.io.IOException at line 56
+Reason: A call to DocumentBuilderFactory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true); or DocumentBuilderFactory.setFeature("http://xml.org/sax/features/external-general-entities", false); should be  made before using parsers created from them i.e., before using DocumentBuilder.parse(...) methods
+Exploitation route(s)
+* [mydom.DomParserExample: void parse2(java.io.File)] --> [javax.xml.parsers.DocumentBuilder: org.w3c.dom.Document parse(java.io.File)]
+
+XXE Variant-4 due to using SAXParser API. See detail: 
+javax.xml.parsers.SAXParser.parse(java.io.InputStream, org.xml.sax.helpers.DefaultHandler);.
+3 occurrence(s) at: 
+* class: mysax2.XMLReaderExample method: private void parseDocument() at line 54
+* class: piccolotest.MyPiccoloExample method: private void parseDocument() at line 54
+* class: mysax.SAXParserExample method: private void parseDocument() at line 50
+Reason: A call to SAXParserFactory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true); or SAXParserFactory.setFeature("http://xml.org/sax/features/external-general-entities", false); should be  made before using parsers created from them i.e., before using SAXParser.parse(...) methods
+Exploitation route(s)
+* [mysax2.XMLReaderExample: void parseDocument()] --> [javax.xml.parsers.SAXParser: void parse(java.io.InputStream,org.xml.sax.helpers.DefaultHandler)]
+* [mysax2.XMLReaderExample: void parseDocument()] --> [javax.xml.parsers.SAXParser: void parse(java.io.InputStream,org.xml.sax.helpers.DefaultHandler)] --> [javax.xml.parsers.SAXParser: void parse(java.io.InputStream,org.xml.sax.helpers.DefaultHandler)]
+* [myxmltest.GUIFrame$1: void actionPerformed(java.awt.event.ActionEvent)] --> [myxmltest.GUIFrame: void access$000(myxmltest.GUIFrame,java.awt.event.ActionEvent)] --> [myxmltest.GUIFrame: void btnRunActionPerformed(java.awt.event.ActionEvent)] --> [mysax.SAXParserExample: void main(java.lang.String[])] --> [mysax.SAXParserExample: void runExample()] --> [mysax.SAXParserExample: void parseDocument()] --> [mysax2.XMLReaderExample: void parseDocument()] --> [javax.xml.parsers.SAXParser: void parse(java.io.InputStream,org.xml.sax.helpers.DefaultHandler)] --> [javax.xml.parsers.SAXParser: void parse(java.io.InputStream,org.xml.sax.helpers.DefaultHandler)] --> [javax.xml.parsers.SAXParser: void parse(java.io.InputStream,org.xml.sax.helpers.DefaultHandler)]
+
+XXE Variant-5 due to using XMLReader API. See detail: 
+org.xml.sax.XMLReader.parse(java.lang.String);.
+1 occurrence(s) at: 
+* class: piccolotest.MyPiccoloExample method: public static void main(java.lang.String[]) throws org.xml.sax.SAXException, java.io.IOException at line 39
+Reason: A call to XMLReader.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true); or XMLReader.setFeature("http://xml.org/sax/features/external-general-entities", false); should be  made before using parsers created from them i.e., before using XMLReader.parse(...) methods
+Exploitation route(s)
+* [piccolotest.MyPiccoloExample: void main(java.lang.String[])] --> [org.xml.sax.XMLReader: void parse(java.lang.String)]
+
+XXE Variant-6 due to using XMLStreamReader API. See detail: 
+javax.xml.stream.XMLStreamReader.next();.
+1 occurrence(s) at: 
+* class: stax.StAXExample method: public static void main(java.lang.String[]) throws javax.xml.stream.XMLStreamException at line 39
+Reason: A call to XMLInputFactory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, Boolean.FALSE); or XMLInputFactory.setProperty(XMLInputFactory.SUPPORT_DTD, Boolean.FALSE); should be made before using the StAX parser created from them i.e., before using XMLStreamReader.next() method
+Exploitation route(s)
+* [stax.StAXExample: void main(java.lang.String[])] --> [javax.xml.stream.XMLStreamReader: int next()]
+

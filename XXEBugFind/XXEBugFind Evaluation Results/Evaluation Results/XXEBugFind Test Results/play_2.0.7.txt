@@ -1,0 +1,11 @@
+
+1 variant(s) of xxe vulnerabilities found
+XXE Variant-1 due to using DocumentBuilder API. See detail: 
+javax.xml.parsers.DocumentBuilder.parse(org.xml.sax.InputSource);.
+1 occurrence(s) at: 
+* class: play.libs.XML method: public static org.w3c.dom.Document fromInputStream(java.io.InputStream, java.lang.String) at line 53
+Reason: A call to DocumentBuilderFactory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true); or DocumentBuilderFactory.setFeature("http://xml.org/sax/features/external-general-entities", false); should be  made before using parsers created from them i.e., before using DocumentBuilder.parse(...) methods
+Exploitation route(s)
+* [play.libs.WS$Response: org.w3c.dom.Document asXml()] --> [play.libs.XML: org.w3c.dom.Document fromInputStream(java.io.InputStream,java.lang.String)] --> [javax.xml.parsers.DocumentBuilder: org.w3c.dom.Document parse(org.xml.sax.InputSource)]
+* [play.core.j.JavaParsers$DefaultRequestBody$$anonfun$asXml$1: java.lang.Object apply(java.lang.Object)] --> [play.core.j.JavaParsers$DefaultRequestBody$$anonfun$asXml$1: org.w3c.dom.Document apply(scala.xml.NodeSeq)] --> [play.libs.XML: org.w3c.dom.Document fromString(java.lang.String)] --> [play.libs.XML: org.w3c.dom.Document fromInputStream(java.io.InputStream,java.lang.String)] --> [javax.xml.parsers.DocumentBuilder: org.w3c.dom.Document parse(org.xml.sax.InputSource)]
+

@@ -1,0 +1,362 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<BugCollection version="2.0.3" sequence="1" timestamp="1409818508000" analysisTimestamp="1409822099210" release="">
+  <Project projectName="myxmltest">
+    <Jar>C:\Users\Mikosh\Documents\NetbeansProjects\MyXMLTest\dist\MyXMLTest.jar</Jar>
+    <AuxClasspathEntry>C:\Users\Mikosh\Documents\NetbeansProjects\MyXMLTest\dist\lib\jaxen-1.1.6.jar</AuxClasspathEntry>
+    <AuxClasspathEntry>C:\Users\Mikosh\Documents\NetbeansProjects\MyXMLTest\dist\lib\jdom-2.0.5.jar</AuxClasspathEntry>
+    <AuxClasspathEntry>C:\Users\Mikosh\Documents\NetbeansProjects\MyXMLTest\dist\lib\resolver.jar</AuxClasspathEntry>
+    <AuxClasspathEntry>C:\Users\Mikosh\Documents\NetbeansProjects\MyXMLTest\dist\lib\serializer.jar</AuxClasspathEntry>
+    <AuxClasspathEntry>C:\Users\Mikosh\Documents\NetbeansProjects\MyXMLTest\dist\lib\xercesImpl.jar</AuxClasspathEntry>
+    <AuxClasspathEntry>C:\Users\Mikosh\Documents\NetbeansProjects\MyXMLTest\dist\lib\xml-apis.jar</AuxClasspathEntry>
+    <SrcDir>C:\Users\Mikosh\Documents\NetbeansProjects\MyXMLTest\src</SrcDir>
+    <WrkDir>C:\Users\Mikosh\Documents\Netbeans Libs\Code Analysers\findbugs\findbugs-noUpdateChecks-2.0.3\dumps</WrkDir>
+    <SuppressionFilter>
+      <LastVersion value="-1" relOp="NEQ"/>
+    </SuppressionFilter>
+  </Project>
+  <BugInstance type="DM_STRING_CTOR" priority="2" abbrev="Dm" category="PERFORMANCE" first="1">
+    <Class classname="a.PrettyPrinter">
+      <SourceLine classname="a.PrettyPrinter" sourcefile="PrettyPrinter.java" sourcepath="a/PrettyPrinter.java"/>
+    </Class>
+    <Method classname="a.PrettyPrinter" name="main" signature="([Ljava/lang/String;)V" isStatic="true">
+      <SourceLine classname="a.PrettyPrinter" start="19" end="48" startBytecode="0" endBytecode="388" sourcefile="PrettyPrinter.java" sourcepath="a/PrettyPrinter.java"/>
+    </Method>
+    <SourceLine classname="a.PrettyPrinter" start="24" end="24" startBytecode="34" endBytecode="34" sourcefile="PrettyPrinter.java" sourcepath="a/PrettyPrinter.java"/>
+  </BugInstance>
+  <BugInstance type="MS_SHOULD_BE_FINAL" priority="1" abbrev="MS" category="MALICIOUS_CODE" first="1">
+    <Class classname="a.PrettyPrinter">
+      <SourceLine classname="a.PrettyPrinter" sourcefile="PrettyPrinter.java" sourcepath="a/PrettyPrinter.java"/>
+    </Class>
+    <Field classname="a.PrettyPrinter" name="PUB" signature="Ljava/lang/String;" isStatic="true">
+      <SourceLine classname="a.PrettyPrinter" sourcefile="PrettyPrinter.java" sourcepath="a/PrettyPrinter.java"/>
+    </Field>
+    <SourceLine classname="a.PrettyPrinter" start="14" end="14" startBytecode="2" endBytecode="2" sourcefile="PrettyPrinter.java" sourcepath="a/PrettyPrinter.java"/>
+  </BugInstance>
+  <BugInstance type="PATH_TRAVERSAL_IN" priority="2" abbrev="SECPTI" category="SECURITY">
+    <Class classname="a.PrettyPrinter">
+      <SourceLine classname="a.PrettyPrinter" sourcefile="PrettyPrinter.java" sourcepath="a/PrettyPrinter.java"/>
+    </Class>
+    <Method classname="a.PrettyPrinter" name="main" signature="([Ljava/lang/String;)V" isStatic="true">
+      <SourceLine classname="a.PrettyPrinter" start="19" end="48" startBytecode="0" endBytecode="388" sourcefile="PrettyPrinter.java" sourcepath="a/PrettyPrinter.java"/>
+    </Method>
+    <SourceLine classname="a.PrettyPrinter" start="37" end="37" startBytecode="101" endBytecode="101" sourcefile="PrettyPrinter.java" sourcepath="a/PrettyPrinter.java"/>
+    <String value="java.io.File"/>
+  </BugInstance>
+  <BugInstance type="PATH_TRAVERSAL_IN" priority="2" abbrev="SECPTI" category="SECURITY" first="1">
+    <Class classname="a.PrettyPrinter">
+      <SourceLine classname="a.PrettyPrinter" sourcefile="PrettyPrinter.java" sourcepath="a/PrettyPrinter.java"/>
+    </Class>
+    <Method classname="a.PrettyPrinter" name="main" signature="([Ljava/lang/String;)V" isStatic="true">
+      <SourceLine classname="a.PrettyPrinter" start="19" end="48" startBytecode="0" endBytecode="388" sourcefile="PrettyPrinter.java" sourcepath="a/PrettyPrinter.java"/>
+    </Method>
+    <SourceLine classname="a.PrettyPrinter" start="41" end="41" startBytecode="116" endBytecode="116" sourcefile="PrettyPrinter.java" sourcepath="a/PrettyPrinter.java"/>
+    <String value="java.io.File"/>
+  </BugInstance>
+  <BugInstance type="PATH_TRAVERSAL_IN" priority="2" abbrev="SECPTI" category="SECURITY" first="1">
+    <Class classname="b.PrettyPrinter2">
+      <SourceLine classname="b.PrettyPrinter2" sourcefile="PrettyPrinter2.java" sourcepath="b/PrettyPrinter2.java"/>
+    </Class>
+    <Method classname="b.PrettyPrinter2" name="main" signature="([Ljava/lang/String;)V" isStatic="true">
+      <SourceLine classname="b.PrettyPrinter2" start="27" end="46" startBytecode="0" endBytecode="240" sourcefile="PrettyPrinter2.java" sourcepath="b/PrettyPrinter2.java"/>
+    </Method>
+    <SourceLine classname="b.PrettyPrinter2" start="38" end="38" startBytecode="38" endBytecode="38" sourcefile="PrettyPrinter2.java" sourcepath="b/PrettyPrinter2.java"/>
+    <String value="java.io.File"/>
+  </BugInstance>
+  <BugInstance type="UUF_UNUSED_FIELD" priority="2" abbrev="UuF" category="PERFORMANCE" first="1">
+    <Class classname="b.PrettyPrinter2">
+      <SourceLine classname="b.PrettyPrinter2" sourcefile="PrettyPrinter2.java" sourcepath="b/PrettyPrinter2.java"/>
+    </Class>
+    <Field classname="b.PrettyPrinter2" name="privString" signature="Ljava/lang/String;" isStatic="false">
+      <SourceLine classname="b.PrettyPrinter2" sourcefile="PrettyPrinter2.java" sourcepath="b/PrettyPrinter2.java"/>
+    </Field>
+  </BugInstance>
+  <BugInstance type="OBL_UNSATISFIED_OBLIGATION" priority="2" abbrev="OBL" category="EXPERIMENTAL" first="1">
+    <Class classname="dom4j.Dom4JExample">
+      <SourceLine classname="dom4j.Dom4JExample" sourcefile="Dom4JExample.java" sourcepath="dom4j/Dom4JExample.java"/>
+    </Class>
+    <Method classname="dom4j.Dom4JExample" name="parse" signature="()Lorg/dom4j/Document;" isStatic="false">
+      <SourceLine classname="dom4j.Dom4JExample" start="26" end="33" startBytecode="0" endBytecode="105" sourcefile="Dom4JExample.java" sourcepath="dom4j/Dom4JExample.java"/>
+    </Method>
+    <Class classname="java.io.InputStream" role="CLASS_REFTYPE">
+      <SourceLine classname="java.io.InputStream"/>
+    </Class>
+    <Int value="1" role="INT_OBLIGATIONS_REMAINING"/>
+    <SourceLine classname="dom4j.Dom4JExample" start="32" end="32" startBytecode="23" endBytecode="23" sourcefile="Dom4JExample.java" sourcepath="dom4j/Dom4JExample.java" role="SOURCE_LINE_OBLIGATION_CREATED"/>
+    <SourceLine classname="dom4j.Dom4JExample" start="33" end="33" startBytecode="30" endBytecode="30" sourcefile="Dom4JExample.java" sourcepath="dom4j/Dom4JExample.java" role="SOURCE_LINE_PATH_CONTINUES"/>
+    <String value="{InputStream x 1}" role="STRING_REMAINING_OBLIGATIONS"/>
+  </BugInstance>
+  <BugInstance type="DLS_DEAD_LOCAL_STORE" priority="2" abbrev="DLS" category="STYLE" first="1">
+    <Class classname="jaxb.JAXBExample">
+      <SourceLine classname="jaxb.JAXBExample" sourcefile="JAXBExample.java" sourcepath="jaxb/JAXBExample.java"/>
+    </Class>
+    <Method classname="jaxb.JAXBExample" name="main" signature="([Ljava/lang/String;)V" isStatic="true">
+      <SourceLine classname="jaxb.JAXBExample" start="22" end="26" startBytecode="0" endBytecode="11" sourcefile="JAXBExample.java" sourcepath="jaxb/JAXBExample.java"/>
+    </Method>
+    <LocalVariable name="jaxbUnmarshaller" register="2" pc="19" role="LOCAL_VARIABLE_NAMED"/>
+    <SourceLine classname="jaxb.JAXBExample" start="23" end="23" startBytecode="18" endBytecode="18" sourcefile="JAXBExample.java" sourcepath="jaxb/JAXBExample.java"/>
+    <Property name="edu.umd.cs.findbugs.detect.DeadLocalStoreProperty.METHOD_RESULT" value="true"/>
+    <Property name="edu.umd.cs.findbugs.detect.DeadLocalStoreProperty.LOCAL_NAME" value="jaxbUnmarshaller"/>
+    <Property name="edu.umd.cs.findbugs.detect.DeadLocalStoreProperty.NO_LOADS" value="true"/>
+  </BugInstance>
+  <BugInstance type="DLS_DEAD_LOCAL_STORE" priority="2" abbrev="DLS" category="STYLE" first="1">
+    <Class classname="mydom.DomParserExample">
+      <SourceLine classname="mydom.DomParserExample" sourcefile="DomParserExample.java" sourcepath="mydom/DomParserExample.java"/>
+    </Class>
+    <Method classname="mydom.DomParserExample" name="&lt;init&gt;" signature="()V" isStatic="false">
+      <SourceLine classname="mydom.DomParserExample" start="29" end="34" startBytecode="0" endBytecode="9" sourcefile="DomParserExample.java" sourcepath="mydom/DomParserExample.java"/>
+    </Method>
+    <LocalVariable name="dbf" register="1" pc="19" role="LOCAL_VARIABLE_NAMED"/>
+    <SourceLine classname="mydom.DomParserExample" start="32" end="32" startBytecode="18" endBytecode="18" sourcefile="DomParserExample.java" sourcepath="mydom/DomParserExample.java"/>
+    <Property name="edu.umd.cs.findbugs.detect.DeadLocalStoreProperty.METHOD_RESULT" value="true"/>
+    <Property name="edu.umd.cs.findbugs.detect.DeadLocalStoreProperty.LOCAL_NAME" value="dbf"/>
+    <Property name="edu.umd.cs.findbugs.detect.DeadLocalStoreProperty.NO_LOADS" value="true"/>
+  </BugInstance>
+  <BugInstance type="OBL_UNSATISFIED_OBLIGATION" priority="2" abbrev="OBL" category="EXPERIMENTAL">
+    <Class classname="mydom.DomParserExample">
+      <SourceLine classname="mydom.DomParserExample" sourcefile="DomParserExample.java" sourcepath="mydom/DomParserExample.java"/>
+    </Class>
+    <Method classname="mydom.DomParserExample" name="parseXmlFile" signature="()V" isStatic="false">
+      <SourceLine classname="mydom.DomParserExample" start="52" end="73" startBytecode="0" endBytecode="279" sourcefile="DomParserExample.java" sourcepath="mydom/DomParserExample.java"/>
+    </Method>
+    <Class classname="java.io.InputStream" role="CLASS_REFTYPE">
+      <SourceLine classname="java.io.InputStream"/>
+    </Class>
+    <Int value="2" role="INT_OBLIGATIONS_REMAINING"/>
+    <SourceLine classname="mydom.DomParserExample" start="62" end="62" startBytecode="25" endBytecode="25" sourcefile="DomParserExample.java" sourcepath="mydom/DomParserExample.java" role="SOURCE_LINE_OBLIGATION_CREATED"/>
+    <SourceLine classname="mydom.DomParserExample" start="64" end="64" startBytecode="34" endBytecode="34" sourcefile="DomParserExample.java" sourcepath="mydom/DomParserExample.java" role="SOURCE_LINE_PATH_CONTINUES"/>
+    <SourceLine classname="mydom.DomParserExample" start="64" end="64" startBytecode="44" endBytecode="44" sourcefile="DomParserExample.java" sourcepath="mydom/DomParserExample.java" role="SOURCE_LINE_OBLIGATION_CREATED"/>
+    <SourceLine classname="mydom.DomParserExample" start="72" end="72" startBytecode="50" endBytecode="50" sourcefile="DomParserExample.java" sourcepath="mydom/DomParserExample.java" role="SOURCE_LINE_PATH_CONTINUES"/>
+    <SourceLine classname="mydom.DomParserExample" start="73" end="73" startBytecode="74" endBytecode="74" sourcefile="DomParserExample.java" sourcepath="mydom/DomParserExample.java" role="SOURCE_LINE_PATH_CONTINUES"/>
+    <String value="{InputStream x 2}" role="STRING_REMAINING_OBLIGATIONS"/>
+  </BugInstance>
+  <BugInstance type="PATH_TRAVERSAL_IN" priority="2" abbrev="SECPTI" category="SECURITY" last="0" removedByChange="true">
+    <Class classname="myjdom.PrettyPrinter">
+      <SourceLine classname="myjdom.PrettyPrinter" sourcefile="PrettyPrinter.java" sourcepath="myjdom/PrettyPrinter.java"/>
+    </Class>
+    <Method classname="myjdom.PrettyPrinter" name="main" signature="([Ljava/lang/String;)V" isStatic="true">
+      <SourceLine classname="myjdom.PrettyPrinter" start="17" end="33" startBytecode="0" endBytecode="222" sourcefile="PrettyPrinter.java" sourcepath="myjdom/PrettyPrinter.java"/>
+    </Method>
+    <SourceLine classname="myjdom.PrettyPrinter" start="26" end="26" startBytecode="28" endBytecode="28" sourcefile="PrettyPrinter.java" sourcepath="myjdom/PrettyPrinter.java"/>
+    <String value="java.io.File"/>
+  </BugInstance>
+  <BugInstance type="OBL_UNSATISFIED_OBLIGATION" priority="2" abbrev="OBL" category="EXPERIMENTAL">
+    <Class classname="mysax.SAXParserExample">
+      <SourceLine classname="mysax.SAXParserExample" sourcefile="SAXParserExample.java" sourcepath="mysax/SAXParserExample.java"/>
+    </Class>
+    <Method classname="mysax.SAXParserExample" name="parseDocument" signature="()V" isStatic="false">
+      <SourceLine classname="mysax.SAXParserExample" start="42" end="61" startBytecode="0" endBytecode="276" sourcefile="SAXParserExample.java" sourcepath="mysax/SAXParserExample.java"/>
+    </Method>
+    <Class classname="java.io.InputStream" role="CLASS_REFTYPE">
+      <SourceLine classname="java.io.InputStream"/>
+    </Class>
+    <Int value="2" role="INT_OBLIGATIONS_REMAINING"/>
+    <SourceLine classname="mysax.SAXParserExample" start="50" end="50" startBytecode="24" endBytecode="24" sourcefile="SAXParserExample.java" sourcepath="mysax/SAXParserExample.java" role="SOURCE_LINE_OBLIGATION_CREATED"/>
+    <SourceLine classname="mysax.SAXParserExample" start="52" end="52" startBytecode="31" endBytecode="31" sourcefile="SAXParserExample.java" sourcepath="mysax/SAXParserExample.java" role="SOURCE_LINE_PATH_CONTINUES"/>
+    <SourceLine classname="mysax.SAXParserExample" start="52" end="52" startBytecode="41" endBytecode="41" sourcefile="SAXParserExample.java" sourcepath="mysax/SAXParserExample.java" role="SOURCE_LINE_OBLIGATION_CREATED"/>
+    <SourceLine classname="mysax.SAXParserExample" start="60" end="60" startBytecode="47" endBytecode="47" sourcefile="SAXParserExample.java" sourcepath="mysax/SAXParserExample.java" role="SOURCE_LINE_PATH_CONTINUES"/>
+    <SourceLine classname="mysax.SAXParserExample" start="61" end="61" startBytecode="71" endBytecode="71" sourcefile="SAXParserExample.java" sourcepath="mysax/SAXParserExample.java" role="SOURCE_LINE_PATH_CONTINUES"/>
+    <String value="{InputStream x 2}" role="STRING_REMAINING_OBLIGATIONS"/>
+  </BugInstance>
+  <BugInstance type="XXE" priority="2" abbrev="SECXXE" category="SECURITY">
+    <Class classname="mysax.SAXParserExample">
+      <SourceLine classname="mysax.SAXParserExample" sourcefile="SAXParserExample.java" sourcepath="mysax/SAXParserExample.java"/>
+    </Class>
+    <Method classname="mysax.SAXParserExample" name="parseDocument" signature="()V" isStatic="false">
+      <SourceLine classname="mysax.SAXParserExample" start="42" end="61" startBytecode="0" endBytecode="276" sourcefile="SAXParserExample.java" sourcepath="mysax/SAXParserExample.java"/>
+    </Method>
+    <SourceLine classname="mysax.SAXParserExample" start="50" end="50" startBytecode="28" endBytecode="28" sourcefile="SAXParserExample.java" sourcepath="mysax/SAXParserExample.java"/>
+    <String value="SAXParser.parse(...)"/>
+  </BugInstance>
+  <BugInstance type="OBL_UNSATISFIED_OBLIGATION" priority="2" abbrev="OBL" category="EXPERIMENTAL" first="1">
+    <Class classname="mysax2.XMLReaderExample">
+      <SourceLine classname="mysax2.XMLReaderExample" sourcefile="XMLReaderExample.java" sourcepath="mysax2/XMLReaderExample.java"/>
+    </Class>
+    <Method classname="mysax2.XMLReaderExample" name="parseDocument" signature="()V" isStatic="false">
+      <SourceLine classname="mysax2.XMLReaderExample" start="46" end="65" startBytecode="0" endBytecode="269" sourcefile="XMLReaderExample.java" sourcepath="mysax2/XMLReaderExample.java"/>
+    </Method>
+    <Class classname="java.io.InputStream" role="CLASS_REFTYPE">
+      <SourceLine classname="java.io.InputStream"/>
+    </Class>
+    <Int value="2" role="INT_OBLIGATIONS_REMAINING"/>
+    <SourceLine classname="mysax2.XMLReaderExample" start="54" end="54" startBytecode="16" endBytecode="16" sourcefile="XMLReaderExample.java" sourcepath="mysax2/XMLReaderExample.java" role="SOURCE_LINE_OBLIGATION_CREATED"/>
+    <SourceLine classname="mysax2.XMLReaderExample" start="56" end="56" startBytecode="29" endBytecode="29" sourcefile="XMLReaderExample.java" sourcepath="mysax2/XMLReaderExample.java" role="SOURCE_LINE_PATH_CONTINUES"/>
+    <SourceLine classname="mysax2.XMLReaderExample" start="56" end="56" startBytecode="38" endBytecode="38" sourcefile="XMLReaderExample.java" sourcepath="mysax2/XMLReaderExample.java" role="SOURCE_LINE_OBLIGATION_CREATED"/>
+    <SourceLine classname="mysax2.XMLReaderExample" start="64" end="64" startBytecode="44" endBytecode="44" sourcefile="XMLReaderExample.java" sourcepath="mysax2/XMLReaderExample.java" role="SOURCE_LINE_PATH_CONTINUES"/>
+    <SourceLine classname="mysax2.XMLReaderExample" start="65" end="65" startBytecode="68" endBytecode="68" sourcefile="XMLReaderExample.java" sourcepath="mysax2/XMLReaderExample.java" role="SOURCE_LINE_PATH_CONTINUES"/>
+    <String value="{InputStream x 2}" role="STRING_REMAINING_OBLIGATIONS"/>
+  </BugInstance>
+  <BugInstance type="XXE" priority="2" abbrev="SECXXE" category="SECURITY" first="1">
+    <Class classname="mysax2.XMLReaderExample">
+      <SourceLine classname="mysax2.XMLReaderExample" sourcefile="XMLReaderExample.java" sourcepath="mysax2/XMLReaderExample.java"/>
+    </Class>
+    <Method classname="mysax2.XMLReaderExample" name="parseDocument" signature="()V" isStatic="false">
+      <SourceLine classname="mysax2.XMLReaderExample" start="46" end="65" startBytecode="0" endBytecode="269" sourcefile="XMLReaderExample.java" sourcepath="mysax2/XMLReaderExample.java"/>
+    </Method>
+    <SourceLine classname="mysax2.XMLReaderExample" start="54" end="54" startBytecode="26" endBytecode="26" sourcefile="XMLReaderExample.java" sourcepath="mysax2/XMLReaderExample.java"/>
+    <String value="SAXParser.parse(...)"/>
+  </BugInstance>
+  <BugInstance type="DM_DEFAULT_ENCODING" priority="1" abbrev="Dm" category="I18N">
+    <Class classname="myxmltest.GUIFrame">
+      <SourceLine classname="myxmltest.GUIFrame" sourcefile="GUIFrame.java" sourcepath="myxmltest/GUIFrame.java"/>
+    </Class>
+    <Method classname="myxmltest.GUIFrame" name="displayXMLFile" signature="(Ljava/io/InputStream;)V" isStatic="false">
+      <SourceLine classname="myxmltest.GUIFrame" start="37" end="56" startBytecode="0" endBytecode="327" sourcefile="GUIFrame.java" sourcepath="myxmltest/GUIFrame.java"/>
+    </Method>
+    <Method classname="java.io.InputStreamReader" name="&lt;init&gt;" signature="(Ljava/io/InputStream;)V" isStatic="false" role="METHOD_CALLED">
+      <SourceLine classname="java.io.InputStreamReader"/>
+    </Method>
+    <SourceLine classname="myxmltest.GUIFrame" start="37" end="37" startBytecode="9" endBytecode="9" sourcefile="GUIFrame.java" sourcepath="myxmltest/GUIFrame.java"/>
+  </BugInstance>
+  <BugInstance type="DM_EXIT" priority="2" abbrev="Dm" category="BAD_PRACTICE">
+    <Class classname="myxmltest.GUIFrame">
+      <SourceLine classname="myxmltest.GUIFrame" sourcefile="GUIFrame.java" sourcepath="myxmltest/GUIFrame.java"/>
+    </Class>
+    <Method classname="myxmltest.GUIFrame" name="btnCloseActionPerformed" signature="(Ljava/awt/event/ActionEvent;)V" isStatic="false">
+      <SourceLine classname="myxmltest.GUIFrame" start="196" end="197" startBytecode="0" endBytecode="60" sourcefile="GUIFrame.java" sourcepath="myxmltest/GUIFrame.java"/>
+    </Method>
+    <SourceLine classname="myxmltest.GUIFrame" start="196" end="196" startBytecode="1" endBytecode="1" sourcefile="GUIFrame.java" sourcepath="myxmltest/GUIFrame.java"/>
+  </BugInstance>
+  <BugInstance type="NP_NONNULL_PARAM_VIOLATION" priority="1" abbrev="NP" category="CORRECTNESS">
+    <Class classname="myxmltest.GUIFrame">
+      <SourceLine classname="myxmltest.GUIFrame" sourcefile="GUIFrame.java" sourcepath="myxmltest/GUIFrame.java"/>
+    </Class>
+    <Method classname="myxmltest.GUIFrame" name="btnRunActionPerformed" signature="(Ljava/awt/event/ActionEvent;)V" isStatic="false">
+      <SourceLine classname="myxmltest.GUIFrame" start="182" end="193" startBytecode="0" endBytecode="176" sourcefile="GUIFrame.java" sourcepath="myxmltest/GUIFrame.java"/>
+    </Method>
+    <Method classname="mydom.DomParserExample" name="main" signature="([Ljava/lang/String;)V" isStatic="true" role="METHOD_CALLED">
+      <SourceLine classname="mydom.DomParserExample" start="169" end="173" startBytecode="0" endBytecode="72" sourcefile="DomParserExample.java" sourcepath="mydom/DomParserExample.java"/>
+    </Method>
+    <Int value="1" role="INT_NULL_ARG"/>
+    <SourceLine classname="myxmltest.GUIFrame" start="186" end="186" startBytecode="22" endBytecode="22" sourcefile="GUIFrame.java" sourcepath="myxmltest/GUIFrame.java"/>
+  </BugInstance>
+  <BugInstance type="NP_NONNULL_PARAM_VIOLATION" priority="1" abbrev="NP" category="CORRECTNESS">
+    <Class classname="myxmltest.GUIFrame">
+      <SourceLine classname="myxmltest.GUIFrame" sourcefile="GUIFrame.java" sourcepath="myxmltest/GUIFrame.java"/>
+    </Class>
+    <Method classname="myxmltest.GUIFrame" name="btnRunActionPerformed" signature="(Ljava/awt/event/ActionEvent;)V" isStatic="false">
+      <SourceLine classname="myxmltest.GUIFrame" start="182" end="193" startBytecode="0" endBytecode="176" sourcefile="GUIFrame.java" sourcepath="myxmltest/GUIFrame.java"/>
+    </Method>
+    <Method classname="mysax.SAXParserExample" name="main" signature="([Ljava/lang/String;)V" isStatic="true" role="METHOD_CALLED">
+      <SourceLine classname="mysax.SAXParserExample" start="111" end="113" startBytecode="0" endBytecode="72" sourcefile="SAXParserExample.java" sourcepath="mysax/SAXParserExample.java"/>
+    </Method>
+    <Int value="1" role="INT_NULL_ARG"/>
+    <SourceLine classname="myxmltest.GUIFrame" start="184" end="184" startBytecode="15" endBytecode="15" sourcefile="GUIFrame.java" sourcepath="myxmltest/GUIFrame.java"/>
+  </BugInstance>
+  <BugInstance type="DLS_DEAD_LOCAL_STORE" priority="2" abbrev="DLS" category="STYLE" first="1">
+    <Class classname="myxmltest.MyXMLTest">
+      <SourceLine classname="myxmltest.MyXMLTest" sourcefile="MyXMLTest.java" sourcepath="myxmltest/MyXMLTest.java"/>
+    </Class>
+    <Method classname="myxmltest.MyXMLTest" name="sampleMeth" signature="(Ljava/lang/String;I[B)Z" isStatic="true">
+      <SourceLine classname="myxmltest.MyXMLTest" start="34" end="37" startBytecode="0" endBytecode="9" sourcefile="MyXMLTest.java" sourcepath="myxmltest/MyXMLTest.java"/>
+    </Method>
+    <LocalVariable name="k" register="5" pc="12" role="LOCAL_VARIABLE_NAMED"/>
+    <SourceLine classname="myxmltest.MyXMLTest" start="36" end="36" startBytecode="10" endBytecode="10" sourcefile="MyXMLTest.java" sourcepath="myxmltest/MyXMLTest.java"/>
+    <Property name="edu.umd.cs.findbugs.detect.DeadLocalStoreProperty.BASE_VALUE" value="true"/>
+    <Property name="edu.umd.cs.findbugs.detect.DeadLocalStoreProperty.LOCAL_NAME" value="k"/>
+    <Property name="edu.umd.cs.findbugs.detect.DeadLocalStoreProperty.NO_LOADS" value="true"/>
+  </BugInstance>
+  <BugInstance type="MS_SHOULD_BE_FINAL" priority="1" abbrev="MS" category="MALICIOUS_CODE" first="1">
+    <Class classname="myxmltest.basic.Utils">
+      <SourceLine classname="myxmltest.basic.Utils" sourcefile="Utils.java" sourcepath="myxmltest/basic/Utils.java"/>
+    </Class>
+    <Field classname="myxmltest.basic.Utils" name="INTERNAL_XML_LOCATION" signature="Ljava/lang/String;" isStatic="true">
+      <SourceLine classname="myxmltest.basic.Utils" sourcefile="Utils.java" sourcepath="myxmltest/basic/Utils.java"/>
+    </Field>
+    <SourceLine classname="myxmltest.basic.Utils" start="14" end="14" startBytecode="2" endBytecode="2" sourcefile="Utils.java" sourcepath="myxmltest/basic/Utils.java"/>
+  </BugInstance>
+  <BugInstance type="OBL_UNSATISFIED_OBLIGATION" priority="2" abbrev="OBL" category="EXPERIMENTAL" first="1">
+    <Class classname="piccolotest.MyPiccoloExample">
+      <SourceLine classname="piccolotest.MyPiccoloExample" sourcefile="MyPiccoloExample.java" sourcepath="piccolotest/MyPiccoloExample.java"/>
+    </Class>
+    <Method classname="piccolotest.MyPiccoloExample" name="parseDocument" signature="()V" isStatic="false">
+      <SourceLine classname="piccolotest.MyPiccoloExample" start="46" end="65" startBytecode="0" endBytecode="269" sourcefile="MyPiccoloExample.java" sourcepath="piccolotest/MyPiccoloExample.java"/>
+    </Method>
+    <Class classname="java.io.InputStream" role="CLASS_REFTYPE">
+      <SourceLine classname="java.io.InputStream"/>
+    </Class>
+    <Int value="2" role="INT_OBLIGATIONS_REMAINING"/>
+    <SourceLine classname="piccolotest.MyPiccoloExample" start="54" end="54" startBytecode="16" endBytecode="16" sourcefile="MyPiccoloExample.java" sourcepath="piccolotest/MyPiccoloExample.java" role="SOURCE_LINE_OBLIGATION_CREATED"/>
+    <SourceLine classname="piccolotest.MyPiccoloExample" start="56" end="56" startBytecode="29" endBytecode="29" sourcefile="MyPiccoloExample.java" sourcepath="piccolotest/MyPiccoloExample.java" role="SOURCE_LINE_PATH_CONTINUES"/>
+    <SourceLine classname="piccolotest.MyPiccoloExample" start="56" end="56" startBytecode="38" endBytecode="38" sourcefile="MyPiccoloExample.java" sourcepath="piccolotest/MyPiccoloExample.java" role="SOURCE_LINE_OBLIGATION_CREATED"/>
+    <SourceLine classname="piccolotest.MyPiccoloExample" start="64" end="64" startBytecode="44" endBytecode="44" sourcefile="MyPiccoloExample.java" sourcepath="piccolotest/MyPiccoloExample.java" role="SOURCE_LINE_PATH_CONTINUES"/>
+    <SourceLine classname="piccolotest.MyPiccoloExample" start="65" end="65" startBytecode="68" endBytecode="68" sourcefile="MyPiccoloExample.java" sourcepath="piccolotest/MyPiccoloExample.java" role="SOURCE_LINE_PATH_CONTINUES"/>
+    <String value="{InputStream x 2}" role="STRING_REMAINING_OBLIGATIONS"/>
+  </BugInstance>
+  <BugInstance type="XXE" priority="2" abbrev="SECXXE" category="SECURITY" first="1">
+    <Class classname="piccolotest.MyPiccoloExample">
+      <SourceLine classname="piccolotest.MyPiccoloExample" sourcefile="MyPiccoloExample.java" sourcepath="piccolotest/MyPiccoloExample.java"/>
+    </Class>
+    <Method classname="piccolotest.MyPiccoloExample" name="parseDocument" signature="()V" isStatic="false">
+      <SourceLine classname="piccolotest.MyPiccoloExample" start="46" end="65" startBytecode="0" endBytecode="269" sourcefile="MyPiccoloExample.java" sourcepath="piccolotest/MyPiccoloExample.java"/>
+    </Method>
+    <SourceLine classname="piccolotest.MyPiccoloExample" start="54" end="54" startBytecode="26" endBytecode="26" sourcefile="MyPiccoloExample.java" sourcepath="piccolotest/MyPiccoloExample.java"/>
+    <String value="SAXParser.parse(...)"/>
+  </BugInstance>
+  <BugInstance type="SF_SWITCH_NO_DEFAULT" priority="2" abbrev="SF" category="STYLE" first="1">
+    <Class classname="stax.StAXExample">
+      <SourceLine classname="stax.StAXExample" sourcefile="StAXExample.java" sourcepath="stax/StAXExample.java"/>
+    </Class>
+    <Method classname="stax.StAXExample" name="main" signature="([Ljava/lang/String;)V" isStatic="true">
+      <SourceLine classname="stax.StAXExample" start="25" end="85" startBytecode="0" endBytecode="753" sourcefile="StAXExample.java" sourcepath="stax/StAXExample.java"/>
+    </Method>
+    <SourceLine classname="stax.StAXExample" start="55" end="66" startBytecode="299" endBytecode="365" sourcefile="StAXExample.java" sourcepath="stax/StAXExample.java"/>
+    <SourceLine classname="stax.StAXExample" start="39" end="72" startBytecode="58" endBytecode="376" sourcefile="StAXExample.java" sourcepath="stax/StAXExample.java" role="SOURCE_LINE_ANOTHER_INSTANCE"/>
+  </BugInstance>
+  <Errors errors="0" missingClasses="0"></Errors>
+  <FindBugsSummary timestamp="Thu, 4 Sep 2014 09:15:08 +0100" total_classes="20" referenced_classes="344" total_bugs="23" total_size="569" num_packages="13" vm_version="24.45-b08" cpu_seconds="6.55" clock_seconds="54.16" peak_mbytes="363.61" alloc_mbytes="683.00" gc_seconds="16.92" priority_2="18" priority_1="5">
+    <PackageStats package="a" total_bugs="4" total_types="1" total_size="27" priority_2="3" priority_1="1">
+      <ClassStats class="a.PrettyPrinter" sourceFile="PrettyPrinter.java" interface="false" size="27" bugs="4" priority_2="3" priority_1="1"/>
+    </PackageStats>
+    <PackageStats package="b" total_bugs="2" total_types="1" total_size="24" priority_2="2">
+      <ClassStats class="b.PrettyPrinter2" sourceFile="PrettyPrinter2.java" interface="false" size="24" bugs="2" priority_2="2"/>
+    </PackageStats>
+    <PackageStats package="dom4j" total_bugs="1" total_types="1" total_size="23" priority_2="1">
+      <ClassStats class="dom4j.Dom4JExample" sourceFile="Dom4JExample.java" interface="false" size="23" bugs="1" priority_2="1"/>
+    </PackageStats>
+    <PackageStats package="jaxb" total_bugs="1" total_types="1" total_size="7" priority_2="1">
+      <ClassStats class="jaxb.JAXBExample" sourceFile="JAXBExample.java" interface="false" size="7" bugs="1" priority_2="1"/>
+    </PackageStats>
+    <PackageStats package="kxml2" total_bugs="0" total_types="1" total_size="3">
+      <ClassStats class="kxml2.KXMLExample" sourceFile="KXMLExample.java" interface="false" size="3" bugs="0"/>
+    </PackageStats>
+    <PackageStats package="mydom" total_bugs="2" total_types="1" total_size="66" priority_2="2">
+      <ClassStats class="mydom.DomParserExample" sourceFile="DomParserExample.java" interface="false" size="66" bugs="2" priority_2="2"/>
+    </PackageStats>
+    <PackageStats package="myjdom" total_bugs="0" total_types="1" total_size="12">
+      <ClassStats class="myjdom.PrettyPrinter" sourceFile="PrettyPrinter.java" interface="false" size="12" bugs="0"/>
+    </PackageStats>
+    <PackageStats package="mysax" total_bugs="2" total_types="1" total_size="59" priority_2="2">
+      <ClassStats class="mysax.SAXParserExample" sourceFile="SAXParserExample.java" interface="false" size="59" bugs="2" priority_2="2"/>
+    </PackageStats>
+    <PackageStats package="mysax2" total_bugs="2" total_types="1" total_size="26" priority_2="2">
+      <ClassStats class="mysax2.XMLReaderExample" sourceFile="XMLReaderExample.java" interface="false" size="26" bugs="2" priority_2="2"/>
+    </PackageStats>
+    <PackageStats package="myxmltest" total_bugs="5" total_types="8" total_size="253" priority_2="2" priority_1="3">
+      <ClassStats class="myxmltest.Employee" sourceFile="Employee.java" interface="false" size="47" bugs="0"/>
+      <ClassStats class="myxmltest.GUIFrame" sourceFile="GUIFrame.java" interface="false" size="117" bugs="4" priority_2="1" priority_1="3"/>
+      <ClassStats class="myxmltest.GUIFrame$1" sourceFile="GUIFrame.java" interface="false" size="7" bugs="0"/>
+      <ClassStats class="myxmltest.GUIFrame$2" sourceFile="GUIFrame.java" interface="false" size="7" bugs="0"/>
+      <ClassStats class="myxmltest.GUIFrame$3" sourceFile="GUIFrame.java" interface="false" size="7" bugs="0"/>
+      <ClassStats class="myxmltest.GUIFrame$4" sourceFile="GUIFrame.java" interface="false" size="6" bugs="0"/>
+      <ClassStats class="myxmltest.MyDefaultHandler" sourceFile="MyDefaultHandler.java" interface="false" size="45" bugs="0"/>
+      <ClassStats class="myxmltest.MyXMLTest" sourceFile="MyXMLTest.java" interface="false" size="17" bugs="1" priority_2="1"/>
+    </PackageStats>
+    <PackageStats package="myxmltest.basic" total_bugs="1" total_types="1" total_size="8" priority_1="1">
+      <ClassStats class="myxmltest.basic.Utils" sourceFile="Utils.java" interface="false" size="8" bugs="1" priority_1="1"/>
+    </PackageStats>
+    <PackageStats package="piccolotest" total_bugs="2" total_types="1" total_size="26" priority_2="2">
+      <ClassStats class="piccolotest.MyPiccoloExample" sourceFile="MyPiccoloExample.java" interface="false" size="26" bugs="2" priority_2="2"/>
+    </PackageStats>
+    <PackageStats package="stax" total_bugs="1" total_types="1" total_size="35" priority_2="1">
+      <ClassStats class="stax.StAXExample" sourceFile="StAXExample.java" interface="false" size="35" bugs="1" priority_2="1"/>
+    </PackageStats>
+    <FindBugsProfile>
+      <ClassProfile name="edu.umd.cs.findbugs.classfile.engine.ClassInfoAnalysisEngine" totalMilliseconds="30109" invocations="1576" avgMicrosecondsPerInvocation="19104" maxMicrosecondsPerInvocation="16582602" standardDeviationMircosecondsPerInvocation="418936"/>
+    </FindBugsProfile>
+  </FindBugsSummary>
+  <ClassFeatures></ClassFeatures>
+  <History>
+    <AppVersion sequence="0" timestamp="1406038724021" release="" codeSize="710" numClasses="22"/>
+  </History>
+</BugCollection>

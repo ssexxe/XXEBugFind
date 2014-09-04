@@ -1,0 +1,541 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<BugCollection version="2.0.3" sequence="0" timestamp="1407844048000" analysisTimestamp="1408103228438" release="">
+  <Project projectName="igpp xml">
+    <Jar>C:\Users\Mikosh\Documents\NetbeansProjects\xmlmaster2\dist\xmlmaster2.jar</Jar>
+    <AuxClasspathEntry>C:\Users\Mikosh\Documents\NetbeansProjects\xmlmaster2\dist\lib\commons-cli-1.1.jar</AuxClasspathEntry>
+    <AuxClasspathEntry>C:\Users\Mikosh\Documents\NetbeansProjects\xmlmaster2\dist\lib\core-renderer-R8pre2.jar</AuxClasspathEntry>
+    <AuxClasspathEntry>C:\Users\Mikosh\Documents\NetbeansProjects\xmlmaster2\dist\lib\dom4j-1.6.1.jar</AuxClasspathEntry>
+    <AuxClasspathEntry>C:\Users\Mikosh\Documents\NetbeansProjects\xmlmaster2\dist\lib\htmlcleaner-2.2.jar</AuxClasspathEntry>
+    <AuxClasspathEntry>C:\Users\Mikosh\Documents\NetbeansProjects\xmlmaster2\dist\lib\iText-2.0.8.jar</AuxClasspathEntry>
+    <AuxClasspathEntry>C:\Users\Mikosh\Documents\NetbeansProjects\xmlmaster2\dist\lib\igpp-util-1.0.8.jar</AuxClasspathEntry>
+    <AuxClasspathEntry>C:\Users\Mikosh\Documents\NetbeansProjects\xmlmaster2\dist\lib\javax.servlet.jar</AuxClasspathEntry>
+    <AuxClasspathEntry>C:\Users\Mikosh\Documents\NetbeansProjects\xmlmaster2\dist\lib\javax.servlet.jsp.jar</AuxClasspathEntry>
+    <AuxClasspathEntry>C:\Users\Mikosh\Documents\NetbeansProjects\xmlmaster2\dist\lib\saxon9he.jar</AuxClasspathEntry>
+    <SrcDir>C:\Users\Mikosh\Documents\NetbeansProjects\xmlmaster2\src</SrcDir>
+  </Project>
+  <BugInstance type="DM_DEFAULT_ENCODING" priority="1" abbrev="Dm" category="I18N">
+    <Class classname="igpp.xml.ToPDF">
+      <SourceLine classname="igpp.xml.ToPDF" sourcefile="ToPDF.java" sourcepath="igpp/xml/ToPDF.java"/>
+    </Class>
+    <Method classname="igpp.xml.ToPDF" name="main" signature="([Ljava/lang/String;)V" isStatic="true">
+      <SourceLine classname="igpp.xml.ToPDF" start="34" end="63" startBytecode="0" endBytecode="432" sourcefile="ToPDF.java" sourcepath="igpp/xml/ToPDF.java"/>
+    </Method>
+    <Method classname="java.io.PrintStream" name="&lt;init&gt;" signature="(Ljava/lang/String;)V" isStatic="false" role="METHOD_CALLED">
+      <SourceLine classname="java.io.PrintStream"/>
+    </Method>
+    <SourceLine classname="igpp.xml.ToPDF" start="48" end="48" startBytecode="92" endBytecode="92" sourcefile="ToPDF.java" sourcepath="igpp/xml/ToPDF.java"/>
+  </BugInstance>
+  <BugInstance type="PATH_TRAVERSAL_IN" priority="2" abbrev="SECPTI" category="SECURITY">
+    <Class classname="igpp.xml.ToPDF">
+      <SourceLine classname="igpp.xml.ToPDF" sourcefile="ToPDF.java" sourcepath="igpp/xml/ToPDF.java"/>
+    </Class>
+    <Method classname="igpp.xml.ToPDF" name="fileToPDF" signature="(Ljava/lang/String;Ljava/io/PrintStream;)V" isStatic="true">
+      <SourceLine classname="igpp.xml.ToPDF" start="94" end="103" startBytecode="0" endBytecode="140" sourcefile="ToPDF.java" sourcepath="igpp/xml/ToPDF.java"/>
+    </Method>
+    <SourceLine classname="igpp.xml.ToPDF" start="94" end="94" startBytecode="5" endBytecode="5" sourcefile="ToPDF.java" sourcepath="igpp/xml/ToPDF.java"/>
+    <String value="java.io.File"/>
+  </BugInstance>
+  <BugInstance type="DM_DEFAULT_ENCODING" priority="1" abbrev="Dm" category="I18N">
+    <Class classname="igpp.xml.ToXHTML">
+      <SourceLine classname="igpp.xml.ToXHTML" sourcefile="ToXHTML.java" sourcepath="igpp/xml/ToXHTML.java"/>
+    </Class>
+    <Method classname="igpp.xml.ToXHTML" name="fileToXHTML" signature="(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;" isStatic="true">
+      <SourceLine classname="igpp.xml.ToXHTML" start="106" end="126" startBytecode="0" endBytecode="261" sourcefile="ToXHTML.java" sourcepath="igpp/xml/ToXHTML.java"/>
+    </Method>
+    <Method classname="java.io.FileReader" name="&lt;init&gt;" signature="(Ljava/io/File;)V" isStatic="false" role="METHOD_CALLED">
+      <SourceLine classname="java.io.FileReader"/>
+    </Method>
+    <SourceLine classname="igpp.xml.ToXHTML" start="107" end="107" startBytecode="14" endBytecode="14" sourcefile="ToXHTML.java" sourcepath="igpp/xml/ToXHTML.java"/>
+  </BugInstance>
+  <BugInstance type="DM_DEFAULT_ENCODING" priority="1" abbrev="Dm" category="I18N">
+    <Class classname="igpp.xml.ToXHTML">
+      <SourceLine classname="igpp.xml.ToXHTML" sourcefile="ToXHTML.java" sourcepath="igpp/xml/ToXHTML.java"/>
+    </Class>
+    <Method classname="igpp.xml.ToXHTML" name="main" signature="([Ljava/lang/String;)V" isStatic="true">
+      <SourceLine classname="igpp.xml.ToXHTML" start="40" end="71" startBytecode="0" endBytecode="483" sourcefile="ToXHTML.java" sourcepath="igpp/xml/ToXHTML.java"/>
+    </Method>
+    <Method classname="java.io.PrintStream" name="&lt;init&gt;" signature="(Ljava/lang/String;)V" isStatic="false" role="METHOD_CALLED">
+      <SourceLine classname="java.io.PrintStream"/>
+    </Method>
+    <SourceLine classname="igpp.xml.ToXHTML" start="56" end="56" startBytecode="114" endBytecode="114" sourcefile="ToXHTML.java" sourcepath="igpp/xml/ToXHTML.java"/>
+  </BugInstance>
+  <BugInstance type="OBL_UNSATISFIED_OBLIGATION" priority="2" abbrev="OBL" category="EXPERIMENTAL">
+    <Class classname="igpp.xml.ToXHTML">
+      <SourceLine classname="igpp.xml.ToXHTML" sourcefile="ToXHTML.java" sourcepath="igpp/xml/ToXHTML.java"/>
+    </Class>
+    <Method classname="igpp.xml.ToXHTML" name="fileToXHTML" signature="(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;" isStatic="true">
+      <SourceLine classname="igpp.xml.ToXHTML" start="106" end="126" startBytecode="0" endBytecode="261" sourcefile="ToXHTML.java" sourcepath="igpp/xml/ToXHTML.java"/>
+    </Method>
+    <Class classname="java.io.Reader" role="CLASS_REFTYPE">
+      <SourceLine classname="java.io.Reader"/>
+    </Class>
+    <Int value="1" role="INT_OBLIGATIONS_REMAINING"/>
+    <SourceLine classname="igpp.xml.ToXHTML" start="107" end="107" startBytecode="14" endBytecode="14" sourcefile="ToXHTML.java" sourcepath="igpp/xml/ToXHTML.java" role="SOURCE_LINE_OBLIGATION_CREATED"/>
+    <SourceLine classname="igpp.xml.ToXHTML" start="109" end="109" startBytecode="18" endBytecode="18" sourcefile="ToXHTML.java" sourcepath="igpp/xml/ToXHTML.java" role="SOURCE_LINE_PATH_CONTINUES"/>
+    <SourceLine classname="igpp.xml.ToXHTML" start="113" end="113" startBytecode="27" endBytecode="27" sourcefile="ToXHTML.java" sourcepath="igpp/xml/ToXHTML.java" role="SOURCE_LINE_PATH_CONTINUES"/>
+    <SourceLine classname="igpp.xml.ToXHTML" start="114" end="114" startBytecode="33" endBytecode="33" sourcefile="ToXHTML.java" sourcepath="igpp/xml/ToXHTML.java" role="SOURCE_LINE_PATH_CONTINUES"/>
+    <SourceLine classname="igpp.xml.ToXHTML" start="115" end="115" startBytecode="39" endBytecode="39" sourcefile="ToXHTML.java" sourcepath="igpp/xml/ToXHTML.java" role="SOURCE_LINE_PATH_CONTINUES"/>
+    <SourceLine classname="igpp.xml.ToXHTML" start="118" end="118" startBytecode="45" endBytecode="45" sourcefile="ToXHTML.java" sourcepath="igpp/xml/ToXHTML.java" role="SOURCE_LINE_PATH_CONTINUES"/>
+    <SourceLine classname="igpp.xml.ToXHTML" start="121" end="121" startBytecode="60" endBytecode="60" sourcefile="ToXHTML.java" sourcepath="igpp/xml/ToXHTML.java" role="SOURCE_LINE_PATH_CONTINUES"/>
+    <SourceLine classname="igpp.xml.ToXHTML" start="124" end="124" startBytecode="70" endBytecode="70" sourcefile="ToXHTML.java" sourcepath="igpp/xml/ToXHTML.java" role="SOURCE_LINE_PATH_CONTINUES"/>
+    <SourceLine classname="igpp.xml.ToXHTML" start="126" end="126" startBytecode="81" endBytecode="81" sourcefile="ToXHTML.java" sourcepath="igpp/xml/ToXHTML.java" role="SOURCE_LINE_PATH_CONTINUES"/>
+    <String value="{Reader x 1}" role="STRING_REMAINING_OBLIGATIONS"/>
+  </BugInstance>
+  <BugInstance type="OS_OPEN_STREAM" priority="2" abbrev="OS" category="BAD_PRACTICE">
+    <Class classname="igpp.xml.ToXHTML">
+      <SourceLine classname="igpp.xml.ToXHTML" sourcefile="ToXHTML.java" sourcepath="igpp/xml/ToXHTML.java"/>
+    </Class>
+    <Method classname="igpp.xml.ToXHTML" name="main" signature="([Ljava/lang/String;)V" isStatic="true">
+      <SourceLine classname="igpp.xml.ToXHTML" start="40" end="71" startBytecode="0" endBytecode="94" sourcefile="ToXHTML.java" sourcepath="igpp/xml/ToXHTML.java"/>
+    </Method>
+    <Type descriptor="Ljava/io/OutputStream;" role="TYPE_CLOSEIT">
+      <SourceLine classname="java.io.OutputStream"/>
+    </Type>
+    <SourceLine classname="igpp.xml.ToXHTML" start="56" end="56" startBytecode="109" endBytecode="109" sourcefile="ToXHTML.java" sourcepath="igpp/xml/ToXHTML.java"/>
+  </BugInstance>
+  <BugInstance type="PATH_TRAVERSAL_IN" priority="2" abbrev="SECPTI" category="SECURITY">
+    <Class classname="igpp.xml.ToXHTML">
+      <SourceLine classname="igpp.xml.ToXHTML" sourcefile="ToXHTML.java" sourcepath="igpp/xml/ToXHTML.java"/>
+    </Class>
+    <Method classname="igpp.xml.ToXHTML" name="fileToXHTML" signature="(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;" isStatic="true">
+      <SourceLine classname="igpp.xml.ToXHTML" start="106" end="126" startBytecode="0" endBytecode="261" sourcefile="ToXHTML.java" sourcepath="igpp/xml/ToXHTML.java"/>
+    </Method>
+    <SourceLine classname="igpp.xml.ToXHTML" start="106" end="106" startBytecode="5" endBytecode="5" sourcefile="ToXHTML.java" sourcepath="igpp/xml/ToXHTML.java"/>
+    <String value="java.io.File"/>
+  </BugInstance>
+  <BugInstance type="DM_DEFAULT_ENCODING" priority="1" abbrev="Dm" category="I18N">
+    <Class classname="igpp.xml.ToXML">
+      <SourceLine classname="igpp.xml.ToXML" sourcefile="ToXML.java" sourcepath="igpp/xml/ToXML.java"/>
+    </Class>
+    <Method classname="igpp.xml.ToXML" name="fileToXML" signature="(Ljava/lang/String;)Ljava/lang/String;" isStatic="true">
+      <SourceLine classname="igpp.xml.ToXML" start="104" end="116" startBytecode="0" endBytecode="329" sourcefile="ToXML.java" sourcepath="igpp/xml/ToXML.java"/>
+    </Method>
+    <Method classname="java.lang.String" name="&lt;init&gt;" signature="([B)V" isStatic="false" role="METHOD_CALLED">
+      <SourceLine classname="java.lang.String"/>
+    </Method>
+    <SourceLine classname="igpp.xml.ToXML" start="112" end="112" startBytecode="77" endBytecode="77" sourcefile="ToXML.java" sourcepath="igpp/xml/ToXML.java"/>
+  </BugInstance>
+  <BugInstance type="DM_DEFAULT_ENCODING" priority="1" abbrev="Dm" category="I18N">
+    <Class classname="igpp.xml.ToXML">
+      <SourceLine classname="igpp.xml.ToXML" sourcefile="ToXML.java" sourcepath="igpp/xml/ToXML.java"/>
+    </Class>
+    <Method classname="igpp.xml.ToXML" name="main" signature="([Ljava/lang/String;)V" isStatic="true">
+      <SourceLine classname="igpp.xml.ToXML" start="47" end="77" startBytecode="0" endBytecode="480" sourcefile="ToXML.java" sourcepath="igpp/xml/ToXML.java"/>
+    </Method>
+    <Method classname="java.io.PrintStream" name="&lt;init&gt;" signature="(Ljava/lang/String;)V" isStatic="false" role="METHOD_CALLED">
+      <SourceLine classname="java.io.PrintStream"/>
+    </Method>
+    <SourceLine classname="igpp.xml.ToXML" start="63" end="63" startBytecode="128" endBytecode="128" sourcefile="ToXML.java" sourcepath="igpp/xml/ToXML.java"/>
+  </BugInstance>
+  <BugInstance type="OS_OPEN_STREAM" priority="2" abbrev="OS" category="BAD_PRACTICE">
+    <Class classname="igpp.xml.ToXML">
+      <SourceLine classname="igpp.xml.ToXML" sourcefile="ToXML.java" sourcepath="igpp/xml/ToXML.java"/>
+    </Class>
+    <Method classname="igpp.xml.ToXML" name="main" signature="([Ljava/lang/String;)V" isStatic="true">
+      <SourceLine classname="igpp.xml.ToXML" start="47" end="77" startBytecode="0" endBytecode="98" sourcefile="ToXML.java" sourcepath="igpp/xml/ToXML.java"/>
+    </Method>
+    <Type descriptor="Ljava/io/OutputStream;" role="TYPE_CLOSEIT">
+      <SourceLine classname="java.io.OutputStream"/>
+    </Type>
+    <SourceLine classname="igpp.xml.ToXML" start="63" end="63" startBytecode="123" endBytecode="123" sourcefile="ToXML.java" sourcepath="igpp/xml/ToXML.java"/>
+  </BugInstance>
+  <BugInstance type="PATH_TRAVERSAL_IN" priority="2" abbrev="SECPTI" category="SECURITY">
+    <Class classname="igpp.xml.ToXML">
+      <SourceLine classname="igpp.xml.ToXML" sourcefile="ToXML.java" sourcepath="igpp/xml/ToXML.java"/>
+    </Class>
+    <Method classname="igpp.xml.ToXML" name="fileToXML" signature="(Ljava/lang/String;)Ljava/lang/String;" isStatic="true">
+      <SourceLine classname="igpp.xml.ToXML" start="104" end="116" startBytecode="0" endBytecode="329" sourcefile="ToXML.java" sourcepath="igpp/xml/ToXML.java"/>
+    </Method>
+    <SourceLine classname="igpp.xml.ToXML" start="104" end="104" startBytecode="5" endBytecode="5" sourcefile="ToXML.java" sourcepath="igpp/xml/ToXML.java"/>
+    <String value="java.io.File"/>
+  </BugInstance>
+  <BugInstance type="PATH_TRAVERSAL_IN" priority="2" abbrev="SECPTI" category="SECURITY">
+    <Class classname="igpp.xml.ToXML">
+      <SourceLine classname="igpp.xml.ToXML" sourcefile="ToXML.java" sourcepath="igpp/xml/ToXML.java"/>
+    </Class>
+    <Method classname="igpp.xml.ToXML" name="fileToXML" signature="(Ljava/lang/String;)Ljava/lang/String;" isStatic="true">
+      <SourceLine classname="igpp.xml.ToXML" start="104" end="116" startBytecode="0" endBytecode="329" sourcefile="ToXML.java" sourcepath="igpp/xml/ToXML.java"/>
+    </Method>
+    <SourceLine classname="igpp.xml.ToXML" start="107" end="107" startBytecode="26" endBytecode="26" sourcefile="ToXML.java" sourcepath="igpp/xml/ToXML.java"/>
+    <String value="java.io.FileInputStream"/>
+  </BugInstance>
+  <BugInstance type="DM_DEFAULT_ENCODING" priority="1" abbrev="Dm" category="I18N">
+    <Class classname="igpp.xml.ToXML2">
+      <SourceLine classname="igpp.xml.ToXML2" sourcefile="ToXML2.java" sourcepath="igpp/xml/ToXML2.java"/>
+    </Class>
+    <Method classname="igpp.xml.ToXML2" name="fileToXML" signature="(Ljava/lang/String;)Ljava/lang/String;" isStatic="true">
+      <SourceLine classname="igpp.xml.ToXML2" start="98" end="108" startBytecode="0" endBytecode="229" sourcefile="ToXML2.java" sourcepath="igpp/xml/ToXML2.java"/>
+    </Method>
+    <Method classname="java.lang.String" name="&lt;init&gt;" signature="([B)V" isStatic="false" role="METHOD_CALLED">
+      <SourceLine classname="java.lang.String"/>
+    </Method>
+    <SourceLine classname="igpp.xml.ToXML2" start="104" end="104" startBytecode="75" endBytecode="75" sourcefile="ToXML2.java" sourcepath="igpp/xml/ToXML2.java"/>
+  </BugInstance>
+  <BugInstance type="DM_DEFAULT_ENCODING" priority="1" abbrev="Dm" category="I18N">
+    <Class classname="igpp.xml.ToXML2">
+      <SourceLine classname="igpp.xml.ToXML2" sourcefile="ToXML2.java" sourcepath="igpp/xml/ToXML2.java"/>
+    </Class>
+    <Method classname="igpp.xml.ToXML2" name="main" signature="([Ljava/lang/String;)V" isStatic="true">
+      <SourceLine classname="igpp.xml.ToXML2" start="43" end="71" startBytecode="0" endBytecode="435" sourcefile="ToXML2.java" sourcepath="igpp/xml/ToXML2.java"/>
+    </Method>
+    <Method classname="java.io.PrintStream" name="&lt;init&gt;" signature="(Ljava/lang/String;)V" isStatic="false" role="METHOD_CALLED">
+      <SourceLine classname="java.io.PrintStream"/>
+    </Method>
+    <SourceLine classname="igpp.xml.ToXML2" start="57" end="57" startBytecode="92" endBytecode="92" sourcefile="ToXML2.java" sourcepath="igpp/xml/ToXML2.java"/>
+  </BugInstance>
+  <BugInstance type="DM_DEFAULT_ENCODING" priority="1" abbrev="Dm" category="I18N">
+    <Class classname="igpp.xml.ToXML2">
+      <SourceLine classname="igpp.xml.ToXML2" sourcefile="ToXML2.java" sourcepath="igpp/xml/ToXML2.java"/>
+    </Class>
+    <Method classname="igpp.xml.ToXML2" name="stringToXML" signature="(Ljava/lang/String;)Ljava/lang/String;" isStatic="true">
+      <SourceLine classname="igpp.xml.ToXML2" start="113" end="122" startBytecode="0" endBytecode="238" sourcefile="ToXML2.java" sourcepath="igpp/xml/ToXML2.java"/>
+    </Method>
+    <Method classname="java.lang.String" name="&lt;init&gt;" signature="([B)V" isStatic="false" role="METHOD_CALLED">
+      <SourceLine classname="java.lang.String"/>
+    </Method>
+    <SourceLine classname="igpp.xml.ToXML2" start="119" end="119" startBytecode="85" endBytecode="85" sourcefile="ToXML2.java" sourcepath="igpp/xml/ToXML2.java"/>
+  </BugInstance>
+  <BugInstance type="DM_DEFAULT_ENCODING" priority="1" abbrev="Dm" category="I18N">
+    <Class classname="igpp.xml.ToXML2">
+      <SourceLine classname="igpp.xml.ToXML2" sourcefile="ToXML2.java" sourcepath="igpp/xml/ToXML2.java"/>
+    </Class>
+    <Method classname="igpp.xml.ToXML2" name="stringToXML" signature="(Ljava/lang/String;)Ljava/lang/String;" isStatic="true">
+      <SourceLine classname="igpp.xml.ToXML2" start="113" end="122" startBytecode="0" endBytecode="238" sourcefile="ToXML2.java" sourcepath="igpp/xml/ToXML2.java"/>
+    </Method>
+    <Method classname="java.lang.String" name="getBytes" signature="()[B" isStatic="false" role="METHOD_CALLED">
+      <SourceLine classname="java.lang.String"/>
+    </Method>
+    <SourceLine classname="igpp.xml.ToXML2" start="116" end="116" startBytecode="37" endBytecode="37" sourcefile="ToXML2.java" sourcepath="igpp/xml/ToXML2.java"/>
+  </BugInstance>
+  <BugInstance type="OS_OPEN_STREAM" priority="2" abbrev="OS" category="BAD_PRACTICE">
+    <Class classname="igpp.xml.ToXML2">
+      <SourceLine classname="igpp.xml.ToXML2" sourcefile="ToXML2.java" sourcepath="igpp/xml/ToXML2.java"/>
+    </Class>
+    <Method classname="igpp.xml.ToXML2" name="main" signature="([Ljava/lang/String;)V" isStatic="true">
+      <SourceLine classname="igpp.xml.ToXML2" start="43" end="71" startBytecode="0" endBytecode="83" sourcefile="ToXML2.java" sourcepath="igpp/xml/ToXML2.java"/>
+    </Method>
+    <Type descriptor="Ljava/io/OutputStream;" role="TYPE_CLOSEIT">
+      <SourceLine classname="java.io.OutputStream"/>
+    </Type>
+    <SourceLine classname="igpp.xml.ToXML2" start="57" end="57" startBytecode="87" endBytecode="87" sourcefile="ToXML2.java" sourcepath="igpp/xml/ToXML2.java"/>
+  </BugInstance>
+  <BugInstance type="PATH_TRAVERSAL_IN" priority="2" abbrev="SECPTI" category="SECURITY">
+    <Class classname="igpp.xml.Transform">
+      <SourceLine classname="igpp.xml.Transform" sourcefile="Transform.java" sourcepath="igpp/xml/Transform.java"/>
+    </Class>
+    <Method classname="igpp.xml.Transform" name="getTransformer" signature="(Ljava/lang/String;Ljava/util/HashMap;)Ljavax/xml/transform/Transformer;" isStatic="true">
+      <SourceLine classname="igpp.xml.Transform" start="98" end="109" startBytecode="0" endBytecode="202" sourcefile="Transform.java" sourcepath="igpp/xml/Transform.java"/>
+    </Method>
+    <SourceLine classname="igpp.xml.Transform" start="103" end="103" startBytecode="35" endBytecode="35" sourcefile="Transform.java" sourcepath="igpp/xml/Transform.java"/>
+    <String value="java.io.File"/>
+  </BugInstance>
+  <BugInstance type="PATH_TRAVERSAL_IN" priority="2" abbrev="SECPTI" category="SECURITY">
+    <Class classname="igpp.xml.Transform">
+      <SourceLine classname="igpp.xml.Transform" sourcefile="Transform.java" sourcepath="igpp/xml/Transform.java"/>
+    </Class>
+    <Method classname="igpp.xml.Transform" name="perform" signature="(Ljava/lang/String;Ljava/lang/String;Ljava/io/PrintStream;)V" isStatic="true">
+      <SourceLine classname="igpp.xml.Transform" start="203" end="209" startBytecode="0" endBytecode="157" sourcefile="Transform.java" sourcepath="igpp/xml/Transform.java"/>
+    </Method>
+    <SourceLine classname="igpp.xml.Transform" start="205" end="205" startBytecode="10" endBytecode="10" sourcefile="Transform.java" sourcepath="igpp/xml/Transform.java"/>
+    <String value="java.io.FileInputStream"/>
+  </BugInstance>
+  <BugInstance type="PATH_TRAVERSAL_IN" priority="2" abbrev="SECPTI" category="SECURITY">
+    <Class classname="igpp.xml.Transform">
+      <SourceLine classname="igpp.xml.Transform" sourcefile="Transform.java" sourcepath="igpp/xml/Transform.java"/>
+    </Class>
+    <Method classname="igpp.xml.Transform" name="perform" signature="(Ljava/lang/String;Ljava/lang/String;Ljava/io/PrintWriter;)V" isStatic="true">
+      <SourceLine classname="igpp.xml.Transform" start="162" end="167" startBytecode="0" endBytecode="79" sourcefile="Transform.java" sourcepath="igpp/xml/Transform.java"/>
+    </Method>
+    <SourceLine classname="igpp.xml.Transform" start="162" end="162" startBytecode="5" endBytecode="5" sourcefile="Transform.java" sourcepath="igpp/xml/Transform.java"/>
+    <String value="java.io.FileInputStream"/>
+  </BugInstance>
+  <BugInstance type="PATH_TRAVERSAL_IN" priority="2" abbrev="SECPTI" category="SECURITY">
+    <Class classname="igpp.xml.Transform">
+      <SourceLine classname="igpp.xml.Transform" sourcefile="Transform.java" sourcepath="igpp/xml/Transform.java"/>
+    </Class>
+    <Method classname="igpp.xml.Transform" name="perform" signature="(Ljava/lang/String;Ljava/lang/String;Ljavax/servlet/jsp/JspWriter;)V" isStatic="true">
+      <SourceLine classname="igpp.xml.Transform" start="225" end="231" startBytecode="0" endBytecode="157" sourcefile="Transform.java" sourcepath="igpp/xml/Transform.java"/>
+    </Method>
+    <SourceLine classname="igpp.xml.Transform" start="227" end="227" startBytecode="10" endBytecode="10" sourcefile="Transform.java" sourcepath="igpp/xml/Transform.java"/>
+    <String value="java.io.FileInputStream"/>
+  </BugInstance>
+  <BugInstance type="DB_DUPLICATE_BRANCHES" priority="2" abbrev="DB" category="STYLE">
+    <Class classname="igpp.xml.XMLGrep">
+      <SourceLine classname="igpp.xml.XMLGrep" sourcefile="XMLGrep.java" sourcepath="igpp/xml/XMLGrep.java"/>
+    </Class>
+    <Method classname="igpp.xml.XMLGrep" name="main" signature="([Ljava/lang/String;)V" isStatic="true">
+      <SourceLine classname="igpp.xml.XMLGrep" start="78" end="140" startBytecode="0" endBytecode="1141" sourcefile="XMLGrep.java" sourcepath="igpp/xml/XMLGrep.java"/>
+    </Method>
+    <SourceLine classname="igpp.xml.XMLGrep" start="125" end="125" startBytecode="394" endBytecode="407" sourcefile="XMLGrep.java" sourcepath="igpp/xml/XMLGrep.java"/>
+    <SourceLine classname="igpp.xml.XMLGrep" start="126" end="126" startBytecode="410" endBytecode="420" sourcefile="XMLGrep.java" sourcepath="igpp/xml/XMLGrep.java"/>
+  </BugInstance>
+  <BugInstance type="DB_DUPLICATE_BRANCHES" priority="2" abbrev="DB" category="STYLE">
+    <Class classname="igpp.xml.XMLGrep">
+      <SourceLine classname="igpp.xml.XMLGrep" sourcefile="XMLGrep.java" sourcepath="igpp/xml/XMLGrep.java"/>
+    </Class>
+    <Method classname="igpp.xml.XMLGrep" name="main" signature="([Ljava/lang/String;)V" isStatic="true">
+      <SourceLine classname="igpp.xml.XMLGrep" start="78" end="140" startBytecode="0" endBytecode="1141" sourcefile="XMLGrep.java" sourcepath="igpp/xml/XMLGrep.java"/>
+    </Method>
+    <SourceLine classname="igpp.xml.XMLGrep" start="130" end="130" startBytecode="443" endBytecode="452" sourcefile="XMLGrep.java" sourcepath="igpp/xml/XMLGrep.java"/>
+    <SourceLine classname="igpp.xml.XMLGrep" start="131" end="131" startBytecode="455" endBytecode="461" sourcefile="XMLGrep.java" sourcepath="igpp/xml/XMLGrep.java"/>
+  </BugInstance>
+  <BugInstance type="DM_DEFAULT_ENCODING" priority="1" abbrev="Dm" category="I18N">
+    <Class classname="igpp.xml.XMLGrep">
+      <SourceLine classname="igpp.xml.XMLGrep" sourcefile="XMLGrep.java" sourcepath="igpp/xml/XMLGrep.java"/>
+    </Class>
+    <Method classname="igpp.xml.XMLGrep" name="parseString" signature="(Ljava/lang/String;)Lorg/w3c/dom/Document;" isStatic="true">
+      <SourceLine classname="igpp.xml.XMLGrep" start="254" end="255" startBytecode="0" endBytecode="72" sourcefile="XMLGrep.java" sourcepath="igpp/xml/XMLGrep.java"/>
+    </Method>
+    <Method classname="java.lang.String" name="getBytes" signature="()[B" isStatic="false" role="METHOD_CALLED">
+      <SourceLine classname="java.lang.String"/>
+    </Method>
+    <SourceLine classname="igpp.xml.XMLGrep" start="254" end="254" startBytecode="5" endBytecode="5" sourcefile="XMLGrep.java" sourcepath="igpp/xml/XMLGrep.java"/>
+  </BugInstance>
+  <BugInstance type="PATH_TRAVERSAL_IN" priority="2" abbrev="SECPTI" category="SECURITY">
+    <Class classname="igpp.xml.XMLGrep">
+      <SourceLine classname="igpp.xml.XMLGrep" sourcefile="XMLGrep.java" sourcepath="igpp/xml/XMLGrep.java"/>
+    </Class>
+    <Method classname="igpp.xml.XMLGrep" name="parse" signature="(Ljava/lang/String;)Lorg/w3c/dom/Document;" isStatic="true">
+      <SourceLine classname="igpp.xml.XMLGrep" start="225" end="238" startBytecode="0" endBytecode="209" sourcefile="XMLGrep.java" sourcepath="igpp/xml/XMLGrep.java"/>
+    </Method>
+    <SourceLine classname="igpp.xml.XMLGrep" start="232" end="232" startBytecode="54" endBytecode="54" sourcefile="XMLGrep.java" sourcepath="igpp/xml/XMLGrep.java"/>
+    <String value="java.io.FileInputStream"/>
+  </BugInstance>
+  <BugInstance type="DE_MIGHT_IGNORE" priority="2" abbrev="DE" category="BAD_PRACTICE">
+    <Class classname="igpp.xml.XMLParser">
+      <SourceLine classname="igpp.xml.XMLParser" sourcefile="XMLParser.java" sourcepath="igpp/xml/XMLParser.java"/>
+    </Class>
+    <Method classname="igpp.xml.XMLParser" name="setMember" signature="(Ljava/lang/String;Lorg/w3c/dom/Node;)V" isStatic="false">
+      <SourceLine classname="igpp.xml.XMLParser" start="624" end="644" startBytecode="0" endBytecode="328" sourcefile="XMLParser.java" sourcepath="igpp/xml/XMLParser.java"/>
+    </Method>
+    <Class classname="java.lang.Exception" role="CLASS_EXCEPTION">
+      <SourceLine classname="java.lang.Exception"/>
+    </Class>
+    <SourceLine classname="igpp.xml.XMLParser" start="641" end="641" startBytecode="96" endBytecode="96" sourcefile="XMLParser.java" sourcepath="igpp/xml/XMLParser.java"/>
+    <SourceLine classname="igpp.xml.XMLParser" start="641" end="641" startBytecode="96" endBytecode="96" sourcefile="XMLParser.java" sourcepath="igpp/xml/XMLParser.java"/>
+  </BugInstance>
+  <BugInstance type="DM_DEFAULT_ENCODING" priority="1" abbrev="Dm" category="I18N">
+    <Class classname="igpp.xml.XMLParser">
+      <SourceLine classname="igpp.xml.XMLParser" sourcefile="XMLParser.java" sourcepath="igpp/xml/XMLParser.java"/>
+    </Class>
+    <Method classname="igpp.xml.XMLParser" name="parseXMLString" signature="(Ljava/lang/String;)Z" isStatic="false">
+      <SourceLine classname="igpp.xml.XMLParser" start="241" end="242" startBytecode="0" endBytecode="83" sourcefile="XMLParser.java" sourcepath="igpp/xml/XMLParser.java"/>
+    </Method>
+    <Method classname="java.lang.String" name="getBytes" signature="()[B" isStatic="false" role="METHOD_CALLED">
+      <SourceLine classname="java.lang.String"/>
+    </Method>
+    <SourceLine classname="igpp.xml.XMLParser" start="241" end="241" startBytecode="5" endBytecode="5" sourcefile="XMLParser.java" sourcepath="igpp/xml/XMLParser.java"/>
+  </BugInstance>
+  <BugInstance type="DM_NUMBER_CTOR" priority="2" abbrev="Bx" category="PERFORMANCE">
+    <Class classname="igpp.xml.XMLParser">
+      <SourceLine classname="igpp.xml.XMLParser" sourcefile="XMLParser.java" sourcepath="igpp/xml/XMLParser.java"/>
+    </Class>
+    <Method classname="igpp.xml.XMLParser" name="&lt;init&gt;" signature="()V" isStatic="false">
+      <SourceLine classname="igpp.xml.XMLParser" start="60" end="61" startBytecode="0" endBytecode="110" sourcefile="XMLParser.java" sourcepath="igpp/xml/XMLParser.java"/>
+    </Method>
+    <Method classname="java.lang.Integer" name="&lt;init&gt;" signature="(I)V" isStatic="false" role="METHOD_CALLED">
+      <SourceLine classname="java.lang.Integer"/>
+    </Method>
+    <Method classname="java.lang.Integer" name="valueOf" signature="(I)Ljava/lang/Integer;" isStatic="true" role="SHOULD_CALL">
+      <SourceLine classname="java.lang.Integer"/>
+    </Method>
+    <SourceLine classname="igpp.xml.XMLParser" start="50" end="50" startBytecode="27" endBytecode="27" sourcefile="XMLParser.java" sourcepath="igpp/xml/XMLParser.java"/>
+  </BugInstance>
+  <BugInstance type="DM_NUMBER_CTOR" priority="2" abbrev="Bx" category="PERFORMANCE">
+    <Class classname="igpp.xml.XMLParser">
+      <SourceLine classname="igpp.xml.XMLParser" sourcefile="XMLParser.java" sourcepath="igpp/xml/XMLParser.java"/>
+    </Class>
+    <Method classname="igpp.xml.XMLParser" name="getBranchText" signature="(Lorg/w3c/dom/Node;)Ljava/lang/String;" isStatic="true">
+      <SourceLine classname="igpp.xml.XMLParser" start="828" end="855" startBytecode="0" endBytecode="360" sourcefile="XMLParser.java" sourcepath="igpp/xml/XMLParser.java"/>
+    </Method>
+    <Method classname="java.lang.Integer" name="&lt;init&gt;" signature="(I)V" isStatic="false" role="METHOD_CALLED">
+      <SourceLine classname="java.lang.Integer"/>
+    </Method>
+    <Method classname="java.lang.Integer" name="valueOf" signature="(I)Ljava/lang/Integer;" isStatic="true" role="SHOULD_CALL">
+      <SourceLine classname="java.lang.Integer"/>
+    </Method>
+    <SourceLine classname="igpp.xml.XMLParser" start="834" end="834" startBytecode="34" endBytecode="34" sourcefile="XMLParser.java" sourcepath="igpp/xml/XMLParser.java"/>
+  </BugInstance>
+  <BugInstance type="DM_NUMBER_CTOR" priority="2" abbrev="Bx" category="PERFORMANCE">
+    <Class classname="igpp.xml.XMLParser">
+      <SourceLine classname="igpp.xml.XMLParser" sourcefile="XMLParser.java" sourcepath="igpp/xml/XMLParser.java"/>
+    </Class>
+    <Method classname="igpp.xml.XMLParser" name="printXML" signature="(Ljava/io/PrintStream;)V" isStatic="false">
+      <SourceLine classname="igpp.xml.XMLParser" start="320" end="336" startBytecode="0" endBytecode="255" sourcefile="XMLParser.java" sourcepath="igpp/xml/XMLParser.java"/>
+    </Method>
+    <Method classname="java.lang.Integer" name="&lt;init&gt;" signature="(I)V" isStatic="false" role="METHOD_CALLED">
+      <SourceLine classname="java.lang.Integer"/>
+    </Method>
+    <Method classname="java.lang.Integer" name="valueOf" signature="(I)Ljava/lang/Integer;" isStatic="true" role="SHOULD_CALL">
+      <SourceLine classname="java.lang.Integer"/>
+    </Method>
+    <SourceLine classname="igpp.xml.XMLParser" start="322" end="322" startBytecode="12" endBytecode="12" sourcefile="XMLParser.java" sourcepath="igpp/xml/XMLParser.java"/>
+  </BugInstance>
+  <BugInstance type="OBL_UNSATISFIED_OBLIGATION_EXCEPTION_EDGE" priority="2" abbrev="OBL" category="EXPERIMENTAL">
+    <Class classname="igpp.xml.XMLParser">
+      <SourceLine classname="igpp.xml.XMLParser" sourcefile="XMLParser.java" sourcepath="igpp/xml/XMLParser.java"/>
+    </Class>
+    <Method classname="igpp.xml.XMLParser" name="parseXML" signature="(Ljava/lang/String;)Z" isStatic="false">
+      <SourceLine classname="igpp.xml.XMLParser" start="219" end="225" startBytecode="0" endBytecode="116" sourcefile="XMLParser.java" sourcepath="igpp/xml/XMLParser.java"/>
+    </Method>
+    <Class classname="java.io.InputStream" role="CLASS_REFTYPE">
+      <SourceLine classname="java.io.InputStream"/>
+    </Class>
+    <Int value="1" role="INT_OBLIGATIONS_REMAINING"/>
+    <SourceLine classname="igpp.xml.XMLParser" start="221" end="221" startBytecode="13" endBytecode="13" sourcefile="XMLParser.java" sourcepath="igpp/xml/XMLParser.java" role="SOURCE_LINE_OBLIGATION_CREATED"/>
+    <SourceLine classname="igpp.xml.XMLParser" start="222" end="222" startBytecode="17" endBytecode="17" sourcefile="XMLParser.java" sourcepath="igpp/xml/XMLParser.java" role="SOURCE_LINE_PATH_CONTINUES"/>
+    <String value="{InputStream x 1}" role="STRING_REMAINING_OBLIGATIONS"/>
+  </BugInstance>
+  <BugInstance type="PATH_TRAVERSAL_IN" priority="2" abbrev="SECPTI" category="SECURITY">
+    <Class classname="igpp.xml.XMLParser">
+      <SourceLine classname="igpp.xml.XMLParser" sourcefile="XMLParser.java" sourcepath="igpp/xml/XMLParser.java"/>
+    </Class>
+    <Method classname="igpp.xml.XMLParser" name="getPath" signature="()Ljava/lang/String;" isStatic="false">
+      <SourceLine classname="igpp.xml.XMLParser" start="872" end="879" startBytecode="0" endBytecode="132" sourcefile="XMLParser.java" sourcepath="igpp/xml/XMLParser.java"/>
+    </Method>
+    <SourceLine classname="igpp.xml.XMLParser" start="875" end="875" startBytecode="21" endBytecode="21" sourcefile="XMLParser.java" sourcepath="igpp/xml/XMLParser.java"/>
+    <String value="java.io.File"/>
+  </BugInstance>
+  <BugInstance type="PATH_TRAVERSAL_IN" priority="2" abbrev="SECPTI" category="SECURITY">
+    <Class classname="igpp.xml.XMLParser">
+      <SourceLine classname="igpp.xml.XMLParser" sourcefile="XMLParser.java" sourcepath="igpp/xml/XMLParser.java"/>
+    </Class>
+    <Method classname="igpp.xml.XMLParser" name="parseXML" signature="(Ljava/lang/String;)Z" isStatic="false">
+      <SourceLine classname="igpp.xml.XMLParser" start="219" end="225" startBytecode="0" endBytecode="116" sourcefile="XMLParser.java" sourcepath="igpp/xml/XMLParser.java"/>
+    </Method>
+    <SourceLine classname="igpp.xml.XMLParser" start="221" end="221" startBytecode="13" endBytecode="13" sourcefile="XMLParser.java" sourcepath="igpp/xml/XMLParser.java"/>
+    <String value="java.io.FileInputStream"/>
+  </BugInstance>
+  <BugInstance type="REC_CATCH_EXCEPTION" priority="2" abbrev="REC" category="STYLE">
+    <Class classname="igpp.xml.XMLParser">
+      <SourceLine classname="igpp.xml.XMLParser" sourcefile="XMLParser.java" sourcepath="igpp/xml/XMLParser.java"/>
+    </Class>
+    <Method classname="igpp.xml.XMLParser" name="getNodes" signature="(Ligpp/xml/XMLParser;Ljava/lang/String;)Ljava/util/ArrayList;" isStatic="false">
+      <SourceLine classname="igpp.xml.XMLParser" start="1109" end="1140" startBytecode="0" endBytecode="575" sourcefile="XMLParser.java" sourcepath="igpp/xml/XMLParser.java"/>
+    </Method>
+    <SourceLine classname="igpp.xml.XMLParser" start="1136" end="1136" startBytecode="168" endBytecode="168" sourcefile="XMLParser.java" sourcepath="igpp/xml/XMLParser.java"/>
+  </BugInstance>
+  <BugInstance type="REC_CATCH_EXCEPTION" priority="2" abbrev="REC" category="STYLE">
+    <Class classname="igpp.xml.XMLParser">
+      <SourceLine classname="igpp.xml.XMLParser" sourcefile="XMLParser.java" sourcepath="igpp/xml/XMLParser.java"/>
+    </Class>
+    <Method classname="igpp.xml.XMLParser" name="getValues" signature="(Ljava/lang/String;Z)Ljava/util/ArrayList;" isStatic="false">
+      <SourceLine classname="igpp.xml.XMLParser" start="1211" end="1247" startBytecode="0" endBytecode="613" sourcefile="XMLParser.java" sourcepath="igpp/xml/XMLParser.java"/>
+    </Method>
+    <SourceLine classname="igpp.xml.XMLParser" start="1241" end="1241" startBytecode="195" endBytecode="195" sourcefile="XMLParser.java" sourcepath="igpp/xml/XMLParser.java"/>
+  </BugInstance>
+  <BugInstance type="REC_CATCH_EXCEPTION" priority="2" abbrev="REC" category="STYLE">
+    <Class classname="igpp.xml.XMLParser">
+      <SourceLine classname="igpp.xml.XMLParser" sourcefile="XMLParser.java" sourcepath="igpp/xml/XMLParser.java"/>
+    </Class>
+    <Method classname="igpp.xml.XMLParser" name="setMember" signature="(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;" isStatic="false">
+      <SourceLine classname="igpp.xml.XMLParser" start="550" end="572" startBytecode="0" endBytecode="413" sourcefile="XMLParser.java" sourcepath="igpp/xml/XMLParser.java"/>
+    </Method>
+    <SourceLine classname="igpp.xml.XMLParser" start="568" end="568" startBytecode="102" endBytecode="102" sourcefile="XMLParser.java" sourcepath="igpp/xml/XMLParser.java"/>
+  </BugInstance>
+  <BugInstance type="REC_CATCH_EXCEPTION" priority="2" abbrev="REC" category="STYLE">
+    <Class classname="igpp.xml.XMLParser">
+      <SourceLine classname="igpp.xml.XMLParser" sourcefile="XMLParser.java" sourcepath="igpp/xml/XMLParser.java"/>
+    </Class>
+    <Method classname="igpp.xml.XMLParser" name="setMember" signature="(Ljava/lang/String;Lorg/w3c/dom/Node;)V" isStatic="false">
+      <SourceLine classname="igpp.xml.XMLParser" start="624" end="644" startBytecode="0" endBytecode="328" sourcefile="XMLParser.java" sourcepath="igpp/xml/XMLParser.java"/>
+    </Method>
+    <SourceLine classname="igpp.xml.XMLParser" start="641" end="641" startBytecode="96" endBytecode="96" sourcefile="XMLParser.java" sourcepath="igpp/xml/XMLParser.java"/>
+  </BugInstance>
+  <BugInstance type="REC_CATCH_EXCEPTION" priority="2" abbrev="REC" category="STYLE">
+    <Class classname="igpp.xml.XMLParser">
+      <SourceLine classname="igpp.xml.XMLParser" sourcefile="XMLParser.java" sourcepath="igpp/xml/XMLParser.java"/>
+    </Class>
+    <Method classname="igpp.xml.XMLParser" name="toString" signature="()Ljava/lang/String;" isStatic="false">
+      <SourceLine classname="igpp.xml.XMLParser" start="282" end="305" startBytecode="0" endBytecode="314" sourcefile="XMLParser.java" sourcepath="igpp/xml/XMLParser.java"/>
+    </Method>
+    <SourceLine classname="igpp.xml.XMLParser" start="302" end="302" startBytecode="84" endBytecode="84" sourcefile="XMLParser.java" sourcepath="igpp/xml/XMLParser.java"/>
+  </BugInstance>
+  <BugInstance type="SBSC_USE_STRINGBUFFER_CONCATENATION" priority="2" abbrev="SBSC" category="PERFORMANCE">
+    <Class classname="igpp.xml.XMLParser">
+      <SourceLine classname="igpp.xml.XMLParser" sourcefile="XMLParser.java" sourcepath="igpp/xml/XMLParser.java"/>
+    </Class>
+    <Method classname="igpp.xml.XMLParser" name="getNodeText" signature="(Lorg/w3c/dom/Node;)Ljava/lang/String;" isStatic="true">
+      <SourceLine classname="igpp.xml.XMLParser" start="797" end="811" startBytecode="0" endBytecode="224" sourcefile="XMLParser.java" sourcepath="igpp/xml/XMLParser.java"/>
+    </Method>
+    <SourceLine classname="igpp.xml.XMLParser" start="805" end="805" startBytecode="45" endBytecode="45" sourcefile="XMLParser.java" sourcepath="igpp/xml/XMLParser.java"/>
+  </BugInstance>
+  <BugInstance type="SBSC_USE_STRINGBUFFER_CONCATENATION" priority="2" abbrev="SBSC" category="PERFORMANCE">
+    <Class classname="igpp.xml.XMLParser">
+      <SourceLine classname="igpp.xml.XMLParser" sourcefile="XMLParser.java" sourcepath="igpp/xml/XMLParser.java"/>
+    </Class>
+    <Method classname="igpp.xml.XMLParser" name="getTaggedList" signature="(ILjava/lang/String;Ljava/util/ArrayList;)Ljava/lang/String;" isStatic="true">
+      <SourceLine classname="igpp.xml.XMLParser" start="1319" end="1325" startBytecode="0" endBytecode="191" sourcefile="XMLParser.java" sourcepath="igpp/xml/XMLParser.java"/>
+    </Method>
+    <SourceLine classname="igpp.xml.XMLParser" start="1323" end="1323" startBytecode="18" endBytecode="18" sourcefile="XMLParser.java" sourcepath="igpp/xml/XMLParser.java"/>
+  </BugInstance>
+  <BugInstance type="SBSC_USE_STRINGBUFFER_CONCATENATION" priority="2" abbrev="SBSC" category="PERFORMANCE">
+    <Class classname="igpp.xml.XMLParser">
+      <SourceLine classname="igpp.xml.XMLParser" sourcefile="XMLParser.java" sourcepath="igpp/xml/XMLParser.java"/>
+    </Class>
+    <Method classname="igpp.xml.XMLParser" name="getTaggedList" signature="(ILjava/lang/String;Ljava/util/ArrayList;Z)Ljava/lang/String;" isStatic="false">
+      <SourceLine classname="igpp.xml.XMLParser" start="1337" end="1343" startBytecode="0" endBytecode="217" sourcefile="XMLParser.java" sourcepath="igpp/xml/XMLParser.java"/>
+    </Method>
+    <SourceLine classname="igpp.xml.XMLParser" start="1341" end="1341" startBytecode="20" endBytecode="20" sourcefile="XMLParser.java" sourcepath="igpp/xml/XMLParser.java"/>
+  </BugInstance>
+  <BugInstance type="SBSC_USE_STRINGBUFFER_CONCATENATION" priority="2" abbrev="SBSC" category="PERFORMANCE">
+    <Class classname="igpp.xml.XMLParser">
+      <SourceLine classname="igpp.xml.XMLParser" sourcefile="XMLParser.java" sourcepath="igpp/xml/XMLParser.java"/>
+    </Class>
+    <Method classname="igpp.xml.XMLParser" name="indent" signature="(I)Ljava/lang/String;" isStatic="true">
+      <SourceLine classname="igpp.xml.XMLParser" start="913" end="915" startBytecode="0" endBytecode="125" sourcefile="XMLParser.java" sourcepath="igpp/xml/XMLParser.java"/>
+    </Method>
+    <SourceLine classname="igpp.xml.XMLParser" start="914" end="914" startBytecode="10" endBytecode="10" sourcefile="XMLParser.java" sourcepath="igpp/xml/XMLParser.java"/>
+  </BugInstance>
+  <BugInstance type="SF_SWITCH_NO_DEFAULT" priority="2" abbrev="SF" category="STYLE">
+    <Class classname="igpp.xml.XMLParser">
+      <SourceLine classname="igpp.xml.XMLParser" sourcefile="XMLParser.java" sourcepath="igpp/xml/XMLParser.java"/>
+    </Class>
+    <Method classname="igpp.xml.XMLParser" name="processNode" signature="(Lorg/w3c/dom/Node;)V" isStatic="false">
+      <SourceLine classname="igpp.xml.XMLParser" start="515" end="537" startBytecode="0" endBytecode="282" sourcefile="XMLParser.java" sourcepath="igpp/xml/XMLParser.java"/>
+    </Method>
+    <SourceLine classname="igpp.xml.XMLParser" start="526" end="530" startBytecode="56" endBytecode="93" sourcefile="XMLParser.java" sourcepath="igpp/xml/XMLParser.java"/>
+  </BugInstance>
+  <Errors errors="0" missingClasses="0"></Errors>
+  <FindBugsSummary timestamp="Tue, 12 Aug 2014 12:47:28 +0100" total_classes="10" referenced_classes="83" total_bugs="43" total_size="1377" num_packages="2" vm_version="24.45-b08" cpu_seconds="20.91" clock_seconds="131.71" peak_mbytes="248.98" alloc_mbytes="683.00" gc_seconds="0.18" priority_2="32" priority_1="11">
+    <PackageStats package="igpp.xml" total_bugs="43" total_types="9" total_size="1372" priority_2="32" priority_1="11">
+      <ClassStats class="igpp.xml.Pair" sourceFile="Pair.java" interface="false" size="33" bugs="0"/>
+      <ClassStats class="igpp.xml.ToPDF" sourceFile="ToPDF.java" interface="false" size="67" bugs="2" priority_2="1" priority_1="1"/>
+      <ClassStats class="igpp.xml.ToXHTML" sourceFile="ToXHTML.java" interface="false" size="80" bugs="5" priority_2="3" priority_1="2"/>
+      <ClassStats class="igpp.xml.ToXHTML$1" sourceFile="ToXHTML.java" interface="false" size="11" bugs="0"/>
+      <ClassStats class="igpp.xml.ToXML" sourceFile="ToXML.java" interface="false" size="103" bugs="5" priority_2="3" priority_1="2"/>
+      <ClassStats class="igpp.xml.ToXML2" sourceFile="ToXML2.java" interface="false" size="77" bugs="5" priority_2="1" priority_1="4"/>
+      <ClassStats class="igpp.xml.Transform" sourceFile="Transform.java" interface="false" size="77" bugs="4" priority_2="4"/>
+      <ClassStats class="igpp.xml.XMLGrep" sourceFile="XMLGrep.java" interface="false" size="391" bugs="4" priority_2="3" priority_1="1"/>
+      <ClassStats class="igpp.xml.XMLParser" sourceFile="XMLParser.java" interface="false" size="533" bugs="18" priority_2="17" priority_1="1"/>
+    </PackageStats>
+    <PackageStats package="xmlmaster2" total_bugs="0" total_types="1" total_size="5">
+      <ClassStats class="xmlmaster2.Xmlmaster2" sourceFile="Xmlmaster2.java" interface="false" size="5" bugs="0"/>
+    </PackageStats>
+    <FindBugsProfile>
+      <ClassProfile name="edu.umd.cs.findbugs.classfile.engine.ClassInfoAnalysisEngine" totalMilliseconds="299" invocations="639" avgMicrosecondsPerInvocation="468" maxMicrosecondsPerInvocation="21692" standardDeviationMircosecondsPerInvocation="1038"/>
+      <ClassProfile name="edu.umd.cs.findbugs.classfile.impl.ZipCodeBaseFactory" totalMilliseconds="262" invocations="26" avgMicrosecondsPerInvocation="10084" maxMicrosecondsPerInvocation="64115" standardDeviationMircosecondsPerInvocation="15986"/>
+      <ClassProfile name="edu.umd.cs.findbugs.FindBugs2" totalMilliseconds="207" invocations="2" avgMicrosecondsPerInvocation="103630" maxMicrosecondsPerInvocation="185791" standardDeviationMircosecondsPerInvocation="82160"/>
+      <ClassProfile name="edu.umd.cs.findbugs.classfile.engine.ClassDataAnalysisEngine" totalMilliseconds="201" invocations="640" avgMicrosecondsPerInvocation="315" maxMicrosecondsPerInvocation="18231" standardDeviationMircosecondsPerInvocation="1896"/>
+      <ClassProfile name="edu.umd.cs.findbugs.classfile.engine.bcel.IsNullValueDataflowFactory" totalMilliseconds="176" invocations="169" avgMicrosecondsPerInvocation="1047" maxMicrosecondsPerInvocation="17502" standardDeviationMircosecondsPerInvocation="1886"/>
+      <ClassProfile name="edu.umd.cs.findbugs.classfile.engine.bcel.UnconditionalValueDerefDataflowFactory" totalMilliseconds="155" invocations="169" avgMicrosecondsPerInvocation="922" maxMicrosecondsPerInvocation="17219" standardDeviationMircosecondsPerInvocation="1912"/>
+      <ClassProfile name="edu.umd.cs.findbugs.ba.npe.NullDerefAndRedundantComparisonFinder" totalMilliseconds="154" invocations="169" avgMicrosecondsPerInvocation="916" maxMicrosecondsPerInvocation="6817" standardDeviationMircosecondsPerInvocation="1124"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.StreamResourceTracker" totalMilliseconds="148" invocations="164" avgMicrosecondsPerInvocation="905" maxMicrosecondsPerInvocation="5276" standardDeviationMircosecondsPerInvocation="891"/>
+      <ClassProfile name="edu.umd.cs.findbugs.classfile.engine.bcel.ValueNumberDataflowFactory" totalMilliseconds="138" invocations="172" avgMicrosecondsPerInvocation="806" maxMicrosecondsPerInvocation="14863" standardDeviationMircosecondsPerInvocation="1736"/>
+      <ClassProfile name="edu.umd.cs.findbugs.classfile.engine.bcel.TypeDataflowFactory" totalMilliseconds="129" invocations="171" avgMicrosecondsPerInvocation="754" maxMicrosecondsPerInvocation="6240" standardDeviationMircosecondsPerInvocation="1072"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.FindRefComparison$SpecialTypeAnalysis" totalMilliseconds="120" invocations="143" avgMicrosecondsPerInvocation="844" maxMicrosecondsPerInvocation="7495" standardDeviationMircosecondsPerInvocation="1166"/>
+      <ClassProfile name="edu.umd.cs.findbugs.classfile.engine.bcel.CFGFactory" totalMilliseconds="107" invocations="169" avgMicrosecondsPerInvocation="637" maxMicrosecondsPerInvocation="4645" standardDeviationMircosecondsPerInvocation="703"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.FieldItemSummary" totalMilliseconds="72" invocations="83" avgMicrosecondsPerInvocation="876" maxMicrosecondsPerInvocation="4410" standardDeviationMircosecondsPerInvocation="1012"/>
+      <ClassProfile name="edu.umd.cs.findbugs.ba.obl.ObligationAnalysis" totalMilliseconds="63" invocations="156" avgMicrosecondsPerInvocation="408" maxMicrosecondsPerInvocation="3414" standardDeviationMircosecondsPerInvocation="508"/>
+      <ClassProfile name="edu.umd.cs.findbugs.OpcodeStack$JumpInfoFactory" totalMilliseconds="57" invocations="398" avgMicrosecondsPerInvocation="143" maxMicrosecondsPerInvocation="1382" standardDeviationMircosecondsPerInvocation="159"/>
+      <ClassProfile name="edu.umd.cs.findbugs.util.TopologicalSort" totalMilliseconds="56" invocations="605" avgMicrosecondsPerInvocation="94" maxMicrosecondsPerInvocation="1303" standardDeviationMircosecondsPerInvocation="168"/>
+      <ClassProfile name="edu.umd.cs.findbugs.classfile.engine.bcel.ConstantDataflowFactory" totalMilliseconds="51" invocations="169" avgMicrosecondsPerInvocation="306" maxMicrosecondsPerInvocation="5444" standardDeviationMircosecondsPerInvocation="586"/>
+      <ClassProfile name="edu.umd.cs.findbugs.classfile.engine.bcel.LiveLocalStoreDataflowFactory" totalMilliseconds="46" invocations="169" avgMicrosecondsPerInvocation="272" maxMicrosecondsPerInvocation="7141" standardDeviationMircosecondsPerInvocation="692"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.FindOpenStream" totalMilliseconds="35" invocations="10" avgMicrosecondsPerInvocation="3564" maxMicrosecondsPerInvocation="10102" standardDeviationMircosecondsPerInvocation="3512"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.LoadOfKnownNullValue" totalMilliseconds="28" invocations="10" avgMicrosecondsPerInvocation="2814" maxMicrosecondsPerInvocation="11149" standardDeviationMircosecondsPerInvocation="3247"/>
+    </FindBugsProfile>
+  </FindBugsSummary>
+  <ClassFeatures></ClassFeatures>
+  <History></History>
+</BugCollection>

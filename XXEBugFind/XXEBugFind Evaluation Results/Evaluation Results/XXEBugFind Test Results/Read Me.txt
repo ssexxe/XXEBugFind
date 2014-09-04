@@ -1,0 +1,2 @@
+The .txt files are the results of running XXEBugFind on the appropriate jar files.
+Use --h option to see how to use XXEBugFind
